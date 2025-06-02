@@ -5,6 +5,7 @@ import 'mode_selection_screen.dart';
 import 'player_selection_screen.dart';
 import 'game_board_screen.dart';
 import 'end_game_screen.dart';
+import 'login_screen.dart';
 
 void main() {
   runApp(const MonopolyCityApp());
@@ -24,6 +25,7 @@ class MonopolyCityApp extends StatelessWidget {
       initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/mode': (context) => const ModeSelectionScreen(),
         '/player': (context) => const PlayerSelectionScreen(),

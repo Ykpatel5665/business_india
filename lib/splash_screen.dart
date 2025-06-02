@@ -15,9 +15,9 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     print('SplashScreen: Timer started');
     Timer(const Duration(seconds: 2), () {
-      print('SplashScreen: Timer ended, navigating to home');
+      print('SplashScreen: Timer ended, navigating to login');
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/login');
       }
     });
   }
