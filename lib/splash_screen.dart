@@ -1,8 +1,26 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'responsive_layout.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    print('SplashScreen: Timer started');
+    Timer(const Duration(seconds: 2), () {
+      print('SplashScreen: Timer ended, navigating to home');
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

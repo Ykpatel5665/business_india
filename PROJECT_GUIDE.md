@@ -14,6 +14,7 @@
 
 ## 1. Project Progress Log
 - **[YYYY-MM-DD]**: [Summary of work done, pending tasks, next steps]
+- Splash screen now stays visible for 2 seconds before automatically navigating to the home screen.
 
 ---
 
