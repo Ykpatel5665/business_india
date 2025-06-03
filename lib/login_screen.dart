@@ -131,192 +131,197 @@ class _LoginProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Restore theme variable for text styles
+    final theme = Theme.of(context);
     final selectedAvatarIndex = state.selectedAvatarIndex;
     final _nameController = state._nameController;
     final avatars = state.avatars;
     final isValid = state.isValid;
-    return Center(
-      child: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.topCenter,
-                child: Image.asset(
-                  'assets/loginboard.png',
-                  width: MediaQuery.of(context).size.width * 0.7 > 420 ? 420 : MediaQuery.of(context).size.width * 0.7,
-                  fit: BoxFit.contain,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double baseWidth = 390; // iPhone 12/13/14 width as base
+        double scale = (constraints.maxWidth / baseWidth).clamp(0.85, 1.5);
+        double maxContentWidth = constraints.maxWidth < 700 ? constraints.maxWidth : 600 * scale;
+        return Center(
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxContentWidth,
+                minHeight: MediaQuery.of(context).size.height,
               ),
-              const SizedBox(height: 24),
-              // Divider
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 2),
-                height: 2,
-                width: 220,
-                color: Colors.white.withOpacity(0.25),
-              ),
-              const SizedBox(height: 0),
-              // Profile header (smaller)
-              Text(
-                'Profile',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Selected avatar (smaller, centered)
-              if (selectedAvatarIndex != null)
-                Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 38,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 32,
-                        backgroundImage: AssetImage(avatars[selectedAvatarIndex]),
-                      ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 24.0 * scale, bottom: 12.0 * scale),
+                    child: Image.asset(
+                      'assets/loginboard.png',
+                      width: (constraints.maxWidth * 0.85).clamp(180.0, 700.0 * scale),
+                      fit: BoxFit.contain,
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.85),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _nameController.text.isEmpty ? 'Your Name' : _nameController.text,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: Colors.blue[900],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  ),
+                  SizedBox(height: 24 * scale),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 2 * scale),
+                    height: 2 * scale,
+                    width: 220 * scale,
+                    color: Colors.white.withOpacity(0.25),
+                  ),
+                  SizedBox(height: 0 * scale),
+                  Text(
+                    'Profile',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2 * scale,
+                      fontSize: (theme.textTheme.titleLarge?.fontSize ?? 24) * scale,
                     ),
-                  ],
-                ),
-              const SizedBox(height: 12),
-              // Avatar horizontal list (smaller)
-              SizedBox(
-                height: 60,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: avatars.length + 2, // Add 2 for start/end padding
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    if (index == 0 || index == avatars.length + 1) {
-                      // Transparent space at start and end
-                      return const SizedBox(width: 18);
-                    }
-                    final avatarIdx = index - 1;
-                    final isSelected = selectedAvatarIndex == avatarIdx;
-                    return GestureDetector(
-                      onTap: () {
-                        state.selectedAvatarIndex = avatarIdx;
-                        (state as dynamic).setState(() {});
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.greenAccent : Colors.transparent,
-                            width: 2,
-                          ),
-                          boxShadow: isSelected
-                              ? [BoxShadow(color: Colors.green.withOpacity(0.18), blurRadius: 8, offset: Offset(0, 2))]
-                              : [],
-                        ),
-                        child: CircleAvatar(
-                          radius: isSelected ? 26 : 22,
+                  ),
+                  SizedBox(height: 6 * scale),
+                  if (selectedAvatarIndex != null)
+                    Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 38 * scale,
                           backgroundColor: Colors.white,
                           child: CircleAvatar(
-                            radius: isSelected ? 22 : 18,
-                            backgroundImage: AssetImage(avatars[avatarIdx]),
+                            radius: 32 * scale,
+                            backgroundImage: AssetImage(avatars[selectedAvatarIndex]),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Name input (styled like reference, smaller, less attention-seeking)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 48.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50]?.withOpacity(0.75),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 6,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _nameController,
-                    onChanged: (_) {
-                      (state as dynamic).setState(() {});
-                    },
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your name',
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        SizedBox(height: 6 * scale),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 6 * scale),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.85),
+                            borderRadius: BorderRadius.circular(12 * scale),
+                          ),
+                          child: Text(
+                            _nameController.text.isEmpty ? 'Your Name' : _nameController.text,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: Colors.blue[900],
+                              fontWeight: FontWeight.w600,
+                              fontSize: (theme.textTheme.bodyLarge?.fontSize ?? 16) * scale,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  SizedBox(height: 12 * scale),
+                  SizedBox(
+                    height: 60 * scale,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: avatars.length + 2,
+                      separatorBuilder: (_, __) => SizedBox(width: 12 * scale),
+                      itemBuilder: (context, index) {
+                        if (index == 0 || index == avatars.length + 1) {
+                          return SizedBox(width: 18 * scale);
+                        }
+                        final avatarIdx = index - 1;
+                        final isSelected = selectedAvatarIndex == avatarIdx;
+                        return GestureDetector(
+                          onTap: () {
+                            state.selectedAvatarIndex = avatarIdx;
+                            (state as dynamic).setState(() {});
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            padding: EdgeInsets.all(2 * scale),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSelected ? Colors.greenAccent : Colors.transparent,
+                                width: 2 * scale,
+                              ),
+                              boxShadow: isSelected
+                                  ? [BoxShadow(color: Colors.green.withOpacity(0.18), blurRadius: 8 * scale, offset: Offset(0, 2 * scale))]
+                                  : [],
+                            ),
+                            child: CircleAvatar(
+                              radius: isSelected ? 26 * scale : 22 * scale,
+                              backgroundColor: Colors.white,
+                              child: CircleAvatar(
+                                radius: isSelected ? 22 * scale : 18 * scale,
+                                backgroundImage: AssetImage(avatars[avatarIdx]),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // 3D green DONE button (smaller, centered)
-              Center(
-                child: GestureDetector(
-                  onTap: isValid ? state._saveUserDataAndNavigate : null,
-                  child: AnimatedOpacity(
-                    opacity: isValid ? 1.0 : 0.5,
-                    duration: const Duration(milliseconds: 200),
+                  SizedBox(height: 16 * scale),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 48.0 * scale),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.greenAccent[400],
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.blue[50]?.withOpacity(0.75),
+                        borderRadius: BorderRadius.circular(14 * scale),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.green[900]!.withOpacity(0.28),
-                            offset: const Offset(0, 4),
-                            blurRadius: 10,
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 6 * scale,
+                            offset: Offset(0, 1 * scale),
                           ),
                         ],
-                        border: Border.all(color: Colors.green[800]!, width: 1.5),
                       ),
-                      child: Text(
-                        'DONE',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
+                      child: TextField(
+                        controller: _nameController,
+                        onChanged: (_) {
+                          (state as dynamic).setState(() {});
+                        },
+                        textAlign: TextAlign.center,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your name',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 10 * scale),
+                        ),
+                        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500, fontSize: (theme.textTheme.bodyLarge?.fontSize ?? 16) * scale),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16 * scale),
+                  Center(
+                    child: GestureDetector(
+                      onTap: isValid ? state._saveUserDataAndNavigate : null,
+                      child: AnimatedOpacity(
+                        opacity: isValid ? 1.0 : 0.5,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 36 * scale, vertical: 10 * scale),
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent[400],
+                            borderRadius: BorderRadius.circular(12 * scale),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.green[900]!.withOpacity(0.28),
+                                offset: Offset(0, 4 * scale),
+                                blurRadius: 10 * scale,
+                              ),
+                            ],
+                            border: Border.all(color: Colors.green[800]!, width: 1.5 * scale),
+                          ),
+                          child: Text(
+                            'DONE',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2 * scale,
+                              fontSize: (theme.textTheme.titleMedium?.fontSize ?? 18) * scale,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                  SizedBox(height: 24 * scale),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

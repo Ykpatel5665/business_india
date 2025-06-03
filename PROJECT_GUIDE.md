@@ -24,7 +24,11 @@
 ### UI/UX Rules
 - Use a consistent color palette, font, and button style across all screens.
 - Maintain uniform spacing and padding.
-- All screens must be responsive (mobile, tablet, desktop).
+- All screens must be fully responsive across mobile, tablet, and desktop devices.
+- UI elements (text, buttons, images, etc.) should scale proportionally based on screen size, ensuring content appears larger on bigger screens and appropriately sized on smaller screens.
+- Maintain consistent spacing, padding, and layout proportions regardless of device size—visual balance and alignment should remain uniform.
+- Use responsive layout techniques (e.g., MediaQuery, LayoutBuilder, or similar) to adapt content dynamically while preserving the overall design integrity.
+- Test all screens on multiple device sizes to ensure a seamless and consistent user experience.
 
 ### Code Principles
 - Follow DRY (Don't Repeat Yourself): Create reusable widgets/components.
