@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'responsive_layout.dart';
-import 'dart:math' as Math;
 
 // TODO: Import your theme and constants files here
 
@@ -341,67 +340,6 @@ class _LoginProfileContent extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-// FloatingCloud widget animates its child up and down smoothly.
-class FloatingCloud extends StatefulWidget {
-  final Widget child;
-  final double floatRange; // in logical pixels
-  final Duration duration;
-  final double initialOffset; // phase offset for staggered animation
-  const FloatingCloud({
-    required this.child,
-    this.floatRange = 18.0,
-    this.duration = const Duration(seconds: 4),
-    this.initialOffset = 0.0,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _FloatingCloudState createState() => _FloatingCloudState();
-}
-
-class _FloatingCloudState extends State<FloatingCloud> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _controller.repeat(reverse: true);
-    if (widget.initialOffset != 0.0) {
-      _controller.value = widget.initialOffset;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        // Use sine wave for smooth floating
-        final double offset = widget.floatRange * Math.sin(_animation.value * 2 * Math.pi);
-        return Transform.translate(
-          offset: Offset(0, offset),
-          child: child,
-        );
-      },
-      child: widget.child,
     );
   }
 }
