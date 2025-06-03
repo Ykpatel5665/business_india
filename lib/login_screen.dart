@@ -139,17 +139,16 @@ class _LoginProfileContent extends StatelessWidget {
     final isValid = state.isValid;
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Use MediaQuery to get a dynamic base width for scaling
         double baseWidth = MediaQuery.of(context).size.width < 500
-            ? 360 // typical small phone
+            ? 360
             : MediaQuery.of(context).size.width < 800
-                ? 430 // typical large phone
-                : 600; // tablet/desktop base
+                ? 430
+                : 600;
         double scale = (constraints.maxWidth / baseWidth).clamp(0.85, 1.5);
         double maxContentWidth = constraints.maxWidth < 700 ? constraints.maxWidth : 600 * scale;
         return Stack(
           children: [
-            // Main scrollable content
+            // Main scrollable content (behind the clouds)
             Center(
               child: SingleChildScrollView(
                 child: ConstrainedBox(
@@ -162,7 +161,7 @@ class _LoginProfileContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: 24.0 * scale, bottom: 12.0 * scale),
+                        padding: EdgeInsets.only(top: 48.0 * scale, bottom: 12.0 * scale),
                         child: Image.asset(
                           'assets/loginboard.png',
                           width: (constraints.maxWidth * 0.85).clamp(180.0, 700.0 * scale),
@@ -335,6 +334,47 @@ class _LoginProfileContent extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
+            ),
+            // Clouds around the header (randomized positions)
+            Positioned(
+              top: 12 * scale,
+              left: 40 * scale,
+              child: SvgPicture.asset(
+                'assets/cloud1.svg',
+                width: 240 * scale,
+                height: 140 * scale,
+                color: Colors.white.withOpacity(0.85),
+              ),
+            ),
+            Positioned(
+              top: 60 * scale,
+              right: 10 * scale,
+              child: SvgPicture.asset(
+                'assets/cloud2.svg',
+                width: 220 * scale,
+                height: 120 * scale,
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+            Positioned(
+              top: 120 * scale,
+              left: 0,
+              child: SvgPicture.asset(
+                'assets/cloud3.svg',
+                width: 180 * scale,
+                height: 110 * scale,
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
+            Positioned(
+              top: 160 * scale,
+              right: 60 * scale,
+              child: SvgPicture.asset(
+                'assets/cloud4.svg',
+                width: 160 * scale,
+                height: 100 * scale,
+                color: Colors.white.withOpacity(0.75),
               ),
             ),
           ],
