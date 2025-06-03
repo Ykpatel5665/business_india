@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'responsive_layout.dart';
 
 // TODO: Import your theme and constants files here
 
@@ -92,191 +93,228 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: _CheckeredBackground(
-        child: Stack(
-          children: [
-            // Clouds (placeholders)
-            Positioned(
-              top: 40,
-              left: 24,
-              child: _Cloud(size: 60),
+        child: ResponsiveLayout(
+          mobile: Builder(
+            builder: (context) => _LoginProfileContent(
+              state: this,
+              maxWidth: 420,
             ),
-            Positioned(
-              top: 100,
-              right: 32,
-              child: _Cloud(size: 40),
+          ),
+          tablet: Center(
+            child: SizedBox(
+              width: 500,
+              child: _LoginProfileContent(
+                state: this,
+                maxWidth: 500,
+              ),
             ),
-            Positioned(
-              bottom: 80,
-              left: 40,
-              child: _Cloud(size: 50),
+          ),
+          desktop: Center(
+            child: SizedBox(
+              width: 600,
+              child: _LoginProfileContent(
+                state: this,
+                maxWidth: 600,
+              ),
             ),
-            // Main content
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 24),
-                      // Logo/title image (responsive, higher and larger)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 0.0, bottom: 0.0),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            double maxWidth = constraints.maxWidth;
-                            double imageWidth = maxWidth * 0.7;
-                            if (imageWidth < 200) imageWidth = 200;
-                            if (imageWidth > 420) imageWidth = 420;
-                            return Image.asset(
-                              'assets/loginboard.png',
-                              width: imageWidth,
-                              fit: BoxFit.contain,
-                            );
-                          },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginProfileContent extends StatelessWidget {
+  final _LoginScreenState state;
+  final double maxWidth;
+  const _LoginProfileContent({required this.state, required this.maxWidth});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Restore theme variable for text styles
+    final selectedAvatarIndex = state.selectedAvatarIndex;
+    final _nameController = state._nameController;
+    final avatars = state.avatars;
+    final isValid = state.isValid;
+    return Center(
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Image.asset(
+                  'assets/loginboard.png',
+                  width: MediaQuery.of(context).size.width * 0.7 > 420 ? 420 : MediaQuery.of(context).size.width * 0.7,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Divider
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 2),
+                height: 2,
+                width: 220,
+                color: Colors.white.withOpacity(0.25),
+              ),
+              const SizedBox(height: 0),
+              // Profile header (smaller)
+              Text(
+                'Profile',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              // Selected avatar (smaller, centered)
+              if (selectedAvatarIndex != null)
+                Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 38,
+                      backgroundColor: Colors.white,
+                      child: CircleAvatar(
+                        radius: 32,
+                        backgroundImage: AssetImage(avatars[selectedAvatarIndex]),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _nameController.text.isEmpty ? 'Your Name' : _nameController.text,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.blue[900],
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      // Divider
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 2),
-                        height: 2,
-                        width: 220,
-                        color: Colors.white.withOpacity(0.25),
-                      ),
-                      const SizedBox(height: 0),
-                      // Profile header (shifted up)
-                      Text(
-                        'Profile',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      // Selected avatar (centered, larger)
-                      if (selectedAvatarIndex != null)
-                        Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 54,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 48,
-                                backgroundImage: AssetImage(avatars[selectedAvatarIndex!]),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.85),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Text(
-                                _nameController.text.isEmpty ? 'Your Name' : _nameController.text,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.blue[900],
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: 18),
-                      // Avatar horizontal list
-                      SizedBox(
-                        height: 90,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: avatars.length,
-                          separatorBuilder: (_, __) => const SizedBox(width: 18),
-                          itemBuilder: (context, index) {
-                            final isSelected = selectedAvatarIndex == index;
-                            return GestureDetector(
-                              onTap: () => setState(() => selectedAvatarIndex = index),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSelected ? Colors.greenAccent : Colors.transparent,
-                                    width: 3,
-                                  ),
-                                  boxShadow: isSelected
-                                      ? [BoxShadow(color: Colors.green.withOpacity(0.25), blurRadius: 12, offset: Offset(0, 4))]
-                                      : [],
-                                ),
-                                child: CircleAvatar(
-                                  radius: isSelected ? 38 : 32,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                    radius: isSelected ? 34 : 28,
-                                    backgroundImage: AssetImage(avatars[index]),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Name input
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: TextField(
-                          controller: _nameController,
-                          onChanged: (_) => setState(() {}),
-                          decoration: InputDecoration(
-                            labelText: 'Enter your name',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                            filled: true,
-                            fillColor: Colors.white,
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 12),
+              // Avatar horizontal list (smaller)
+              SizedBox(
+                height: 60,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: avatars.length + 2, // Add 2 for start/end padding
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    if (index == 0 || index == avatars.length + 1) {
+                      // Transparent space at start and end
+                      return const SizedBox(width: 18);
+                    }
+                    final avatarIdx = index - 1;
+                    final isSelected = selectedAvatarIndex == avatarIdx;
+                    return GestureDetector(
+                      onTap: () {
+                        state.selectedAvatarIndex = avatarIdx;
+                        (state as dynamic).setState(() {});
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? Colors.greenAccent : Colors.transparent,
+                            width: 2,
                           ),
-                          style: theme.textTheme.titleMedium,
+                          boxShadow: isSelected
+                              ? [BoxShadow(color: Colors.green.withOpacity(0.18), blurRadius: 8, offset: Offset(0, 2))]
+                              : [],
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      // 3D green DONE button
-                      GestureDetector(
-                        onTap: isValid ? _saveUserDataAndNavigate : null,
-                        child: AnimatedOpacity(
-                          opacity: isValid ? 1.0 : 0.5,
-                          duration: const Duration(milliseconds: 200),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 18),
-                            decoration: BoxDecoration(
-                              color: Colors.greenAccent[400],
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.green[900]!.withOpacity(0.35),
-                                  offset: const Offset(0, 6),
-                                  blurRadius: 16,
-                                ),
-                              ],
-                              border: Border.all(color: Colors.green[800]!, width: 2),
-                            ),
-                            child: Text(
-                              'DONE',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 2,
-                              ),
-                            ),
+                        child: CircleAvatar(
+                          radius: isSelected ? 26 : 22,
+                          backgroundColor: Colors.white,
+                          child: CircleAvatar(
+                            radius: isSelected ? 22 : 18,
+                            backgroundImage: AssetImage(avatars[avatarIdx]),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Name input (styled like reference, smaller, less attention-seeking)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue[50]?.withOpacity(0.75),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 6,
+                        offset: Offset(0, 1),
+                      ),
                     ],
+                  ),
+                  child: TextField(
+                    controller: _nameController,
+                    onChanged: (_) {
+                      (state as dynamic).setState(() {});
+                    },
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your name',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              // 3D green DONE button (smaller, centered)
+              Center(
+                child: GestureDetector(
+                  onTap: isValid ? state._saveUserDataAndNavigate : null,
+                  child: AnimatedOpacity(
+                    opacity: isValid ? 1.0 : 0.5,
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent[400],
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green[900]!.withOpacity(0.28),
+                            offset: const Offset(0, 4),
+                            blurRadius: 10,
+                          ),
+                        ],
+                        border: Border.all(color: Colors.green[800]!, width: 1.5),
+                      ),
+                      child: Text(
+                        'DONE',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
