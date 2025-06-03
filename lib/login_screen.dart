@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'responsive_layout.dart';
+import 'dart:math' as math;
 
 // TODO: Import your theme and constants files here
 
@@ -337,47 +338,136 @@ class _LoginProfileContent extends StatelessWidget {
               ),
             ),
             // Clouds around the header (randomized positions)
-            Positioned(
-              top: 12 * scale,
+            _FloatingCloud(
+              initialTop: 12 * scale,
               left: 40 * scale,
-              child: SvgPicture.asset(
-                'assets/cloud1.svg',
-                width: 240 * scale,
-                height: 140 * scale,
-                color: Colors.white.withOpacity(0.85),
-              ),
+              right: null,
+              width: 240 * scale,
+              height: 140 * scale,
+              asset: 'assets/cloud1.svg',
+              opacity: 0.85,
+              scale: scale,
+              phase: 0,
             ),
-            Positioned(
-              top: 60 * scale,
+            _FloatingCloud(
+              initialTop: 60 * scale,
+              left: null,
               right: 10 * scale,
-              child: SvgPicture.asset(
-                'assets/cloud2.svg',
-                width: 220 * scale,
-                height: 120 * scale,
-                color: Colors.white.withOpacity(0.8),
-              ),
+              width: 220 * scale,
+              height: 120 * scale,
+              asset: 'assets/cloud2.svg',
+              opacity: 0.8,
+              scale: scale,
+              phase: 1,
             ),
-            Positioned(
-              top: 120 * scale,
+            _FloatingCloud(
+              initialTop: 120 * scale,
               left: 0,
-              child: SvgPicture.asset(
-                'assets/cloud3.svg',
-                width: 180 * scale,
-                height: 110 * scale,
-                color: Colors.white.withOpacity(0.7),
-              ),
+              right: null,
+              width: 180 * scale,
+              height: 110 * scale,
+              asset: 'assets/cloud3.svg',
+              opacity: 0.7,
+              scale: scale,
+              phase: 2,
             ),
-            Positioned(
-              top: 160 * scale,
+            _FloatingCloud(
+              initialTop: 160 * scale,
+              left: null,
               right: 60 * scale,
-              child: SvgPicture.asset(
-                'assets/cloud4.svg',
-                width: 160 * scale,
-                height: 100 * scale,
-                color: Colors.white.withOpacity(0.75),
-              ),
+              width: 160 * scale,
+              height: 100 * scale,
+              asset: 'assets/cloud4.svg',
+              opacity: 0.75,
+              scale: scale,
+              phase: 3,
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class _FloatingCloud extends StatefulWidget {
+  final double initialTop;
+  final double? left;
+  final double? right;
+  final double width;
+  final double height;
+  final String asset;
+  final double opacity;
+  final double scale;
+  final int phase;
+  const _FloatingCloud({
+    required this.initialTop,
+    this.left,
+    this.right,
+    required this.width,
+    required this.height,
+    required this.asset,
+    required this.opacity,
+    required this.scale,
+    required this.phase,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_FloatingCloud> createState() => _FloatingCloudState();
+}
+
+class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // Sine wave for floating, phase offset for each cloud
+        final double t = _controller.value * 2 * math.pi;
+        double floatOffset;
+        switch (widget.phase) {
+          case 0:
+            floatOffset = 10.0 * widget.scale * math.sin(t);
+            break;
+          case 1:
+            floatOffset = 10.0 * widget.scale * math.cos(t);
+            break;
+          case 2:
+            floatOffset = 10.0 * widget.scale * math.sin(t + 1);
+            break;
+          case 3:
+            floatOffset = 10.0 * widget.scale * math.cos(t + 1);
+            break;
+          default:
+            floatOffset = 0.0;
+        }
+        return Positioned(
+          top: widget.initialTop + floatOffset,
+          left: widget.left,
+          right: widget.right,
+          child: SvgPicture.asset(
+            widget.asset,
+            width: widget.width,
+            height: widget.height,
+            color: Colors.white.withOpacity(widget.opacity),
+          ),
         );
       },
     );
