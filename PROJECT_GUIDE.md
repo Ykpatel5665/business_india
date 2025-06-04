@@ -16,6 +16,7 @@
 - **[Date]**: [Add new entries daily or as progress is made]
 - Splash screen now stays visible for 2 seconds before automatically navigating to the home screen.
 - Full-screen, animated, and responsive login screen scaffolded. User selects avatar and enters name before accessing home screen. Navigation updated to show login after splash.
+- **[2025-06-04]**: Identified a limitation in the current responsive layout logic. The app uses fixed breakpoints (mobile, tablet, desktop) and fixed maxWidth/scale for content, which can cause scrollbars or layout issues on in-between or non-standard screen sizes. Need to implement a more fluid, adaptive layout that works for all possible screen dimensions, not just common device classes.
 
 ---
 
@@ -29,6 +30,7 @@
 - Maintain consistent spacing, padding, and layout proportions regardless of device size—visual balance and alignment should remain uniform.
 - Use responsive layout techniques (e.g., MediaQuery, LayoutBuilder, or similar) to adapt content dynamically while preserving the overall design integrity.
 - Test all screens on multiple device sizes to ensure a seamless and consistent user experience.
+- Responsive layouts must not only support mobile, tablet, and desktop breakpoints, but also adapt fluidly to any screen size or aspect ratio. Avoid fixed widths and heights where possible; prefer flexible, percentage-based, or adaptive sizing to prevent scrollbars and overflow on edge cases. Test on a wide range of screen sizes, including in-between and unusual dimensions.
 
 ### Code Principles
 - Follow DRY (Don't Repeat Yourself): Create reusable widgets/components.

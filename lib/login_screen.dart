@@ -139,20 +139,22 @@ class _LoginProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = Theme.of(context); // Restore theme for text styles
     final selectedAvatarIndex = state.selectedAvatarIndex;
     final _nameController = state._nameController;
     final avatars = state.avatars;
     final isValid = state.isValid;
     return LayoutBuilder(
       builder: (context, constraints) {
-        double baseWidth = MediaQuery.of(context).size.width < 500
-            ? 360
-            : MediaQuery.of(context).size.width < 800
-                ? 430
-                : 600;
-        double scale = (constraints.maxWidth / baseWidth).clamp(0.85, 1.5);
-        double maxContentWidth = constraints.maxWidth < 700 ? constraints.maxWidth : 600 * scale;
+        // Fluid, adaptive scaling based on available width and height
+        final screenHeight = MediaQuery.of(context).size.height;
+        // Use a flexible base width and height for scaling
+        double baseWidth = 420.0;
+        double baseHeight = 800.0;
+        double widthScale = (constraints.maxWidth / baseWidth).clamp(0.7, 1.2);
+        double heightScale = (screenHeight / baseHeight).clamp(0.7, 1.2);
+        double scale = widthScale < heightScale ? widthScale : heightScale;
+        double maxContentWidth = constraints.maxWidth * 0.98;
         return Stack(
           children: [
             // Main scrollable content (behind the clouds)
@@ -161,7 +163,7 @@ class _LoginProfileContent extends StatelessWidget {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: maxContentWidth,
-                    minHeight: MediaQuery.of(context).size.height,
+                    minHeight: screenHeight * 0.98,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -171,7 +173,7 @@ class _LoginProfileContent extends StatelessWidget {
                         padding: EdgeInsets.only(top: 48.0 * scale, bottom: 12.0 * scale),
                         child: Image.asset(
                           'assets/loginboard.png',
-                          width: (constraints.maxWidth * 0.85).clamp(180.0, 700.0 * scale),
+                          width: (maxContentWidth * 0.85).clamp(160.0, maxContentWidth),
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -345,11 +347,11 @@ class _LoginProfileContent extends StatelessWidget {
             ),
             // Clouds around the header (randomized positions)
             _FloatingCloud(
-              initialTop: 12 * scale,
+              initialTop: 8 * scale,
               left: 40 * scale,
               right: null,
-              width: 240 * scale,
-              height: 140 * scale,
+              width: 312 * scale,
+              height: 182 * scale, 
               asset: 'assets/cloud1.svg',
               opacity: 0.85,
               scale: scale,
@@ -359,16 +361,16 @@ class _LoginProfileContent extends StatelessWidget {
               initialTop: 60 * scale,
               left: null,
               right: 10 * scale,
-              width: 220 * scale,
-              height: 120 * scale,
+              width: 240 * scale, 
+              height: 140 * scale, 
               asset: 'assets/cloud2.svg',
               opacity: 0.8,
               scale: scale,
               phase: 1,
             ),
             _FloatingCloud(
-              initialTop: 120 * scale,
-              left: 0,
+              initialTop: 200 * scale, // moved lower from 120
+              left: 40 * scale, // moved right from 0
               right: null,
               width: 180 * scale,
               height: 110 * scale,
@@ -378,7 +380,7 @@ class _LoginProfileContent extends StatelessWidget {
               phase: 2,
             ),
             _FloatingCloud(
-              initialTop: 160 * scale,
+              initialTop: 200 * scale,
               left: null,
               right: 60 * scale,
               width: 160 * scale,
@@ -405,6 +407,7 @@ class _FloatingCloud extends StatefulWidget {
   final double opacity;
   final double scale;
   final int phase;
+
   const _FloatingCloud({
     required this.initialTop,
     this.left,
@@ -430,7 +433,7 @@ class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProvide
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 11), // Slower and smoother
     )..repeat();
   }
 
@@ -445,7 +448,6 @@ class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProvide
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        // Sine wave for floating, phase offset for each cloud
         final double t = _controller.value * 2 * math.pi;
         double floatOffset;
         switch (widget.phase) {
@@ -465,14 +467,28 @@ class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProvide
             floatOffset = 0.0;
         }
         return Positioned(
-          top: widget.initialTop + floatOffset,
+          top: widget.initialTop * widget.scale + floatOffset,
           left: widget.left,
           right: widget.right,
-          child: SvgPicture.asset(
-            widget.asset,
-            width: widget.width,
-            height: widget.height,
-            color: Colors.white.withOpacity(widget.opacity),
+          child: Opacity(
+            opacity: widget.opacity,
+            child: Transform(
+              transform: Matrix4.identity()..scale(widget.scale, widget.scale),
+              alignment: Alignment.center,
+              child: widget.asset.endsWith('.svg')
+                  ? SvgPicture.asset(
+                      widget.asset,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      widget.asset,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    ),
+            ),
           ),
         );
       },
