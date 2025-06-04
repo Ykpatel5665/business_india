@@ -59,7 +59,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   int? selectedAvatarIndex;
   final TextEditingController _nameController = TextEditingController();
-  bool get isValid => selectedAvatarIndex != null && _nameController.text.trim().length >= 3;
+  bool get isValid =>
+      selectedAvatarIndex != null && _nameController.text.trim().length >= 3;
 
   final List<String> avatars = [
     // TODO: Replace with your asset paths
@@ -91,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
     print('User selected name: ' + name);
     print('User selected avatar index: ' + avatarIdx.toString());
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/mode');
     }
   }
 
@@ -103,27 +104,19 @@ class _LoginScreenState extends State<LoginScreen> {
       body: _CheckeredBackground(
         child: ResponsiveLayout(
           mobile: Builder(
-            builder: (context) => _LoginProfileContent(
-              state: this,
-              maxWidth: 420,
-            ),
+            builder:
+                (context) => _LoginProfileContent(state: this, maxWidth: 420),
           ),
           tablet: Center(
             child: SizedBox(
               width: 500,
-              child: _LoginProfileContent(
-                state: this,
-                maxWidth: 500,
-              ),
+              child: _LoginProfileContent(state: this, maxWidth: 500),
             ),
           ),
           desktop: Center(
             child: SizedBox(
               width: 600,
-              child: _LoginProfileContent(
-                state: this,
-                maxWidth: 600,
-              ),
+              child: _LoginProfileContent(state: this, maxWidth: 600),
             ),
           ),
         ),
@@ -170,10 +163,16 @@ class _LoginProfileContent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: 48.0 * scale, bottom: 12.0 * scale),
+                        padding: EdgeInsets.only(
+                          top: 48.0 * scale,
+                          bottom: 12.0 * scale,
+                        ),
                         child: Image.asset(
                           'assets/loginboard.png',
-                          width: (maxContentWidth * 0.85).clamp(160.0, maxContentWidth),
+                          width: (maxContentWidth * 0.85).clamp(
+                            160.0,
+                            maxContentWidth,
+                          ),
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -191,7 +190,9 @@ class _LoginProfileContent extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               letterSpacing: 1.2 * scale,
-                              fontSize: (theme.textTheme.titleLarge?.fontSize ?? 24) * scale,
+                              fontSize:
+                                  (theme.textTheme.titleLarge?.fontSize ?? 24) *
+                                  scale,
                             ),
                           ),
                           SizedBox(height: 6 * scale),
@@ -203,22 +204,37 @@ class _LoginProfileContent extends StatelessWidget {
                                   backgroundColor: Colors.white,
                                   child: CircleAvatar(
                                     radius: 32 * scale,
-                                    backgroundImage: AssetImage(avatars[selectedAvatarIndex]),
+                                    backgroundImage: AssetImage(
+                                      avatars[selectedAvatarIndex],
+                                    ),
                                   ),
                                 ),
                                 SizedBox(height: 6 * scale),
                                 Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16 * scale, vertical: 6 * scale),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16 * scale,
+                                    vertical: 6 * scale,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.85),
-                                    borderRadius: BorderRadius.circular(12 * scale),
+                                    borderRadius: BorderRadius.circular(
+                                      12 * scale,
+                                    ),
                                   ),
                                   child: Text(
-                                    _nameController.text.isEmpty ? 'Your Name' : _nameController.text,
+                                    _nameController.text.isEmpty
+                                        ? 'Your Name'
+                                        : _nameController.text,
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       color: Colors.blue[900],
                                       fontWeight: FontWeight.w600,
-                                      fontSize: (theme.textTheme.bodyLarge?.fontSize ?? 16) * scale,
+                                      fontSize:
+                                          (theme
+                                                  .textTheme
+                                                  .bodyLarge
+                                                  ?.fontSize ??
+                                              16) *
+                                          scale,
                                     ),
                                   ),
                                 ),
@@ -230,13 +246,15 @@ class _LoginProfileContent extends StatelessWidget {
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: avatars.length + 2,
-                              separatorBuilder: (_, __) => SizedBox(width: 12 * scale),
+                              separatorBuilder:
+                                  (_, __) => SizedBox(width: 12 * scale),
                               itemBuilder: (context, index) {
                                 if (index == 0 || index == avatars.length + 1) {
                                   return SizedBox(width: 18 * scale);
                                 }
                                 final avatarIdx = index - 1;
-                                final isSelected = selectedAvatarIndex == avatarIdx;
+                                final isSelected =
+                                    selectedAvatarIndex == avatarIdx;
                                 return GestureDetector(
                                   onTap: () {
                                     state.selectedAvatarIndex = avatarIdx;
@@ -248,19 +266,36 @@ class _LoginProfileContent extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: isSelected ? Colors.greenAccent : Colors.transparent,
+                                        color:
+                                            isSelected
+                                                ? Colors.greenAccent
+                                                : Colors.transparent,
                                         width: 2 * scale,
                                       ),
-                                      boxShadow: isSelected
-                                          ? [BoxShadow(color: Colors.green.withOpacity(0.18), blurRadius: 8 * scale, offset: Offset(0, 2 * scale))]
-                                          : [],
+                                      boxShadow:
+                                          isSelected
+                                              ? [
+                                                BoxShadow(
+                                                  color: Colors.green
+                                                      .withOpacity(0.18),
+                                                  blurRadius: 8 * scale,
+                                                  offset: Offset(0, 2 * scale),
+                                                ),
+                                              ]
+                                              : [],
                                     ),
                                     child: CircleAvatar(
-                                      radius: isSelected ? 26 * scale : 22 * scale,
+                                      radius:
+                                          isSelected ? 26 * scale : 22 * scale,
                                       backgroundColor: Colors.white,
                                       child: CircleAvatar(
-                                        radius: isSelected ? 22 * scale : 18 * scale,
-                                        backgroundImage: AssetImage(avatars[avatarIdx]),
+                                        radius:
+                                            isSelected
+                                                ? 22 * scale
+                                                : 18 * scale,
+                                        backgroundImage: AssetImage(
+                                          avatars[avatarIdx],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -270,7 +305,9 @@ class _LoginProfileContent extends StatelessWidget {
                           ),
                           SizedBox(height: 16 * scale),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 48.0 * scale),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 48.0 * scale,
+                            ),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.blue[50]?.withOpacity(0.75),
@@ -292,41 +329,69 @@ class _LoginProfileContent extends StatelessWidget {
                                 decoration: InputDecoration(
                                   hintText: 'Enter your name',
                                   border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(vertical: 10 * scale),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10 * scale,
+                                  ),
                                 ),
-                                style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500, fontSize: (theme.textTheme.bodyLarge?.fontSize ?? 16) * scale),
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize:
+                                      (theme.textTheme.bodyLarge?.fontSize ??
+                                          16) *
+                                      scale,
+                                ),
                               ),
                             ),
                           ),
                           SizedBox(height: 16 * scale),
                           Center(
                             child: GestureDetector(
-                              onTap: isValid ? state._saveUserDataAndNavigate : null,
+                              onTap:
+                                  isValid
+                                      ? state._saveUserDataAndNavigate
+                                      : null,
                               child: AnimatedOpacity(
                                 opacity: isValid ? 1.0 : 0.5,
                                 duration: const Duration(milliseconds: 200),
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 36 * scale, vertical: 10 * scale),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 36 * scale,
+                                    vertical: 10 * scale,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.greenAccent[400],
-                                    borderRadius: BorderRadius.circular(12 * scale),
+                                    borderRadius: BorderRadius.circular(
+                                      12 * scale,
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.green[900]!.withOpacity(0.28),
+                                        color: Colors.green[900]!.withOpacity(
+                                          0.28,
+                                        ),
                                         offset: Offset(0, 4 * scale),
                                         blurRadius: 10 * scale,
                                       ),
                                     ],
-                                    border: Border.all(color: Colors.green[800]!, width: 1.5 * scale),
+                                    border: Border.all(
+                                      color: Colors.green[800]!,
+                                      width: 1.5 * scale,
+                                    ),
                                   ),
                                   child: Text(
                                     'DONE',
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2 * scale,
-                                      fontSize: (theme.textTheme.titleMedium?.fontSize ?? 18) * scale,
-                                    ),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.2 * scale,
+                                          fontSize:
+                                              (theme
+                                                      .textTheme
+                                                      .titleMedium
+                                                      ?.fontSize ??
+                                                  18) *
+                                              scale,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -346,7 +411,7 @@ class _LoginProfileContent extends StatelessWidget {
               left: 40 * scale,
               right: null,
               width: 312 * scale,
-              height: 182 * scale, 
+              height: 182 * scale,
               asset: 'assets/cloud1.svg',
               opacity: 0.85,
               scale: scale,
@@ -356,8 +421,8 @@ class _LoginProfileContent extends StatelessWidget {
               initialTop: 60 * scale,
               left: null,
               right: 10 * scale,
-              width: 240 * scale, 
-              height: 140 * scale, 
+              width: 240 * scale,
+              height: 140 * scale,
               asset: 'assets/cloud2.svg',
               opacity: 0.8,
               scale: scale,
@@ -420,7 +485,8 @@ class _FloatingCloud extends StatefulWidget {
   State<_FloatingCloud> createState() => _FloatingCloudState();
 }
 
-class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProviderStateMixin {
+class _FloatingCloudState extends State<_FloatingCloud>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
@@ -470,19 +536,20 @@ class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProvide
             child: Transform(
               transform: Matrix4.identity()..scale(widget.scale, widget.scale),
               alignment: Alignment.center,
-              child: widget.asset.endsWith('.svg')
-                  ? SvgPicture.asset(
-                      widget.asset,
-                      width: widget.width,
-                      height: widget.height,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      widget.asset,
-                      width: widget.width,
-                      height: widget.height,
-                      fit: BoxFit.cover,
-                    ),
+              child:
+                  widget.asset.endsWith('.svg')
+                      ? SvgPicture.asset(
+                        widget.asset,
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                      )
+                      : Image.asset(
+                        widget.asset,
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                      ),
             ),
           ),
         );
