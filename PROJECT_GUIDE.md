@@ -23,7 +23,7 @@
 ## 2. Project Rules & Guidelines
 
 ### UI/UX Rules
-- Use a consistent color palette, font, and button style across all screens.
+- Use a consistent color palette, font, and button style across all screens. Reference the design system or Figma file if available.
 - Maintain uniform spacing and padding.
 - All screens must be fully responsive across mobile, tablet, and desktop devices.
 - UI elements (text, buttons, images, etc.) should scale proportionally based on screen size, ensuring content appears larger on bigger screens and appropriately sized on smaller screens.
@@ -31,21 +31,36 @@
 - Use responsive layout techniques (e.g., MediaQuery, LayoutBuilder, or similar) to adapt content dynamically while preserving the overall design integrity.
 - Test all screens on multiple device sizes to ensure a seamless and consistent user experience.
 - Responsive layouts must not only support mobile, tablet, and desktop breakpoints, but also adapt fluidly to any screen size or aspect ratio. Avoid fixed widths and heights where possible; prefer flexible, percentage-based, or adaptive sizing to prevent scrollbars and overflow on edge cases. Test on a wide range of screen sizes, including in-between and unusual dimensions.
+- All screens must meet minimum accessibility standards: good color contrast, readable font sizes, and screen reader support.
 
 ### Code Principles
 - Follow DRY (Don't Repeat Yourself): Create reusable widgets/components.
 - Use a single state management approach (e.g., Provider, Bloc).
 - Consistent naming conventions for files, classes, and variables.
 - Add comments to all custom widgets/functions.
+- Game logic must be separated from UI code (see GAME_LOGIC.md for architecture).
 
 ### Animation & Assets
 - Use Rive/Flare for advanced animations where needed.
 - Only use optimized images, icons, and sounds.
 - Follow animation guidelines: smooth, non-distracting, and purposeful.
 
+### Error Handling & Security
+- All user-facing errors must be clear, actionable, and non-technical.
+- Never log sensitive user data in production. Store user data securely.
+
+### Performance
+- Optimize images and assets. Use lazy loading where possible.
+- All screens should be optimized for smooth performance, including on low-end devices.
+
 ### Testing & Review
-- Write widget/unit tests for all major features.
+- Write widget/unit tests for all major features and game logic.
 - Use a code review checklist before merging changes.
+- Review and update dependencies regularly. Avoid deprecated packages.
+
+### Workflow
+- Use feature branches for new work. Pull requests must pass all tests and review before merging.
+- Keep documentation and this guide updated with all major decisions and progress.
 
 ---
 
