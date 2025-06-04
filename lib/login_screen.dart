@@ -178,12 +178,7 @@ class _LoginProfileContent extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 24 * scale),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 2 * scale),
-                        height: 2 * scale,
-                        width: 220 * scale,
-                        color: Colors.white.withOpacity(0.25),
-                      ),
+                      // Remove the line above "Profile"
                       SizedBox(height: 0 * scale),
                       // Centered profile section overlay (robust centering)
                       Column(
