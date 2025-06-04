@@ -211,76 +211,52 @@ class _ModeSelectionContent extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 24 * scale),
-                  // Game mode options in a 2x2 grid
-                  Row(
+                  // Game mode options: now a simple column of four small buttons
+                  Column(
                     children: [
-                      Expanded(
-                        child: GameModeButton(
-                          color: Color(0xFFB620E0), // Purple for solo
-                          icon: Icons.computer,
-                          title: AppStrings.soloChallenge,
-                          onTap: () => onModeTap('solo'),
-                          scale: scale,
-                          selected: selectedMode == 'solo',
-                          semanticLabel: AppStrings.soloChallenge,
-                        ),
+                      _SimpleModeButton(
+                        title: AppStrings.soloChallenge,
+                        selected: selectedMode == 'solo',
+                        onTap: () {
+                          onModeTap('solo');
+                          onProceed();
+                        },
+                        scale: scale,
                       ),
-                      SizedBox(width: 18 * scale),
-                      Expanded(
-                        child: GameModeButton(
-                          color: Color(0xFF00C853), // Green for local multiplayer
-                          icon: Icons.devices,
-                          title: AppStrings.localMultiplayer,
-                          onTap: () => onModeTap('local'),
-                          scale: scale,
-                          selected: selectedMode == 'local',
-                          semanticLabel: AppStrings.localMultiplayer,
-                        ),
+                      SizedBox(height: 10 * scale),
+                      _SimpleModeButton(
+                        title: AppStrings.localMultiplayer,
+                        selected: selectedMode == 'local',
+                        onTap: () {
+                          onModeTap('local');
+                          onProceed();
+                        },
+                        scale: scale,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 18 * scale),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GameModeButton(
-                          color: Color(0xFF2979FF), // Blue for global match
-                          icon: Icons.public,
-                          title: AppStrings.globalMatch,
-                          onTap: () => onModeTap('global'),
-                          scale: scale,
-                          selected: selectedMode == 'global',
-                          semanticLabel: AppStrings.globalMatch,
-                        ),
+                      SizedBox(height: 10 * scale),
+                      _SimpleModeButton(
+                        title: AppStrings.globalMatch,
+                        selected: selectedMode == 'global',
+                        onTap: () {
+                          onModeTap('global');
+                          onProceed();
+                        },
+                        scale: scale,
                       ),
-                      SizedBox(width: 18 * scale),
-                      Expanded(
-                        child: GameModeButton(
-                          color: Color(0xFFFFC400), // Yellow for private room
-                          icon: Icons.group_add,
-                          title: AppStrings.privateRoom,
-                          onTap: () => onModeTap('private'),
-                          scale: scale,
-                          selected: selectedMode == 'private',
-                          semanticLabel: AppStrings.privateRoom,
-                        ),
+                      SizedBox(height: 10 * scale),
+                      _SimpleModeButton(
+                        title: AppStrings.privateRoom,
+                        selected: selectedMode == 'private',
+                        onTap: () {
+                          onModeTap('private');
+                          onProceed();
+                        },
+                        scale: scale,
                       ),
                     ],
                   ),
                   SizedBox(height: 24 * scale),
-                  ElevatedButton(
-                    onPressed: onProceed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      textStyle: AppTextStyles.button(scale),
-                      minimumSize: Size(double.infinity, 48 * scale),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppSpacing.buttonRadius(scale)),
-                      ),
-                    ),
-                    child: Text(AppStrings.continueBtn),
-                  ),
+                  // Removed the continue button
                 ],
               ),
             ),
@@ -475,6 +451,37 @@ class _FloatingCloudState extends State<_FloatingCloud> with SingleTickerProvide
           ),
         );
       },
+    );
+  }
+}
+
+class _SimpleModeButton extends StatelessWidget {
+  final String title;
+  final bool selected;
+  final VoidCallback onTap;
+  final double scale;
+
+  const _SimpleModeButton({
+    required this.title,
+    required this.selected,
+    required this.onTap,
+    required this.scale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: selected ? AppColors.primary : Colors.grey[300],
+        foregroundColor: selected ? Colors.white : Colors.black,
+        textStyle: AppTextStyles.button(scale),
+        minimumSize: Size(double.infinity, 48 * scale),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.buttonRadius(scale)),
+        ),
+      ),
+      child: Text(title),
     );
   }
 }
