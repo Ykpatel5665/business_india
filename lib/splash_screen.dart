@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'responsive_layout.dart';
+import 'app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,9 +27,9 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ResponsiveLayout(
-        mobile: Center(child: Text('Splash Screen (Mobile)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-        tablet: Center(child: Text('Splash Screen (Tablet)', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
-        desktop: Center(child: Text('Splash Screen (Desktop)', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold))),
+        mobile: Center(child: Text('Splash Screen (Mobile)', style: AppTextStyles.bodyLarge(1.0))),
+        tablet: Center(child: Text('Splash Screen (Tablet)', style: AppTextStyles.titleLarge(1.1))),
+        desktop: Center(child: Text('Splash Screen (Desktop)', style: AppTextStyles.titleLarge(1.3))),
       ),
     );
   }

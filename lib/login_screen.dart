@@ -3,8 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'responsive_layout.dart';
 import 'dart:math' as math;
+import 'ui_components.dart';
+import 'app_theme.dart';
 
 // TODO: Import your theme and constants files here
+
+// TODO: Replace these with AppLocalizations lookups when localization is set up.
+const kProfileLabel = 'Profile';
+const kDoneButton = 'DONE';
+const kNameHint = 'Enter your name';
+const kNamePlaceholder = 'Your Name';
 
 class _CheckeredBackground extends StatelessWidget {
   final Widget child;
@@ -17,7 +25,7 @@ class _CheckeredBackground extends StatelessWidget {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7), Color(0xFF4A90E2)],
+            colors: [AppColors.accent, AppColors.primary, AppColors.background],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -63,7 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
       selectedAvatarIndex != null && _nameController.text.trim().length >= 3;
 
   final List<String> avatars = [
-    // TODO: Replace with your asset paths
     'assets/avatar1.png',
     'assets/avatar2.png',
     'assets/avatar3.png',
@@ -77,12 +84,44 @@ class _LoginScreenState extends State<LoginScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final avatarIdx = prefs.getInt('avatarIndex');
+    final name = prefs.getString('userName');
+    setState(() {
+      selectedAvatarIndex = avatarIdx ?? 0;
+      _nameController.text = name ?? '';
+    });
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
   }
 
   Future<void> _saveUserDataAndNavigate() async {
+    if (!isValid) {
+      // Show user-friendly error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            selectedAvatarIndex == null
+              ? 'Please select an avatar.'
+              : 'Please enter a name with at least 3 characters.',
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final name = _nameController.text.trim();
     final avatarIdx = selectedAvatarIndex!;
@@ -98,7 +137,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: _CheckeredBackground(
@@ -132,7 +170,6 @@ class _LoginProfileContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Restore theme for text styles
     final selectedAvatarIndex = state.selectedAvatarIndex;
     final _nameController = state._nameController;
     final avatars = state.avatars;
@@ -162,239 +199,66 @@ class _LoginProfileContent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: 48.0 * scale,
-                          bottom: 12.0 * scale,
-                        ),
-                        child: Image.asset(
-                          'assets/loginboard.png',
-                          width: (maxContentWidth * 0.85).clamp(
-                            160.0,
-                            maxContentWidth,
-                          ),
-                          fit: BoxFit.contain,
-                        ),
+                      // Use only the reusable LoginBoardHeader for consistent image and spacing
+                      LoginBoardHeader(
+                        maxContentWidth: maxContentWidth,
+                        scale: scale,
                       ),
-                      SizedBox(height: 24 * scale),
-                      // Remove the line above "Profile"
                       SizedBox(height: 0 * scale),
-                      // Centered profile section overlay (robust centering)
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            'Profile',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1.2 * scale,
-                              fontSize:
-                                  (theme.textTheme.titleLarge?.fontSize ?? 24) *
-                                  scale,
-                            ),
+                            kProfileLabel,
+                            style: AppTextStyles.titleLarge(scale).copyWith(color: Colors.white),
                           ),
                           SizedBox(height: 6 * scale),
                           if (selectedAvatarIndex != null)
                             Column(
                               children: [
-                                CircleAvatar(
-                                  radius: 38 * scale,
-                                  backgroundColor: Colors.white,
-                                  child: CircleAvatar(
-                                    radius: 32 * scale,
-                                    backgroundImage: AssetImage(
-                                      avatars[selectedAvatarIndex],
-                                    ),
-                                  ),
+                                AvatarDisplay(
+                                  imagePath: avatars[selectedAvatarIndex],
+                                  outerRadius: 38 * scale,
+                                  innerRadius: 32 * scale,
                                 ),
                                 SizedBox(height: 6 * scale),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16 * scale,
-                                    vertical: 6 * scale,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.85),
-                                    borderRadius: BorderRadius.circular(
-                                      12 * scale,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    _nameController.text.isEmpty
-                                        ? 'Your Name'
-                                        : _nameController.text,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: Colors.blue[900],
-                                      fontWeight: FontWeight.w600,
-                                      fontSize:
-                                          (theme
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.fontSize ??
-                                              16) *
-                                          scale,
-                                    ),
-                                  ),
+                                ProfileNameDisplay(
+                                  name: _nameController.text,
+                                  scale: scale,
                                 ),
                               ],
                             ),
                           SizedBox(height: 12 * scale),
-                          SizedBox(
-                            height: 60 * scale,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: avatars.length + 2,
-                              separatorBuilder:
-                                  (_, __) => SizedBox(width: 12 * scale),
-                              itemBuilder: (context, index) {
-                                if (index == 0 || index == avatars.length + 1) {
-                                  return SizedBox(width: 18 * scale);
-                                }
-                                final avatarIdx = index - 1;
-                                final isSelected =
-                                    selectedAvatarIndex == avatarIdx;
-                                return GestureDetector(
-                                  onTap: () {
-                                    state.selectedAvatarIndex = avatarIdx;
-                                    (state as dynamic).setState(() {});
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    padding: EdgeInsets.all(2 * scale),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color:
-                                            isSelected
-                                                ? Colors.greenAccent
-                                                : Colors.transparent,
-                                        width: 2 * scale,
-                                      ),
-                                      boxShadow:
-                                          isSelected
-                                              ? [
-                                                BoxShadow(
-                                                  color: Colors.green
-                                                      .withOpacity(0.18),
-                                                  blurRadius: 8 * scale,
-                                                  offset: Offset(0, 2 * scale),
-                                                ),
-                                              ]
-                                              : [],
-                                    ),
-                                    child: CircleAvatar(
-                                      radius:
-                                          isSelected ? 26 * scale : 22 * scale,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                        radius:
-                                            isSelected
-                                                ? 22 * scale
-                                                : 18 * scale,
-                                        backgroundImage: AssetImage(
-                                          avatars[avatarIdx],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                          AvatarSelector(
+                            avatars: avatars,
+                            selectedIndex: selectedAvatarIndex,
+                            scale: scale,
+                            onAvatarTap: (avatarIdx) {
+                              state.selectedAvatarIndex = avatarIdx;
+                              (state as dynamic).setState(() {});
+                            },
                           ),
                           SizedBox(height: 16 * scale),
                           Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 48.0 * scale,
+                              horizontal: AppSpacing.cardPadding(scale) * 2.7,
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.blue[50]?.withOpacity(0.75),
-                                borderRadius: BorderRadius.circular(14 * scale),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.04),
-                                    blurRadius: 6 * scale,
-                                    offset: Offset(0, 1 * scale),
-                                  ),
-                                ],
-                              ),
-                              child: TextField(
-                                controller: _nameController,
-                                onChanged: (_) {
-                                  (state as dynamic).setState(() {});
-                                },
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  hintText: 'Enter your name',
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 10 * scale,
-                                  ),
-                                ),
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize:
-                                      (theme.textTheme.bodyLarge?.fontSize ??
-                                          16) *
-                                      scale,
-                                ),
-                              ),
+                            child: CustomTextField(
+                              controller: _nameController,
+                              scale: scale,
+                              onChanged: (_) {
+                                (state as dynamic).setState(() {});
+                              },
                             ),
                           ),
                           SizedBox(height: 16 * scale),
                           Center(
-                            child: GestureDetector(
-                              onTap:
-                                  isValid
-                                      ? state._saveUserDataAndNavigate
-                                      : null,
-                              child: AnimatedOpacity(
-                                opacity: isValid ? 1.0 : 0.5,
-                                duration: const Duration(milliseconds: 200),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 36 * scale,
-                                    vertical: 10 * scale,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.greenAccent[400],
-                                    borderRadius: BorderRadius.circular(
-                                      12 * scale,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.green[900]!.withOpacity(
-                                          0.28,
-                                        ),
-                                        offset: Offset(0, 4 * scale),
-                                        blurRadius: 10 * scale,
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                      color: Colors.green[800]!,
-                                      width: 1.5 * scale,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'DONE',
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 1.2 * scale,
-                                          fontSize:
-                                              (theme
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.fontSize ??
-                                                  18) *
-                                              scale,
-                                        ),
-                                  ),
-                                ),
-                              ),
+                            child: PrimaryButton(
+                              label: kDoneButton,
+                              scale: scale,
+                              onTap: isValid ? state._saveUserDataAndNavigate : null,
+                              enabled: isValid,
                             ),
                           ),
                           SizedBox(height: 24 * scale),

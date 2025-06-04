@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'responsive_layout.dart';
+import 'app_theme.dart';
 
 class GameBoardScreen extends StatelessWidget {
   const GameBoardScreen({super.key});
@@ -9,9 +10,9 @@ class GameBoardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Game Board')),
       body: ResponsiveLayout(
-        mobile: Center(child: Text('Game Board (Mobile)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-        tablet: Center(child: Text('Game Board (Tablet)', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
-        desktop: Center(child: Text('Game Board (Desktop)', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold))),
+        mobile: Center(child: Text('Game Board (Mobile)', style: AppTextStyles.bodyLarge(1.0))),
+        tablet: Center(child: Text('Game Board (Tablet)', style: AppTextStyles.titleLarge(1.1))),
+        desktop: Center(child: Text('Game Board (Desktop)', style: AppTextStyles.titleLarge(1.3))),
       ),
     );
   }

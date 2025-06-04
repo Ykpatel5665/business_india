@@ -2,9 +2,67 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'responsive_layout.dart';
+import 'ui_components.dart';
+import 'app_theme.dart';
+import 'l10n.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ModeSelectionScreen extends StatelessWidget {
+class ModeSelectionScreen extends StatefulWidget {
   const ModeSelectionScreen({super.key});
+
+  @override
+  State<ModeSelectionScreen> createState() => _ModeSelectionScreenState();
+}
+
+class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
+  String? _selectedMode;
+  int? _avatarIndex;
+  final List<String> avatars = [
+    'assets/avatar1.png',
+    'assets/avatar2.png',
+    'assets/avatar3.png',
+    'assets/avatar4.png',
+    'assets/avatar5.png',
+    'assets/avatar6.png',
+    'assets/avatar7.png',
+    'assets/avatar8.png',
+    'assets/avatar9.png',
+    'assets/avatar10.png',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatarIndex();
+  }
+
+  Future<void> _loadAvatarIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _avatarIndex = prefs.getInt('avatarIndex') ?? 0;
+    });
+  }
+
+  void _onModeSelected(String mode) {
+    setState(() {
+      _selectedMode = mode;
+    });
+  }
+
+  void _onProceed(BuildContext context) {
+    if (_selectedMode == null || _selectedMode!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.selectGameMode, style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    // Proceed to next screen or logic
+    Navigator.pushNamed(context, '/player');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,9 +70,42 @@ class ModeSelectionScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: _CheckeredBackground(
         child: ResponsiveLayout(
-          mobile: _ModeSelectionContent(maxWidth: 420),
-          tablet: Center(child: SizedBox(width: 500, child: _ModeSelectionContent(maxWidth: 500))),
-          desktop: Center(child: SizedBox(width: 600, child: _ModeSelectionContent(maxWidth: 600))),
+          mobile: Builder(
+            builder: (context) => _ModeSelectionContent(
+              maxWidth: 420,
+              selectedMode: _selectedMode,
+              onModeTap: _onModeSelected,
+              onProceed: () => _onProceed(context),
+              avatarIndex: _avatarIndex,
+              avatarPath: _avatarIndex != null ? avatars[_avatarIndex!.clamp(0, avatars.length - 1)] : avatars[0],
+            ),
+          ),
+          tablet: Center(
+            child: SizedBox(
+              width: 500,
+              child: _ModeSelectionContent(
+                maxWidth: 500,
+                selectedMode: _selectedMode,
+                onModeTap: _onModeSelected,
+                onProceed: () => _onProceed(context),
+                avatarIndex: _avatarIndex,
+                avatarPath: _avatarIndex != null ? avatars[_avatarIndex!.clamp(0, avatars.length - 1)] : avatars[0],
+              ),
+            ),
+          ),
+          desktop: Center(
+            child: SizedBox(
+              width: 600,
+              child: _ModeSelectionContent(
+                maxWidth: 600,
+                selectedMode: _selectedMode,
+                onModeTap: _onModeSelected,
+                onProceed: () => _onProceed(context),
+                avatarIndex: _avatarIndex,
+                avatarPath: _avatarIndex != null ? avatars[_avatarIndex!.clamp(0, avatars.length - 1)] : avatars[0],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -23,7 +114,19 @@ class ModeSelectionScreen extends StatelessWidget {
 
 class _ModeSelectionContent extends StatelessWidget {
   final double maxWidth;
-  const _ModeSelectionContent({required this.maxWidth});
+  final String? selectedMode;
+  final ValueChanged<String> onModeTap;
+  final VoidCallback onProceed;
+  final int? avatarIndex;
+  final String avatarPath;
+  const _ModeSelectionContent({
+    required this.maxWidth,
+    required this.selectedMode,
+    required this.onModeTap,
+    required this.onProceed,
+    required this.avatarIndex,
+    required this.avatarPath,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,27 +150,39 @@ class _ModeSelectionContent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 48.0 * scale, bottom: 12.0 * scale),
-                    child: Image.asset(
-                      'assets/loginboard.png',
-                      width: (maxContentWidth * 0.85).clamp(160.0, maxContentWidth),
-                      fit: BoxFit.contain,
-                    ),
+                  // Use only the reusable LoginBoardHeader for consistent image and spacing
+                  LoginBoardHeader(
+                    maxContentWidth: maxContentWidth,
+                    scale: scale,
                   ),
                   SizedBox(height: 12 * scale),
+                  // Remove extra SizedBox above and below
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Profile icon (left)
-                      IconButton(
-                        icon: CircleAvatar(
-                          radius: 22 * scale,
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.person, color: Colors.blue[800], size: 28 * scale),
+                      // Profile avatar (left, now tappable for editing)
+                      Tooltip(
+                        message: AppStrings.editProfileTooltip, // Add this string to l10n.dart if not present
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, '/login');
+                          },
+                          child: AvatarDisplay(
+                            imagePath: avatarPath,
+                            outerRadius: 22 * scale,
+                            innerRadius: 18 * scale,
+                            showBorder: true,
+                            borderColor: Colors.white,
+                            borderWidth: 2 * scale,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.10),
+                                blurRadius: 6 * scale,
+                                offset: Offset(0, 2 * scale),
+                              ),
+                            ],
+                          ),
                         ),
-                        tooltip: 'View/Edit Profile',
-                        onPressed: () {},
                       ),
                       // Friends and Settings icons (right)
                       Row(
@@ -78,7 +193,7 @@ class _ModeSelectionContent extends StatelessWidget {
                               backgroundColor: Colors.white,
                               child: Icon(Icons.group, color: Colors.blue[800], size: 24 * scale),
                             ),
-                            tooltip: 'Friends',
+                            tooltip: AppStrings.friendsTooltip,
                             onPressed: () {},
                           ),
                           SizedBox(width: 8 * scale),
@@ -88,7 +203,7 @@ class _ModeSelectionContent extends StatelessWidget {
                               backgroundColor: Colors.white,
                               child: Icon(Icons.settings, color: Colors.blue[800], size: 24 * scale),
                             ),
-                            tooltip: 'Settings',
+                            tooltip: AppStrings.settingsTooltip,
                             onPressed: () {},
                           ),
                         ],
@@ -96,39 +211,76 @@ class _ModeSelectionContent extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 24 * scale),
-                  // Game mode options
-                  _GameModeButton(
-                    icon: Icons.computer,
-                    title: 'Solo Challenge',
-                    description: 'Play against the computer AI.',
-                    onTap: () {},
-                    scale: scale,
+                  // Game mode options in a 2x2 grid
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GameModeButton(
+                          color: Color(0xFFB620E0), // Purple for solo
+                          icon: Icons.computer,
+                          title: AppStrings.soloChallenge,
+                          onTap: () => onModeTap('solo'),
+                          scale: scale,
+                          selected: selectedMode == 'solo',
+                          semanticLabel: AppStrings.soloChallenge,
+                        ),
+                      ),
+                      SizedBox(width: 18 * scale),
+                      Expanded(
+                        child: GameModeButton(
+                          color: Color(0xFF00C853), // Green for local multiplayer
+                          icon: Icons.devices,
+                          title: AppStrings.localMultiplayer,
+                          onTap: () => onModeTap('local'),
+                          scale: scale,
+                          selected: selectedMode == 'local',
+                          semanticLabel: AppStrings.localMultiplayer,
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 18 * scale),
-                  _GameModeButton(
-                    icon: Icons.devices,
-                    title: 'Local Multiplayer',
-                    description: 'Pass the device and play together.',
-                    onTap: () {},
-                    scale: scale,
-                  ),
-                  SizedBox(height: 18 * scale),
-                  _GameModeButton(
-                    icon: Icons.public,
-                    title: 'Global Match',
-                    description: 'Compete with players online.',
-                    onTap: () {},
-                    scale: scale,
-                  ),
-                  SizedBox(height: 18 * scale),
-                  _GameModeButton(
-                    icon: Icons.group_add,
-                    title: 'Private Room',
-                    description: 'Play with your friends online.',
-                    onTap: () {},
-                    scale: scale,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GameModeButton(
+                          color: Color(0xFF2979FF), // Blue for global match
+                          icon: Icons.public,
+                          title: AppStrings.globalMatch,
+                          onTap: () => onModeTap('global'),
+                          scale: scale,
+                          selected: selectedMode == 'global',
+                          semanticLabel: AppStrings.globalMatch,
+                        ),
+                      ),
+                      SizedBox(width: 18 * scale),
+                      Expanded(
+                        child: GameModeButton(
+                          color: Color(0xFFFFC400), // Yellow for private room
+                          icon: Icons.group_add,
+                          title: AppStrings.privateRoom,
+                          onTap: () => onModeTap('private'),
+                          scale: scale,
+                          selected: selectedMode == 'private',
+                          semanticLabel: AppStrings.privateRoom,
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 24 * scale),
+                  ElevatedButton(
+                    onPressed: onProceed,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      textStyle: AppTextStyles.button(scale),
+                      minimumSize: Size(double.infinity, 48 * scale),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSpacing.buttonRadius(scale)),
+                      ),
+                    ),
+                    child: Text(AppStrings.continueBtn),
+                  ),
                 ],
               ),
             ),
@@ -184,76 +336,6 @@ class _ModeSelectionContent extends StatelessWidget {
   }
 }
 
-class _GameModeButton extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-  final VoidCallback onTap;
-  final double scale;
-  const _GameModeButton({
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.onTap,
-    required this.scale,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 18 * scale, horizontal: 18 * scale),
-        margin: EdgeInsets.symmetric(horizontal: 8 * scale),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.92),
-          borderRadius: BorderRadius.circular(16 * scale),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue[900]!.withOpacity(0.08),
-              blurRadius: 10 * scale,
-              offset: Offset(0, 4 * scale),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.blue[100],
-              radius: 28 * scale,
-              child: Icon(icon, color: Colors.blue[800], size: 32 * scale),
-            ),
-            SizedBox(width: 18 * scale),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[900],
-                      fontSize: (Theme.of(context).textTheme.titleMedium?.fontSize ?? 18) * scale,
-                    ),
-                  ),
-                  SizedBox(height: 4 * scale),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.blueGrey[700],
-                      fontSize: (Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14) * scale,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // Copied from login_screen.dart for reuse
 class _CheckeredBackground extends StatelessWidget {
   final Widget child;
@@ -266,7 +348,7 @@ class _CheckeredBackground extends StatelessWidget {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFB2FEFA), Color(0xFF0ED2F7), Color(0xFF4A90E2)],
+            colors: [AppColors.accent, AppColors.primary, AppColors.background],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
