@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'responsive_layout.dart';
 import 'splash_screen.dart';
 import 'mode_selection_screen.dart';
-import 'player_selection_screen.dart';
 import 'game_board_screen.dart';
 import 'end_game_screen.dart';
 import 'login_screen.dart';
@@ -28,7 +27,13 @@ class MonopolyCityApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/mode': (context) => const ModeSelectionScreen(),
-        '/player': (context) => const PlayerSelectionScreen(),
+        '/player': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          return GameBoardScreen(
+            mode: args?['mode'],
+            playerCount: args?['playerCount'],
+          );
+        },
         '/game': (context) => const GameBoardScreen(),
         '/end': (context) => const EndGameScreen(),
       },

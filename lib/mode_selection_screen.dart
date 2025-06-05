@@ -6,6 +6,7 @@ import 'ui_components.dart';
 import 'app_theme.dart';
 import 'l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui';
 
 class ModeSelectionScreen extends StatefulWidget {
   const ModeSelectionScreen({super.key});
@@ -43,10 +44,38 @@ class _ModeSelectionScreenState extends State<ModeSelectionScreen> {
     });
   }
 
-  void _onModeSelected(String mode) {
+  void _onModeSelected(String mode) async {
     setState(() {
       _selectedMode = mode;
     });
+    // Show player count dialog for vs computer, pass device, online multiplayer
+    if (mode == 'solo' || mode == 'local' || mode == 'global') {
+      final scale = MediaQuery.of(context).size.width / 420.0;
+      int? selectedCount = await showDialog<int>(
+        context: context,
+        barrierColor: Colors.black.withOpacity(0.45),
+        builder: (ctx) => _PlayerCountDialog(
+          initialCount: 2,
+          scale: scale.clamp(0.7, 1.2),
+          onPlay: (count) {
+            Navigator.of(ctx).pop(count);
+          },
+          onBack: () {
+            Navigator.of(ctx).pop();
+          },
+        ),
+      );
+      if (selectedCount != null) {
+        // Save player count if needed, then proceed
+        Navigator.pushNamed(context, '/player', arguments: {
+          'mode': mode,
+          'playerCount': selectedCount,
+        });
+      }
+    } else {
+      // For other modes, proceed as before
+      _onProceed(context);
+    }
   }
 
   void _onProceed(BuildContext context) {
@@ -219,7 +248,6 @@ class _ModeSelectionContent extends StatelessWidget {
                         selected: selectedMode == 'solo',
                         onTap: () {
                           onModeTap('solo');
-                          onProceed();
                         },
                         scale: scale,
                       ),
@@ -229,7 +257,6 @@ class _ModeSelectionContent extends StatelessWidget {
                         selected: selectedMode == 'local',
                         onTap: () {
                           onModeTap('local');
-                          onProceed();
                         },
                         scale: scale,
                       ),
@@ -239,7 +266,6 @@ class _ModeSelectionContent extends StatelessWidget {
                         selected: selectedMode == 'global',
                         onTap: () {
                           onModeTap('global');
-                          onProceed();
                         },
                         scale: scale,
                       ),
@@ -249,7 +275,6 @@ class _ModeSelectionContent extends StatelessWidget {
                         selected: selectedMode == 'private',
                         onTap: () {
                           onModeTap('private');
-                          onProceed();
                         },
                         scale: scale,
                       ),
@@ -482,6 +507,122 @@ class _SimpleModeButton extends StatelessWidget {
         ),
       ),
       child: Text(title),
+    );
+  }
+}
+
+class _PlayerCountDialog extends StatefulWidget {
+  final int initialCount;
+  final void Function(int) onPlay;
+  final VoidCallback onBack;
+  final double scale;
+  const _PlayerCountDialog({
+    required this.initialCount,
+    required this.onPlay,
+    required this.onBack,
+    required this.scale,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_PlayerCountDialog> createState() => _PlayerCountDialogState();
+}
+
+class _PlayerCountDialogState extends State<_PlayerCountDialog> {
+  int _count = 2;
+  @override
+  void initState() {
+    super.initState();
+    _count = widget.initialCount;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24 * widget.scale),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              width: 320 * widget.scale,
+              padding: EdgeInsets.all(24 * widget.scale),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.55),
+                borderRadius: BorderRadius.circular(24 * widget.scale),
+                border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.18),
+                    blurRadius: 24 * widget.scale,
+                    offset: Offset(0, 8 * widget.scale),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Players', // Shortened from 'Select Number of Players'
+                    style: AppTextStyles.titleLarge(widget.scale).copyWith(color: Colors.white),
+                  ),
+                  SizedBox(height: 18 * widget.scale),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove_circle, color: Colors.white, size: 32 * widget.scale),
+                        onPressed: _count > 2 ? () => setState(() => _count--) : null,
+                      ),
+                      SizedBox(width: 18 * widget.scale),
+                      Text(
+                        '$_count',
+                        style: AppTextStyles.titleLarge(widget.scale * 1.2).copyWith(color: Colors.white, fontSize: 36 * widget.scale),
+                      ),
+                      SizedBox(width: 18 * widget.scale),
+                      IconButton(
+                        icon: Icon(Icons.add_circle, color: Colors.white, size: 32 * widget.scale),
+                        onPressed: _count < 6 ? () => setState(() => _count++) : null,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 28 * widget.scale),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: widget.onBack,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: BorderSide(color: Colors.white.withOpacity(0.7)),
+                            textStyle: AppTextStyles.button(widget.scale),
+                          ),
+                          child: const Text('Back'),
+                        ),
+                      ),
+                      SizedBox(width: 18 * widget.scale),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => widget.onPlay(_count),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            textStyle: AppTextStyles.button(widget.scale),
+                          ),
+                          child: const Text('Play'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
