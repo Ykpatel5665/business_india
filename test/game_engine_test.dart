@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:monopoly_logic/game_logic/engine/game_engine.dart';
-import 'package:monopoly_logic/game_logic/models/player.dart';
-import 'package:monopoly_logic/game_logic/models/bank.dart';
-import 'package:monopoly_logic/game_logic/models/property.dart';
-import 'package:monopoly_logic/game_logic/models/board_tile.dart';
-import 'package:monopoly_logic/game_logic/models/enums.dart';
-import 'package:monopoly_logic/game_logic/models/game_config.dart';
-import 'package:monopoly_logic/game_logic/models/card.dart';
+import 'package:business_india/game_logic/engine/game_engine.dart';
+import 'package:business_india/game_logic/models/player.dart';
+import 'package:business_india/game_logic/models/bank.dart';
+import 'package:business_india/game_logic/models/property.dart';
+import 'package:business_india/game_logic/models/board_tile.dart';
+import 'package:business_india/game_logic/models/enums.dart';
+import 'package:business_india/game_logic/models/game_config.dart';
+import 'package:business_india/game_logic/models/card.dart';
 
 class TestPlayer extends Player {
   int Function(Property, int)? bidStrategy;
