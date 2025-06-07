@@ -6,6 +6,7 @@ import 'game_logic/models/player.dart';
 import 'game_logic/models/game_config.dart';
 import 'widgets/monopoly_board_widget.dart';
 import 'game_logic/models/board_tile.dart';
+import 'widgets/property_info_dialog.dart';
 
 class GameBoardScreen extends StatelessWidget {
   final String? mode;
@@ -26,7 +27,12 @@ class GameBoardScreen extends StatelessWidget {
         child: MonopolyBoardWidget(
           boardTiles: boardTiles,
           onTileTap: (tile) {
-            // TODO: Implement property/tile tap logic
+            if (tile.property != null) {
+              showDialog(
+                context: context,
+                builder: (ctx) => PropertyInfoDialog(property: tile.property!),
+              );
+            }
           },
         ),
       ),

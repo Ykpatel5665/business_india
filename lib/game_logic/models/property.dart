@@ -45,10 +45,14 @@ class Property {
       return baseRent * pow(2, ownedRailroads - 1);
     }
     if (isMortgaged) return 0.0;
-    if (hasHotel) return baseRent * multipliers[5]; // Rent with hotel
+    if (hasHotel) return getRent(5); // Rent with hotel
     if (isMonopoly && houses == 0) return baseRent * 2; // Double rent for monopoly
 
-    return (baseRent * multipliers[houses]);
+    return getRent(houses);
+  }
+
+  double getRent(int houseCount) {
+      return baseRent * multipliers[houseCount];
   }
 
   void mortgage() {
@@ -113,9 +117,6 @@ class Property {
       throw Exception("Property has no houses or hotels to downgrade");
     }
   }
-
-  /// Returns the rent for a property based on the number of houses.
-  List<int> get houseRent => [50, 100, 150, 200, 250];
 
   Player? get owner => _owner;
 
