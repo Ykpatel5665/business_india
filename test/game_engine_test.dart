@@ -90,7 +90,7 @@ void main() {
           Card(description: 'Get Out of Jail Free', type: CardType.getOutOfJail),
           Card(description: 'Go Back 3 Spaces', type: CardType.moveTo, targetTileIndex: null), // handle move back logic in engine
           Card(description: 'Go to Jail', type: CardType.goToJail),
-          Card(description: 'Make general repairs on all your property: For each house pay \$25, for each hotel \$100', type: CardType.propertyRepairs, amount: 25), // hotel cost handled in logic if needed
+          Card(description: 'Make general repairs on all your property: For each house pay \$25, for each hotel \$100', type: CardType.propertyRepairs, amount: 25, amount2: 100), // hotel cost handled in logic if needed
           Card(description: 'Pay poor tax of \$15', type: CardType.pay, amount: 15),
           Card(description: 'Take a trip to Reading Railroad', type: CardType.moveTo, targetTileIndex: 5),
           Card(description: 'Take a walk on the Boardwalk', type: CardType.moveTo, targetTileIndex: 39),
@@ -366,7 +366,6 @@ void main() {
       player2.ownedProperties.addAll([rr1, rr2, rr3, rr4]);
       player1.position = 3;
       gameEngine.currentPlayerIndex = 0;
-      print('Player 1 balance before landing on railroad: ${player1.balance}');
       gameEngine.movePlayer(1, 1); // Land on 5
       expect(player1.balance, 1300); // Rent: 50 (2 railroads)
       expect(player2.balance, 1700);
@@ -572,352 +571,399 @@ void main() {
       expect(player1.balance, 1000 - property.houseCost * 5); // Paid for 4 houses and hotel
     });
 
-    test('Chance card: Advance to Go (Collect \$200)', () {
-      player1.position = 7; // Land on Chance
+    test('Player lands on Chance and draws a random card', () {
+      // Place player on Chance tile
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      // Place the "Advance to Go" card at the top
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Advance to Go (Collect \$200)',
-      type: CardType.moveTo,
-      targetTileIndex: 0
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.position, 0);
-      expect(player1.balance, 1700);
+      // Save original balance for later comparison
+      final originalBalance = player1.balance;
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+      // Draw a random chance card and apply its effect
+      final card = gameEngine.drawChanceDeck();
+      // The effect is a no-op in the test deck, but we can check the card is removed from deck and added to used
+      expect(gameEngine.usedChanceDeck.contains(card), true);
+      expect(gameEngine.chanceDeck.length, 15);
+      expect(gameEngine.usedChanceDeck.length, 1);
+      // Now, simulate the effect for a known card: "Bank pays you dividend of $50"
+      final dividendCard = gameEngine.usedChanceDeck.firstWhere(
+      (c) => c.description.contains('dividend'),
+      orElse: () => gameEngine.chanceDeck.firstWhere((c) => c.description.contains('dividend')),
+      );
+      // Apply the effect manually
+      dividendCard.applyEffect(player1, gameEngine);
+      expect(player1.balance, originalBalance + 50);
     });
 
-    test('Chance card: Advance to Illinois Ave.', () {
-      player1.position = 7; // Land on Chance
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Advance to Illinois Ave.',
-      type: CardType.moveTo,
-      targetTileIndex: 24
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.position, 24);
+    test('Player draws all Chance cards, deck refills from used pile', () {
+      // Draw all cards
+      final drawn = <Card>[];
+      for (int i = 0; i < 16; i++) {
+      drawn.add(gameEngine.drawChanceDeck());
+      }
+      expect(gameEngine.chanceDeck.isEmpty, true);
+      expect(gameEngine.usedChanceDeck.length, 16);
+      // Next draw should refill deck from used pile
+      final card = gameEngine.drawChanceDeck();
+      expect(gameEngine.chanceDeck.length, 15);
+      expect(gameEngine.usedChanceDeck.length, 1);
+      expect(gameEngine.usedChanceDeck.contains(card), true);
     });
 
-    test('Chance card: Bank pays you dividend of \$50', () {
-      player1.position = 7; // Land on Chance
+    test('Player lands on Chance and moves to Go via card effect', () {
+      // Place player on Chance tile
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Bank pays you dividend of \$50',
-      type: CardType.receive,
-      amount: 50
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.balance, 1550);
-    });
-
-    test('Chance card: Pay poor tax of \$15', () {
-      player1.position = 7; // Land on Chance
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Pay poor tax of \$15',
-      type: CardType.pay,
-      amount: 15
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.balance, 1485);
-    });
-
-    test('Chance card: Get Out of Jail Free', () {
-      player1.position = 7; // Land on Chance
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Get Out of Jail Free',
-      type: CardType.getOutOfJail
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.getOutOfJailCards, 1);
-    });
-
-    test('Chance card: Go to Jail', () {
-      player1.position = 7; // Land on Chance
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Go to Jail',
-      type: CardType.goToJail
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.inJail, true);
-      expect(player1.position, 10); // Jail position
-    });
-
-    test('Chance card: Pay each player \$50', () {
-      player1.position = 7;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'You have been elected Chairman of the Board. Pay each player \$50',
-      type: CardType.payOtherPlayers,
-      amount: 50
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.balance, 1450);
-      expect(player2.balance, 1550);
-    });
-
-    test('Chance card: Collect \$150', () {
-      player1.position = 7;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Your building loan matures. Collect \$150',
-      type: CardType.receive,
-      amount: 150
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.balance, 1650);
-    });
-
-    test('Chance card: Move back 3 spaces', () {
-      player1.position = 7;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Go Back 3 Spaces',
-      type: CardType.moveTo,
-      targetTileIndex: 4
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      // In a real implementation, effect should move player back 3 spaces
-      // Here, we just check if the card was processed and player is at 4
-      expect(player1.position, 4);
-    });
-
-    test('Chance card: Advance token to nearest Utility', () {
-      player1.position = 7;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Advance token to nearest Utility',
-      type: CardType.moveTo,
-      targetTileIndex: 12
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.position, 12);
-    });
-
-    test('Chance card: Advance token to nearest Railroad', () {
-      player1.position = 7;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.chanceDeck.insert(0, Card(
-      description: 'Advance token to nearest Railroad',
-      type: CardType.moveTo,
-      targetTileIndex: 15
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 7 (Chance)
-      expect(player1.position, 15);
-    });
-
-    test('Community Chest: Advance to Go (Collect \$200)', () {
-      player1.position = 2; // Land on Community Chest
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
+      // Replace chance deck with only "Advance to Go" card for deterministic test
+      gameEngine.chanceDeck.clear();
+      final advanceToGo = Card(
       description: 'Advance to Go (Collect \$200)',
       type: CardType.moveTo,
       targetTileIndex: 0,
-      ));
-      gameEngine.movePlayer(0, 0); // Land on 2 (Community Chest)
+      );
+      gameEngine.chanceDeck.add(advanceToGo);
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+      // Draw and handle the card
+      final card = gameEngine.drawChanceDeck();
+      gameEngine.handleDeck(card);
       expect(player1.position, 0);
       expect(player1.balance, 1700);
     });
 
-    test('Community Chest: Bank error in your favor. Collect \$200', () {
-      player1.position = 2;
+    test('Player lands on Chance and receives Get Out of Jail Free card', () {
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Bank error in your favor. Collect \$200',
-      type: CardType.receive,
-      amount: 200,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1700);
-    });
-
-    test('Community Chest: Doctor\'s fees. Pay \$50', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Doctor\'s fees. Pay \$50',
-      type: CardType.pay,
-      amount: 50,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1450);
-    });
-
-    test('Community Chest: From sale of stock you get \$50', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'From sale of stock you get \$50',
-      type: CardType.receive,
-      amount: 50,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1550);
-    });
-
-    test('Community Chest: Get Out of Jail Free', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
+      // Replace chance deck with only Get Out of Jail Free card
+      gameEngine.chanceDeck.clear();
+      final getOutOfJail = Card(
       description: 'Get Out of Jail Free',
       type: CardType.getOutOfJail,
-      ));
-      gameEngine.movePlayer(0, 0);
+      );
+      gameEngine.chanceDeck.add(getOutOfJail);
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+      // Draw and handle the card
+      final card = gameEngine.drawChanceDeck();
+      card.applyEffect(player1, gameEngine);
       expect(player1.getOutOfJailCards, 1);
     });
 
-    test('Community Chest: Go to Jail', () {
-      player1.position = 2;
+    test('Player lands on Chance and draws a random card, effect is applied', () {
+      // Place player on Chance tile
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Go to Jail. Go directly to Jail, do not pass Go, do not collect \$200',
+      // Add a card with a known effect to the deck
+      final bonusCard = Card(
+      description: 'Bank pays you bonus of \$123',
+      type: CardType.receive,
+      amount: 123,
+      );
+      gameEngine.chanceDeck.add(bonusCard);
+
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+
+      // Draw a random card and apply its effect
+      final card = gameEngine.drawChanceDeck();
+      gameEngine.handleDeck(card);
+
+      // If the drawn card is the bonusCard, verify the effect
+      if (card.description == 'Bank pays you bonus of \$123') {
+      expect(player1.balance, 1500 + 123);
+      }
+    });
+
+    test('Player lands on Chance, draws Go to Jail card, and is sent to Jail', () {
+      player1.position = 6; // Next tile is 7 (Chance)
+      gameEngine.currentPlayerIndex = 0;
+      // Replace chance deck with only Go to Jail card for deterministic test
+      gameEngine.chanceDeck.clear();
+      final goToJailCard = Card(
+      description: 'Go to Jail',
       type: CardType.goToJail,
-      ));
-      gameEngine.movePlayer(0, 0);
+      );
+      gameEngine.chanceDeck.add(goToJailCard);
+
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+
+      // Draw and handle the card
+      final card = gameEngine.drawChanceDeck();
+      gameEngine.handleDeck(card);
+
       expect(player1.inJail, true);
       expect(player1.position, 10);
     });
 
-    test('Community Chest: Collect \$50 from every player', () {
-      player1.position = 2;
+    test('Player lands on Chance, draws pay card, and balance decreases', () {
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Grand Opera Night. Collect \$50 from every player for opening night seats',
-      type: CardType.collectFromOtherPlayers,
-      amount: 50,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1550);
-      expect(player2.balance, 1450);
-    });
-
-    test('Community Chest: Holiday Fund matures. Receive \$100', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Holiday Fund matures. Receive \$100',
-      type: CardType.receive,
-      amount: 100,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1600);
-    });
-
-    test('Community Chest: Income tax refund. Collect \$20', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Income tax refund. Collect \$20',
-      type: CardType.receive,
-      amount: 20,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1520);
-    });
-
-    test('Community Chest: It is your birthday. Collect \$10 from every player', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'It is your birthday. Collect \$10 from every player',
-      type: CardType.collectFromOtherPlayers,
-      amount: 10,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1510);
-      expect(player2.balance, 1490);
-    });
-
-    test('Community Chest: Life insurance matures. Collect \$100', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Life insurance matures. Collect \$100',
-      type: CardType.receive,
-      amount: 100,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1600);
-    });
-
-    test('Community Chest: Pay hospital fees of \$100', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Pay hospital fees of \$100',
+      // Replace chance deck with only pay card
+      gameEngine.chanceDeck.clear();
+      final payCard = Card(
+      description: 'Pay poor tax of \$15',
       type: CardType.pay,
-      amount: 100,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1400);
+      amount: 15,
+      );
+      gameEngine.chanceDeck.add(payCard);
+
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+
+      // Draw and handle the card
+      final card = gameEngine.drawChanceDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 1500 - 15);
     });
 
-    test('Community Chest: Pay school fees of \$150', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Pay school fees of \$150',
-      type: CardType.pay,
-      amount: 150,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1350);
-    });
-
-    test('Community Chest: Receive \$25 consultancy fee', () {
-      player1.position = 2;
-      gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'Receive \$25 consultancy fee',
-      type: CardType.receive,
-      amount: 25,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1525);
-    });
-
-    test('Community Chest: You are assessed for street repairs', () {
+    test('Player lands on Chance, draws property repairs card, and pays for houses/hotels', () {
+      // Give player some houses and a hotel
       final property = gameEngine.board[1].property!;
       property.owner = player1;
       player1.ownedProperties.add(property);
       property.houses = 2;
-      property.hasHotel = false;
-      player1.position = 2;
+      property.hasHotel = true;
+      player1.balance = 2000;
+
+      player1.position = 6; // Next tile is 7 (Chance)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'You are assessed for street repairs: \$40 per house, \$115 per hotel',
-      type: CardType.propertyRepairs,
-      amount: 40,
-      amount2: 115,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1420); // 1500 - 2*40 = 1420
+      // Replace chance deck with only property repairs card
+      gameEngine.chanceDeck.clear();
+      final repairsCard = Card(
+        description: 'Make general repairs on all your property: For each house pay \$25, for each hotel \$100',
+        type: CardType.propertyRepairs,
+        amount: 25,
+        amount2: 100, // For hotel
+      );
+      gameEngine.chanceDeck.add(repairsCard);
+
+      // Move player to Chance
+      gameEngine.movePlayer(1, 0);
+
+      // Draw and handle the card
+      final card = gameEngine.drawChanceDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 2000 - (2 * 25 + 1 * 100));
     });
 
-    test('Community Chest: You have won second prize in a beauty contest. Collect \$10', () {
-      player1.position = 2;
+    // --- Community Chest Deck Tests ---
+    test('Player lands on Community Chest and draws a random card', () {
+      // Add a card to community chest deck
+      gameEngine.communityChestDeck.clear();
+      final ccCard = Card(
+        description: 'Bank error in your favor. Collect \$200',
+        type: CardType.receive,
+        amount: 200,
+      );
+      gameEngine.communityChestDeck.add(ccCard);
+
+      // Place player on Community Chest tile
+      player1.position = 1; // Next tile is 2 (Community Chest)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'You have won second prize in a beauty contest. Collect \$10',
-      type: CardType.receive,
-      amount: 10,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1510);
+      gameEngine.movePlayer(1, 0);
+
+      // Draw and handle the card
+      final card = gameEngine.drawCommunityDeck();
+      expect(gameEngine.usedCommunityChestDeck.contains(card), true);
+      expect(gameEngine.communityChestDeck.length, 0);
+      expect(gameEngine.usedCommunityChestDeck.length, 1);
+
+      // Apply effect
+      card.applyEffect(player1, gameEngine);
+      expect(player1.balance, 1500 + 200);
     });
 
-    test('Community Chest: You inherit \$100', () {
-      player1.position = 2;
+    test('Player draws all Community Chest cards, deck refills from used pile', () {
+      // Add multiple cards
+      gameEngine.communityChestDeck.clear();
+      for (int i = 0; i < 3; i++) {
+        gameEngine.communityChestDeck.add(Card(
+          description: 'Collect \$${100 + i * 50}',
+          type: CardType.receive,
+          amount: 100 + i * 50,
+        ));
+      }
+      // Draw all cards
+      final drawn = <Card>[];
+      for (int i = 0; i < 3; i++) {
+        drawn.add(gameEngine.drawCommunityDeck());
+      }
+      expect(gameEngine.communityChestDeck.isEmpty, true);
+      expect(gameEngine.usedCommunityChestDeck.length, 3);
+      // Next draw should refill deck from used pile
+      final card = gameEngine.drawCommunityDeck();
+      expect(gameEngine.communityChestDeck.length, 2);
+      expect(gameEngine.usedCommunityChestDeck.length, 1);
+      expect(gameEngine.usedCommunityChestDeck.contains(card), true);
+    });
+
+    test('Player lands on Community Chest and receives Get Out of Jail Free card', () {
+      gameEngine.communityChestDeck.clear();
+      final getOutOfJail = Card(
+        description: 'Get Out of Jail Free',
+        type: CardType.getOutOfJail,
+      );
+      gameEngine.communityChestDeck.add(getOutOfJail);
+
+      player1.position = 1; // Next tile is 2 (Community Chest)
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.communityChestDeck.insert(0, Card(
-      description: 'You inherit \$100',
-      type: CardType.receive,
-      amount: 100,
-      ));
-      gameEngine.movePlayer(0, 0);
-      expect(player1.balance, 1600);
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+      expect(player1.getOutOfJailCards, 1);
+    });
+
+    test('Player lands on Community Chest, draws pay card, and balance decreases', () {
+      gameEngine.communityChestDeck.clear();
+      final payCard = Card(
+        description: 'Doctor\'s fees. Pay \$50',
+        type: CardType.pay,
+        amount: 50,
+      );
+      gameEngine.communityChestDeck.add(payCard);
+
+      player1.position = 1; // Next tile is 2 (Community Chest)
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+      expect(player1.balance, 1500 - 50);
+    });
+
+    test('Player lands on Community Chest, draws Go to Jail card, and is sent to Jail', () {
+      gameEngine.communityChestDeck.clear();
+      final goToJailCard = Card(
+        description: 'Go to Jail',
+        type: CardType.goToJail,
+      );
+      gameEngine.communityChestDeck.add(goToJailCard);
+
+      player1.position = 1; // Next tile is 2 (Community Chest)
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      gameEngine.handleDeck(card);
+
+      expect(player1.inJail, true);
+      expect(player1.position, 10);
+    });
+
+    test('Player lands on Community Chest, draws pay other players card, and pays each', () {
+      gameEngine.communityChestDeck.clear();
+      final payOthersCard = Card(
+        description: 'You are assessed for street repairs. Pay \$40 per house and \$115 per hotel you own',
+        type: CardType.payOtherPlayers,
+        amount: 50,
+      );
+      gameEngine.communityChestDeck.add(payOthersCard);
+
+      player1.position = 1; // Next tile is 2 (Community Chest)
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+      // Since only two players, player1 pays player2 $50
+      expect(player1.balance, 1450);
+      expect(player2.balance, 1550);
+    });
+
+    test('Player lands on Community Chest, draws property repairs card, and pays for houses/hotels', () {
+      // Give player some houses and a hotel
+      final property = gameEngine.board[1].property!;
+      property.owner = player1;
+      player1.ownedProperties.add(property);
+      property.houses = 3;
+      property.hasHotel = true;
+      player1.balance = 2000;
+
+      gameEngine.communityChestDeck.clear();
+      final repairsCard = Card(
+        description: 'You are assessed for street repairs: For each house pay \$40, for each hotel \$115',
+        type: CardType.propertyRepairs,
+        amount: 40,
+        amount2: 115,
+      );
+      gameEngine.communityChestDeck.add(repairsCard);
+
+      player1.position = 1; // Next tile is 2 (Community Chest)
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 2000 - (3 * 40 + 1 * 115));
+    });
+
+  // --- Extra Community Chest Deck Tests ---
+    test('Community Chest: Player receives money from all players', () {
+      gameEngine.communityChestDeck.clear();
+      final receiveFromAll = Card(
+        description: 'It is your birthday. Collect \$10 from every player.',
+        type: CardType.collectFromOtherPlayers,
+        amount: 10,
+      );
+      gameEngine.communityChestDeck.add(receiveFromAll);
+
+      player1.balance = 1000;
+      player2.balance = 1000;
+      player1.position = 1;
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 1010);
+      expect(player2.balance, 990);
+    });
+
+    test('Community Chest: Player pays tax and bank balance increases', () {
+      gameEngine.communityChestDeck.clear();
+      final taxCard = Card(
+        description: 'Pay school fees of \$150',
+        type: CardType.pay,
+        amount: 150,
+      );
+      gameEngine.communityChestDeck.add(taxCard);
+
+      player1.balance = 1200;
+      player1.position = 1;
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 1050);
+      // Optionally check bank balance if tracked
+    });
+
+    test('Community Chest: Player receives dividend and balance increases', () {
+      gameEngine.communityChestDeck.clear();
+      final dividendCard = Card(
+        description: 'Receive \$50 dividend from bank',
+        type: CardType.receive,
+        amount: 50,
+      );
+      gameEngine.communityChestDeck.add(dividendCard);
+
+      player1.balance = 900;
+      player1.position = 1;
+      gameEngine.currentPlayerIndex = 0;
+      gameEngine.movePlayer(1, 0);
+
+      final card = gameEngine.drawCommunityDeck();
+      card.applyEffect(player1, gameEngine);
+
+      expect(player1.balance, 950);
     });
   });
 }

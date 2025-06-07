@@ -17,7 +17,9 @@ class GameEngine {
   final List<BoardTile> board;
   final Bank bank;
   final List<Card> chanceDeck;
+  final List<Card> usedChanceDeck = [];
   final List<Card> communityChestDeck;
+  final List<Card> usedCommunityChestDeck = [];
   final GameConfig config;
   int currentPlayerIndex;
   int turnNumber;
@@ -25,10 +27,6 @@ class GameEngine {
   List<Trade> activeTrades;
   int dice1 = 0;
   int dice2 = 0;
-
-  // Add discard piles for deck reshuffling
-  final List<Card> chanceDiscard = [];
-  final List<Card> communityChestDiscard = [];
 
   GameEngine({
     required this.players,
@@ -228,10 +226,7 @@ class GameEngine {
         notifyGameEvents("LandedOnGo", data: {"player": player.name});
         break;
       case TileType.chance:
-        _handleChanceLanding(player);
-        break;
       case TileType.communityChest:
-        _handleCommunityChestLanding(player);
         break;
     }
   }
@@ -278,67 +273,37 @@ class GameEngine {
     _handleJailLanding(player);
   }
 
-  void _handleChanceLanding(Player player) {
-    if (chanceDeck.isEmpty && chanceDiscard.isNotEmpty) {
-      chanceDeck.addAll(chanceDiscard);
-      chanceDiscard.clear();
-      shuffleDeck(chanceDeck);
+  /// Draws and returns a random card from the deck, moves it to the used pile, refills from used if deck is empty.
+  Card drawRandomDeck(List<Card> deck, List<Card> used) {
+    if (deck.isEmpty && used.isNotEmpty) {
+      deck.addAll(used);
+      used.clear();
     }
-    if (chanceDeck.isNotEmpty) {
-      final card = chanceDeck.removeAt(0);
-      notifyGameEvents("CardDrawn", data: {"deck": "Chance", "card": card.description, "player": player.name});
-      // Handle special cases for nearest utility/railroad and move back 3 spaces
-      if (card.type == CardType.moveTo) {
-        if (card.description.contains('nearest Utility')) {
-          // Find next utility after current position
-          int pos = player.position;
-          int nextUtility = board.indexWhere((tile) => tile.position > pos && tile.type == TileType.property && tile.property?.type == PropertyType.utility);
-          if (nextUtility == -1) {
-            // Wrap around
-            nextUtility = board.indexWhere((tile) => tile.type == TileType.property && tile.property?.type == PropertyType.utility);
-          }
-          player.moveTo(nextUtility, board.length);
-          handleLanding(player);
-        } else if (card.description.contains('nearest Railroad')) {
-          int pos = player.position;
-          int nextRR = board.indexWhere((tile) => tile.position > pos && tile.type == TileType.property && tile.property?.type == PropertyType.railroad);
-          if (nextRR == -1) {
-            nextRR = board.indexWhere((tile) => tile.type == TileType.property && tile.property?.type == PropertyType.railroad);
-          }
-          player.moveTo(nextRR, board.length);
-          handleLanding(player);
-        } else if (card.description.contains('Go Back 3 Spaces')) {
-          int newPos = (player.position - 3) % board.length;
-          if (newPos < 0) newPos += board.length;
-          player.moveTo(newPos, board.length);
-          handleLanding(player);
-        } else if (card.targetTileIndex != null) {
-          player.moveTo(card.targetTileIndex!, board.length);
-          handleLanding(player);
-        }
-      } else {
-        card.applyEffect(player, this);
-      }
-      chanceDiscard.add(card);
+    if (deck.isEmpty) {
+      throw Exception("No cards available to draw.");
     }
+    final random = Random();
+    final index = random.nextInt(deck.length);
+    final card = deck.removeAt(index);
+    used.add(card);
+    return card;
   }
 
-  void _handleCommunityChestLanding(Player player) {
-    if (communityChestDeck.isEmpty && communityChestDiscard.isNotEmpty) {
-      communityChestDeck.addAll(communityChestDiscard);
-      communityChestDiscard.clear();
-      shuffleDeck(communityChestDeck);
-    }
-    if (communityChestDeck.isNotEmpty) {
-      final card = communityChestDeck.removeAt(0);
-      notifyGameEvents("CardDrawn", data: {"deck": "CommunityChest", "card": card.description, "player": player.name});
-      if (card.type == CardType.moveTo) {
-        player.moveTo(card.targetTileIndex!, board.length);
-        handleLanding(player);
-      } else {
-        card.applyEffect(player, this);
-      }
-      communityChestDiscard.add(card);
+  Card drawChanceDeck() {
+    return drawRandomDeck(chanceDeck, usedChanceDeck);
+  }
+
+  Card drawCommunityDeck() {
+    return drawRandomDeck(communityChestDeck, usedCommunityChestDeck);
+  }
+
+  void handleDeck(Card card) {
+    Player player = players[currentPlayerIndex];
+    if (card.type == CardType.moveTo) {
+      player.moveTo(card.targetTileIndex!, board.length);
+      handleLanding(player);
+    } else {
+      card.applyEffect(player, this);
     }
   }
 
