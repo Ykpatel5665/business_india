@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../game_logic/models/board_tile.dart';
 import '../game_logic/models/property.dart';
@@ -27,7 +28,12 @@ class BoardTileWidget extends StatelessWidget {
     Widget content;
     switch (tile.type) {
       case TileType.property:
-        content = _PropertyTileWidget(tile: tile, onTap: onTap, tileSize: tileSize, borderRadius: borderRadius);
+        content = _PropertyTileWidget(
+          tile: tile,
+          onTap: onTap,
+          tileSize: tileSize,
+          borderRadius: borderRadius,
+        );
         break;
       default:
         content = _SimpleTileWidget(
@@ -116,7 +122,13 @@ class _PropertyTileWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final double tileSize;
   final double borderRadius;
-  const _PropertyTileWidget({Key? key, required this.tile, this.onTap, required this.tileSize, required this.borderRadius}) : super(key: key);
+  const _PropertyTileWidget({
+    Key? key,
+    required this.tile,
+    this.onTap,
+    required this.tileSize,
+    required this.borderRadius,
+  }) : super(key: key);
 
   Color _getColor() {
     // UK edition color mapping
@@ -130,7 +142,7 @@ class _PropertyTileWidget extends StatelessWidget {
       Color(0xFF228B22), // Green
       Color(0xFF1E90FF), // Blue
       Colors.black, // Railroads
-      Colors.grey,  // Utilities
+      Colors.grey, // Utilities
     ];
     return colors[tile.property!.colorGroup % colors.length];
   }
@@ -141,44 +153,68 @@ class _PropertyTileWidget extends StatelessWidget {
     final bool isRow = tile.position <= 10 || (tile.position >= 20 && tile.position <= 30);
     final bool isColumn = !isRow;
 
+    final List<Widget> widgets = [];
+    final content = Expanded(
+      child: Center(
+        child: Transform.rotate(
+          angle: (isRow ? 270 : 0) * (math.pi / 180),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  property.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                    letterSpacing: 0.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '£${property.price.toInt()}',
+                style: const TextStyle(fontSize: 10, color: Colors.black87),
+              ),
+              if (property.type == PropertyType.railroad)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(Icons.train, size: 16, color: Colors.black),
+                ),
+              if (property.type == PropertyType.utility)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(Icons.flash_on, size: 16, color: Colors.yellow[800]),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    final Widget colorBar = Container(
+      width: isRow ? double.infinity : 10,
+      height: isRow ? 10 : double.infinity,
+      decoration: BoxDecoration(
+        color: _getColor(),
+        borderRadius: BorderRadius.circular(1.0),
+      ),
+    );
+    if (tile.position < 11 || tile.position > 30) {
+      widgets.add(colorBar);
+    }
+    widgets.add(content);
+    if (tile.position > 11 && tile.position < 30) {
+      widgets.add(colorBar);
+    }
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(borderRadius),
         onTap: onTap,
-        child: Column(
-          children: [
-            if (property.showColorBar())
-              Container(
-              height: 20,
-              width: isRow ? double.infinity : 20,
-              decoration: BoxDecoration(
-                color: _getColor(),
-              ),
-            ),
-            Flexible(
-              child: Text(
-                property.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.2),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text('£${property.price.toInt()}', style: const TextStyle(fontSize: 10, color: Colors.black87)),
-            if (property.type == PropertyType.railroad)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Icon(Icons.train, size: 16, color: Colors.black),
-              ),
-            if (property.type == PropertyType.utility)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Icon(Icons.flash_on, size: 16, color: Colors.yellow[800]),
-              ),
-          ],
-        ),
+        child: isRow ? Column(children: widgets) : Row(children: widgets),
       ),
     );
   }
@@ -192,7 +228,15 @@ class _SimpleTileWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final double tileSize;
   final double borderRadius;
-  const _SimpleTileWidget({Key? key, required this.label, required this.icon, required this.color, this.onTap, required this.tileSize, required this.borderRadius}) : super(key: key);
+  const _SimpleTileWidget({
+    Key? key,
+    required this.label,
+    required this.icon,
+    required this.color,
+    this.onTap,
+    required this.tileSize,
+    required this.borderRadius,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -209,7 +253,7 @@ class _SimpleTileWidget extends StatelessWidget {
               colors: [
                 color.withOpacity(0.18),
                 color.withOpacity(0.10),
-                Colors.white.withOpacity(0.85)
+                Colors.white.withOpacity(0.85),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
