@@ -90,6 +90,7 @@ class Player {
       throw Exception("Property not owned by player");
     }
     property.upgrade(bank);
+    pay(property.houseCost.toDouble());
   }
 
   void declareBankruptcy() {

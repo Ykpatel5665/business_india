@@ -26,6 +26,10 @@ class GameEngine {
   int dice1 = 0;
   int dice2 = 0;
 
+  // Add discard piles for deck reshuffling
+  final List<Card> chanceDiscard = [];
+  final List<Card> communityChestDiscard = [];
+
   GameEngine({
     required this.players,
     required this.board,
@@ -45,10 +49,12 @@ class GameEngine {
     }
     status = GameStatus.active;
     turnNumber = 1;
+    notifyGameEvents("GameStarted");
   }
 
   void endGame() {
     status = GameStatus.completed;
+    notifyGameEvents("GameEnded");
   }
 
   void nextTurn() {
@@ -59,6 +65,7 @@ class GameEngine {
       currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     } while (players[currentPlayerIndex].isBankrupt);
     turnNumber++;
+    checkGameEnd();
   }
 
   /// Rolls two dice and returns their values.
@@ -100,6 +107,11 @@ class GameEngine {
 
     if (highestBidder != null) {
       highestBidder.buyProperty(property, highestBid);
+      notifyGameEvents("AuctionWon", data: {
+        "property": property.name,
+        "winner": highestBidder.name,
+        "bid": highestBid
+      });
     }
   }
 
@@ -130,7 +142,7 @@ class GameEngine {
   }
 
   /// Fixes type mismatches and method calls.
-  void handleFreeParking(Player player) {
+  void _handleFreeParking(Player player) {
     if (config.freeParkingCollects) {
       final collectedFunds = bank.collectFreeParkingFunds().toDouble();
       player.receive(collectedFunds);
@@ -148,22 +160,27 @@ class GameEngine {
       }
       player.inJail = false;
       player.jailTurns = 0;
+      notifyGameEvents("PlayerExitedJail", data: {"player": player.name});
     } else {
       player.jailTurns++;
     }
   }
 
   void upgradeProperty(Property property, Player player, Bank bank) {
-    if (!isMonopoly(property) || property.houses >= 5) {
-      throw Exception("Cannot upgrade property");
-    }
-    player.pay(property.houseCost.toDouble());
-    property.upgrade(bank);
+    player.upgradeProperty(property, bank);
   }
 
   void processTrade(Trade trade) {
     if (trade.isValid()) {
       trade.execute();
+      notifyGameEvents("TradeExecuted", data: {
+        "from": trade.fromPlayer.name,
+        "to": trade.toPlayer.name,
+        "offeredCash": trade.offeredCash,
+        "requestedCash": trade.requestedCash,
+        "offeredProperties": trade.offeredProperties.map((p) => p.name).toList(),
+        "requestedProperties": trade.requestedProperties.map((p) => p.name).toList(),
+      });
     } else {
       throw Exception("Invalid trade");
     }
@@ -182,66 +199,146 @@ class GameEngine {
     return tiles.every((tile) => tile.property?.owner == propertyToCheck.owner);
   }
 
-  /// Refines `handleLanding` to ensure correct position updates for Go to Jail.
+  /// Handles the landing logic for a player.
   void handleLanding(Player player) {
-    // Ensure balance updates correctly when passing Go
     int oldPosition = player.position - dice1 - dice2;
     final tile = board[player.position];
     if (tile.type != TileType.go && oldPosition < 0) {
       player.receive(config.goReward);
+      notifyGameEvents("PassedGo", data: {"player": player.name});
     }
     switch (tile.type) {
       case TileType.property:
-        if (tile.property != null && tile.property!.owner == null) {
-          // Property is unowned, player can buy it
-        } else if (tile.property != null && tile.property!.owner != player) {
-          final ownsSet = isMonopoly(tile.property!);
-          final rent = tile.property!.calculateRent(ownsSet, dice1, dice2);
-          payRent(player, tile.property!.owner!, rent, property: tile.property);
-        }
+        _handlePropertyLanding(player, tile);
         break;
       case TileType.tax:
-        bank.addToFreeParking(config.taxAmount);
-        player.pay(config.taxAmount);
+        _handleTaxLanding(player);
         break;
       case TileType.jail:
-        player.inJail = true;
+        _handleJailLanding(player);
         break;
       case TileType.goToJail:
-        player.inJail = true;
-        player.position = board.indexWhere((tile) => tile.type == TileType.jail);
-        if (player.position == -1) {
-          player.position = 10;
-        } else {
-          player.position = 30;
-        }
+        sendToJail(player);
         break;
       case TileType.freeParking:
-        handleFreeParking(player);
+        _handleFreeParking(player);
         break;
       case TileType.go:
         player.receive(config.goReward);
+        notifyGameEvents("LandedOnGo", data: {"player": player.name});
         break;
       case TileType.chance:
-        if (chanceDeck.isNotEmpty) {
-          final card = chanceDeck.removeAt(0);
-          
-          if (card.type == CardType.moveTo) {
-            player.moveTo(card.targetTileIndex!, board.length);
-            handleLanding(player);
-          } else {
-            card.applyEffect(player, this);
-          }
-          chanceDeck.add(card);
-        }
+        _handleChanceLanding(player);
         break;
       case TileType.communityChest:
-        if (communityChestDeck.isNotEmpty) {
-          final card = communityChestDeck.removeAt(0);
-          card.applyEffect(player, this);
-          communityChestDeck.add(card);
-        }
+        _handleCommunityChestLanding(player);
         break;
+    }
+  }
+
+  bool canBuyProperty() {
+    final player = players[currentPlayerIndex];
+    final tile = board[player.position];
+    // Not a property tile
+    if (tile.type != TileType.property || tile.property == null) return false;
+    final property = tile.property!;
+    // Check if the property is buyable
+    if (property.isMortgaged) return false; // Property is mortgaged
+    if (property.owner != null) return false; // Property is already owned
+    if (player.balance < property.price) {
+      return false; // Player cannot afford the property
+    }
+    return true; // Player can buy the property
+  }
+
+  void _handlePropertyLanding(Player player, BoardTile tile) {
+    if (tile.property == null) return; // Not a property tile
+    if (tile.property!.owner == null) {
+      // Property is unowned, player can buy it
+    } else if (tile.property!.owner != null && tile.property!.owner != player) {
+      final monopoly = isMonopoly(tile.property!);
+      final rent = tile.property!.calculateRent(monopoly, dice1, dice2);
+      payRent(player, tile.property!.owner!, rent, property: tile.property);
+    }
+  }
+
+  void _handleTaxLanding(Player player) {
+    bank.addToFreeParking(config.taxAmount);
+    player.pay(config.taxAmount);
+  }
+
+  void _handleJailLanding(Player player) {
+    player.inJail = true;
+    player.jailTurns = 0;
+    notifyGameEvents("PlayerSentToJail", data: {"player": player.name});
+  }
+  
+  void sendToJail(Player player) {
+    player.position = board.indexWhere((tile) => tile.type == TileType.jail);
+    _handleJailLanding(player);
+  }
+
+  void _handleChanceLanding(Player player) {
+    if (chanceDeck.isEmpty && chanceDiscard.isNotEmpty) {
+      chanceDeck.addAll(chanceDiscard);
+      chanceDiscard.clear();
+      shuffleDeck(chanceDeck);
+    }
+    if (chanceDeck.isNotEmpty) {
+      final card = chanceDeck.removeAt(0);
+      notifyGameEvents("CardDrawn", data: {"deck": "Chance", "card": card.description, "player": player.name});
+      // Handle special cases for nearest utility/railroad and move back 3 spaces
+      if (card.type == CardType.moveTo) {
+        if (card.description.contains('nearest Utility')) {
+          // Find next utility after current position
+          int pos = player.position;
+          int nextUtility = board.indexWhere((tile) => tile.position > pos && tile.type == TileType.property && tile.property?.type == PropertyType.utility);
+          if (nextUtility == -1) {
+            // Wrap around
+            nextUtility = board.indexWhere((tile) => tile.type == TileType.property && tile.property?.type == PropertyType.utility);
+          }
+          player.moveTo(nextUtility, board.length);
+          handleLanding(player);
+        } else if (card.description.contains('nearest Railroad')) {
+          int pos = player.position;
+          int nextRR = board.indexWhere((tile) => tile.position > pos && tile.type == TileType.property && tile.property?.type == PropertyType.railroad);
+          if (nextRR == -1) {
+            nextRR = board.indexWhere((tile) => tile.type == TileType.property && tile.property?.type == PropertyType.railroad);
+          }
+          player.moveTo(nextRR, board.length);
+          handleLanding(player);
+        } else if (card.description.contains('Go Back 3 Spaces')) {
+          int newPos = (player.position - 3) % board.length;
+          if (newPos < 0) newPos += board.length;
+          player.moveTo(newPos, board.length);
+          handleLanding(player);
+        } else if (card.targetTileIndex != null) {
+          player.moveTo(card.targetTileIndex!, board.length);
+          handleLanding(player);
+        }
+      } else {
+        card.applyEffect(player, this);
+      }
+      chanceDiscard.add(card);
+    }
+  }
+
+  void _handleCommunityChestLanding(Player player) {
+    if (communityChestDeck.isEmpty && communityChestDiscard.isNotEmpty) {
+      communityChestDeck.addAll(communityChestDiscard);
+      communityChestDiscard.clear();
+      shuffleDeck(communityChestDeck);
+    }
+    if (communityChestDeck.isNotEmpty) {
+      final card = communityChestDeck.removeAt(0);
+      notifyGameEvents("CardDrawn", data: {"deck": "CommunityChest", "card": card.description, "player": player.name});
+      if (card.type == CardType.moveTo) {
+        player.moveTo(card.targetTileIndex!, board.length);
+        handleLanding(player);
+      } else {
+        card.applyEffect(player, this);
+      }
+      communityChestDiscard.add(card);
     }
   }
 
@@ -341,6 +438,12 @@ class GameEngine {
   void payRent(Player tenant, Player owner, double rent, {Property? property}) {
     tenant.pay(rent);
     owner.receive(rent);
+    notifyGameEvents("RentPaid", data: {
+      "tenant": tenant.name,
+      "owner": owner.name,
+      "amount": rent,
+      "property": property?.name
+    });
   }
 
   void buyProperty() {
@@ -371,5 +474,20 @@ class GameEngine {
       "property": property.name,
       "price": property.price,
     });
+  }
+
+  void checkGameEnd() {
+    final activePlayers = players.where((p) => !p.isBankrupt).toList();
+    if (activePlayers.length == 1 && status == GameStatus.active) {
+      notifyGameEvents("GameWon", data: {"winner": activePlayers.first.name});
+      endGame();
+    }
+  }
+
+  // Add a helper to call after bankruptcy
+  void handleBankruptcy(Player player) {
+    player.declareBankruptcy();
+    notifyGameEvents("PlayerBankrupt", data: {"player": player.name});
+    checkGameEnd();
   }
 }

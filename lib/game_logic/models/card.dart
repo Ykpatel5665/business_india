@@ -6,26 +6,23 @@ import '../engine/game_engine.dart';
 class Card {
   final String description;
   final CardType type;
-  final void Function() effect;
   final int? targetTileIndex;
   final double? amount;
+  final double? amount2;
 
   Card({
     required this.description,
     required this.type,
-    required this.effect,
     this.targetTileIndex,
     this.amount,
+    this.amount2,
   });
 
   /// Applies the effect of the card to the player.
   void applyEffect(Player player, GameEngine gameEngine) {
     switch (type) {
       case CardType.goToJail:
-        // Send player to jail
-        player.inJail = true;
-        player.position = gameEngine.board.indexWhere((tile) => tile.type == TileType.jail);
-        player.jailTurns = 0;
+        gameEngine.sendToJail(player);
         break;
       case CardType.getOutOfJail:
         // Give player a Get Out of Jail Free card
@@ -47,9 +44,9 @@ class Card {
           houseCount += property.houses;
           if (property.hasHotel) hotelCount++;
         }
-        final costPerHouse = amount ?? 0;
-        // TODO : Check hotel cost if different from house cost
-        final total = (houseCount + hotelCount) * costPerHouse;
+        final double houseCost = houseCount * (amount ?? 0);
+        final double hotelCost = hotelCount * (amount2 ?? 0);
+        final double total = houseCost + hotelCost;
         player.pay(total);
         break;
       case CardType.payOtherPlayers:
