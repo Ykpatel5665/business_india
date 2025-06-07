@@ -61,7 +61,7 @@ class UKMonopolyEdition extends MonopolyGameEdition {
     Card(description: 'Advance to nearest Station. Pay owner twice the rental to which they are otherwise entitled. If unowned, you may buy it.', type: CardType.moveTo, targetTileIndex: null),
     Card(description: 'Bank pays you dividend of £50', type: CardType.receive, amount: 50),
     Card(description: 'Get Out of Jail Free. This card may be kept until needed or sold.', type: CardType.getOutOfJail),
-    Card(description: 'Go Back 3 Spaces', type: CardType.moveTo, targetTileIndex: null),
+    Card(description: 'Go Back 3 Spaces', type: CardType.moveTo, steps: -3),
     Card(description: 'Make general repairs on all your property: For each house pay £25, for each hotel £100', type: CardType.propertyRepairs, amount: 25),
     Card(description: 'Pay poor tax of £15', type: CardType.pay, amount: 15),
     Card(description: 'You have been elected Chairman of the Board. Pay each player £50', type: CardType.payOtherPlayers, amount: 50),

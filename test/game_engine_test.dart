@@ -79,7 +79,6 @@ void main() {
       gameEngine = GameEngine(
         players: [player1, player2],
         board: board,
-        bank: Bank(),
         chanceDeck: [
           Card(description: 'Advance to Go (Collect \$200)', type: CardType.moveTo, targetTileIndex: 0),
           Card(description: 'Advance to Illinois Ave.', type: CardType.moveTo, targetTileIndex: 24),
@@ -88,7 +87,7 @@ void main() {
           Card(description: 'Advance token to nearest Railroad', type: CardType.moveTo, targetTileIndex: null), // handle nearest logic in engine
           Card(description: 'Bank pays you dividend of \$50', type: CardType.receive, amount: 50),
           Card(description: 'Get Out of Jail Free', type: CardType.getOutOfJail),
-          Card(description: 'Go Back 3 Spaces', type: CardType.moveTo, targetTileIndex: null), // handle move back logic in engine
+          Card(description: 'Go Back 3 Spaces', type: CardType.moveTo, steps: -3),
           Card(description: 'Go to Jail', type: CardType.goToJail),
           Card(description: 'Make general repairs on all your property: For each house pay \$25, for each hotel \$100', type: CardType.propertyRepairs, amount: 25, amount2: 100), // hotel cost handled in logic if needed
           Card(description: 'Pay poor tax of \$15', type: CardType.pay, amount: 15),
@@ -542,7 +541,7 @@ void main() {
       player1.ownedProperties.add(property2);
       expect(property.houses, 0);
       player1.balance = 1000;
-      gameEngine.upgradeProperty(property, player1, gameEngine.bank);
+      gameEngine.upgradeProperty(property, player1);
       expect(property.houses, 1);
       expect(player1.balance, 1000 - property.houseCost); // Paid houseCost (50)
       expect(gameEngine.bank.availableHouses, gameEngine.config.initialHouses - 1);
@@ -557,13 +556,13 @@ void main() {
       player1.ownedProperties.add(property2);
       player1.balance = 1000;
       for (int i = 0; i < 4; i++) {
-        gameEngine.upgradeProperty(property, player1, gameEngine.bank);
+        gameEngine.upgradeProperty(property, player1);
       }
       expect(property.houses, 4);
       expect(property.hasHotel, false);
       expect(gameEngine.bank.availableHouses, gameEngine.config.initialHouses - 4);
       // Build hotel
-      gameEngine.upgradeProperty(property, player1, gameEngine.bank);
+      gameEngine.upgradeProperty(property, player1);
       expect(property.houses, 0);
       expect(property.hasHotel, true);
       expect(gameEngine.bank.availableHotels, gameEngine.config.initialHotels - 1);

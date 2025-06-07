@@ -12,10 +12,12 @@ class Player {
   int getOutOfJailCards;
   List<Property> ownedProperties;
   bool isBankrupt;
+  // int color;
 
   Player({
     required this.name,
     required this.tokenId,
+    // required this.color,
     this.position = 0,
     this.balance = 1500.0,
     this.inJail = false,

@@ -9,6 +9,7 @@ class Card {
   final int? targetTileIndex;
   final double? amount;
   final double? amount2;
+  final int? steps;
 
   Card({
     required this.description,
@@ -16,6 +17,7 @@ class Card {
     this.targetTileIndex,
     this.amount,
     this.amount2,
+    this.steps,
   });
 
   /// Applies the effect of the card to the player.

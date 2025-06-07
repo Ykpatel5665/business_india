@@ -15,31 +15,26 @@ import '../persistence/hive_persistence.dart';
 class GameEngine {
   final List<Player> players;
   final List<BoardTile> board;
-  final Bank bank;
   final List<Card> chanceDeck;
   final List<Card> usedChanceDeck = [];
   final List<Card> communityChestDeck;
   final List<Card> usedCommunityChestDeck = [];
   final GameConfig config;
-  int currentPlayerIndex;
-  int turnNumber;
-  GameStatus status;
-  List<Trade> activeTrades;
+  final Bank bank;
+  int currentPlayerIndex = 0;
+  int turnNumber = 0;
+  GameStatus status = GameStatus.pending;
+  List<Trade> activeTrades = [];
   int dice1 = 0;
   int dice2 = 0;
 
   GameEngine({
     required this.players,
     required this.board,
-    required this.bank,
     required this.chanceDeck,
     required this.communityChestDeck,
     required this.config,
-  })  : currentPlayerIndex = 0,
-        turnNumber = 0,
-        status = GameStatus.pending,
-        activeTrades = [] {
-  }
+  }) : bank = Bank(availableHouses: config.initialHouses, availableHotels: config.initialHotels) {}
 
   void startGame() {
     if (players.isEmpty) {
@@ -164,7 +159,7 @@ class GameEngine {
     }
   }
 
-  void upgradeProperty(Property property, Player player, Bank bank) {
+  void upgradeProperty(Property property, Player player) {
     player.upgradeProperty(property, bank);
   }
 
@@ -300,7 +295,13 @@ class GameEngine {
   void handleDeck(Card card) {
     Player player = players[currentPlayerIndex];
     if (card.type == CardType.moveTo) {
-      player.moveTo(card.targetTileIndex!, board.length);
+      if (card.targetTileIndex != null) {
+        player.moveTo(card.targetTileIndex!, board.length);
+      } else if (card.steps != null && card.steps! > 0) {
+        player.move(card.steps!, board.length);
+      } else {
+        throw Exception("Invalid card: must specify target tile index or steps");
+      }
       handleLanding(player);
     } else {
       card.applyEffect(player, this);
@@ -365,14 +366,6 @@ class GameEngine {
   void shuffleDeck(List<Card> deck) {
     deck.shuffle();
   }
-
-  /// Adds missing setters for GameEngine properties.
-  set players(List<Player> newPlayers) => this.players = newPlayers;
-  set board(List<BoardTile> newBoard) => this.board = newBoard;
-  set bank(Bank newBank) => this.bank = newBank;
-  set config(GameConfig newConfig) => this.config = newConfig;
-  set chanceDeck(List<Card> newChanceDeck) => this.chanceDeck = newChanceDeck;
-  set communityChestDeck(List<Card> newCommunityChestDeck) => this.communityChestDeck = newCommunityChestDeck;
 
   /// Removed duplicate method declarations.
   void movePlayer(int dice1, int dice2) {

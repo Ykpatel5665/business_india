@@ -23,7 +23,6 @@ abstract class MonopolyGameEdition {
     return GameEngine(
       players: players,
       board: getBoard(),
-      bank: Bank(),
       chanceDeck: getChanceDeck(),
       communityChestDeck: getCommunityChestDeck(),
       config: config,
