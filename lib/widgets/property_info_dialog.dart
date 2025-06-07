@@ -13,44 +13,40 @@ class PropertyInfoDialog extends StatelessWidget {
       backgroundColor: Colors.white,
       title: Row(
         children: [
-          Container(
-            width: 16,
-            height: 16,
-          ),
-          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              property.name,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            child: Column(
+                children: [
+                    Text(
+                        property.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    ),
+                    if (property.owner != null)
+                        Text(
+                            'Owned by ${property.owner!.name}',
+                            style: const TextStyle(fontSize: 13, color: Colors.blueGrey),
+                        ),
+                ]
             ),
           ),
         ],
       ),
       content: Container(
         width: 320,
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             _monoInfoRow('Purchase Price', '${currency}${property.price.toInt()}', highlight: true),
             _monoInfoRow('Mortgage Value', '${currency}${property.mortgageValue.toInt()}'),
+            _monoInfoRow('Construction Cost', '${currency}${property.houseCost}'),
             const Divider(height: 18, thickness: 1.1),
             _monoInfoRow('Rent', '${currency}${property.baseRent.toInt()}'),
-            _monoInfoRow('Rent with colour set', '${currency}${_monopolyRent(property)}'),
             _monoRentRow(1, '${currency}${property.getRent(1).toInt()}'),
             _monoRentRow(2, '${currency}${property.getRent(2).toInt()}'),
             _monoRentRow(3, '${currency}${property.getRent(3).toInt()}'),
             _monoRentRow(4, '${currency}${property.getRent(4).toInt()}'),
-            _monoRentRow('hotel', '${currency}${property.getRent(5).toInt()}'),
-            const Divider(height: 18, thickness: 1.1),
-            _monoInfoRow('House Price', '${currency}${property.houseCost}'),
-            _monoInfoRow('Hotel Price', '${currency}${property.houseCost}'),
-            const SizedBox(height: 8),
-            _monoInfoRow('Owner', property.owner?.name ?? 'Unowned'),
-            _monoInfoRow('Houses', '${property.houses}'),
-            _monoInfoRow('Hotel', property.hasHotel ? 'Yes' : 'No'),
+            _monoRentRow(5, '${currency}${property.getRent(5).toInt()}')
           ],
         ),
       ),
@@ -106,9 +102,9 @@ class PropertyInfoDialog extends StatelessWidget {
     );
   }
 
-  Widget _monoRentRow(dynamic count, String value) {
+  Widget _monoRentRow(int count, String value) {
     Widget iconWidget;
-    if (count == 'hotel') {
+    if (count == 5) {
       iconWidget = const Icon(Icons.hotel, color: Colors.red, size: 20);
     } else {
       iconWidget = Row(
