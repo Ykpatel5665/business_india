@@ -15,9 +15,9 @@ class BoardTileWidget extends StatelessWidget {
     // Responsive sizing
     // All tiles (including corners) use the same size for perfect grid fit
     final tileSize = 48.0;
-    final borderRadius = tile.position % 10 == 0 ? 16.0 : 10.0;
+    final borderRadius = 0.0;
     final elevation = tile.position % 10 == 0 ? 8.0 : 4.0;
-    final shadowColor = Colors.black.withOpacity(0.18);
+    final shadowColor = Colors.black.withOpacity(0.0);
     final gradient = LinearGradient(
       colors: [Colors.white, Colors.grey[100]!, Colors.grey[200]!],
       begin: Alignment.topLeft,
@@ -44,7 +44,6 @@ class BoardTileWidget extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       width: tileSize,
       height: tileSize,
-      margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: BorderRadius.circular(borderRadius),
@@ -55,7 +54,6 @@ class BoardTileWidget extends StatelessWidget {
             offset: Offset(0, elevation / 2),
           ),
         ],
-        border: Border.all(color: Colors.black, width: 2),
       ),
       child: content,
     );

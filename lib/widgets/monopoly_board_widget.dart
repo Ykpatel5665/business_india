@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../game_logic/models/board_tile.dart';
 import 'board_tile_widget.dart';
 
-/// Widget to render the Monopoly board as a square grid.
-/// Modular, ready for further interaction logic.
+final double AspectRatio = 2;
+
+/// Widget to render the Monopoly board with rectangular view.
+/// First and last rows have bigger height, other rows have bigger width, corner grids remain square.
 class MonopolyBoardWidget extends StatelessWidget {
   final List<BoardTile> boardTiles;
   final void Function(BoardTile)? onTileTap;
@@ -11,52 +13,64 @@ class MonopolyBoardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Monopoly board is 40 tiles, arranged in a square (10 per side)
-    // We'll use a Stack to arrange tiles in a square layout
-    return AspectRatio(
-      aspectRatio: 1,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final size = constraints.maxWidth;
-          final tileSize = size / 11; // 10 tiles + 1 for corners
-          List<Widget> positionedTiles = [];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double cellSize = (constraints.maxWidth < constraints.maxHeight
+            ? constraints.maxWidth
+            : constraints.maxHeight) / (11 + (2 * (AspectRatio - 1)));
+        double largeCellSize = cellSize * AspectRatio;
+        print('MonopolyBoardWidget: cellSize=$cellSize, largeCellSize=$largeCellSize');
 
-          for (int i = 0; i < boardTiles.length; i++) {
-            final tile = boardTiles[i];
-            // Calculate position for each tile
-            int x = 0, y = 0;
-            if (i < 10) {
-              // Bottom row, left to right
-              x = 10 - i;
-              y = 10;
-            } else if (i < 20) {
-              // Left column, bottom to top
-              x = 0;
-              y = 20 - i;
-            } else if (i < 30) {
-              // Top row, right to left
-              x = i - 20;
-              y = 0;
-            } else {
-              // Right column, top to bottom
-              x = 10;
-              y = i - 30;
-            }
-            positionedTiles.add(Positioned(
-              left: x * tileSize,
-              top: y * tileSize,
-              width: tileSize,
-              height: tileSize,
-              child: BoardTileWidget(
-                tile: tile,
-                onTap: onTileTap != null ? () => onTileTap!(tile) : null,
-              ),
-            ));
-          }
+        return SizedBox(
+          width: constraints.maxWidth < constraints.maxHeight ? constraints.maxWidth : constraints.maxHeight,
+          height: constraints.maxWidth < constraints.maxHeight ? constraints.maxWidth : constraints.maxHeight,
+          child: Stack(
+            children: List.generate(121, (index) {
+              int row = index ~/ 11;
+              int col = index % 11;
+              int? tileIndex;
 
-          return Stack(children: positionedTiles);
-        },
-      ),
+              // Bottom row (left to right)
+              if (row == 10 && col >= 0 && col < 11) {
+                tileIndex = 10 - col;
+              }
+              // Left column (bottom to top)
+              else if (col == 0 && row >= 0 && row < 11) {
+                tileIndex = 10 + (10 - row);
+              }
+              // Top row (right to left)
+              else if (row == 0 && col >= 0 && col < 11) {
+                tileIndex = 20 + col;
+              }
+              // Right column (top to bottom)
+              else if (col == 10 && row >= 0 && row < 11) {
+                tileIndex = 30 + row;
+              }
+
+              double left = col > 0 ? (largeCellSize + (col - 1) * cellSize) : 0.0;
+              double top = row > 0 ? (largeCellSize + (row - 1) * cellSize) : 0.0;
+              double width = (col == 0 || col == 10) ? largeCellSize : cellSize;
+              double height = (row == 0 || row == 10) ? largeCellSize : cellSize;
+
+              if (tileIndex != null && tileIndex >= 0 && tileIndex < boardTiles.length) {
+                final tile = boardTiles[tileIndex];
+                return Positioned(
+                  left: left,
+                  top: top,
+                  width: width,
+                  height: height,
+                  child: BoardTileWidget(
+                    tile: tile,
+                    onTap: onTileTap != null ? () => onTileTap!(tile) : null,
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            }),
+          ),
+        );
+      },
     );
   }
 }
