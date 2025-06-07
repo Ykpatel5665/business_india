@@ -78,6 +78,10 @@ class Property {
     isMortgaged = false;
   }
 
+  bool showColorBar() {
+    return type == PropertyType.street;
+  }
+
   void upgrade(Bank? bank) {
     if (_owner == null) {
       throw Exception("Property must have an owner to upgrade");

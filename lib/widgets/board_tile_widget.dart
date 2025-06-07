@@ -138,48 +138,46 @@ class _PropertyTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final property = tile.property!;
+    final bool isRow = tile.position <= 10 || (tile.position >= 20 && tile.position <= 30);
+    final bool isColumn = !isRow;
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(borderRadius),
         onTap: onTap,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+        child: Column(
+          children: [
+            if (property.showColorBar())
               Container(
-                height: 10,
-                width: tileSize - 12,
-                decoration: BoxDecoration(
-                  color: _getColor(),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+              height: 20,
+              width: isRow ? double.infinity : 20,
+              decoration: BoxDecoration(
+                color: _getColor(),
               ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
-                  property.name,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.2),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
+            ),
+            Flexible(
+              child: Text(
+                property.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.2),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2),
-              Text('£${property.price.toInt()}', style: const TextStyle(fontSize: 10, color: Colors.black87)),
-              if (property.type == PropertyType.railroad)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(Icons.train, size: 16, color: Colors.black),
-                ),
-              if (property.type == PropertyType.utility)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(Icons.flash_on, size: 16, color: Colors.yellow[800]),
-                ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 2),
+            Text('£${property.price.toInt()}', style: const TextStyle(fontSize: 10, color: Colors.black87)),
+            if (property.type == PropertyType.railroad)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(Icons.train, size: 16, color: Colors.black),
+              ),
+            if (property.type == PropertyType.utility)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(Icons.flash_on, size: 16, color: Colors.yellow[800]),
+              ),
+          ],
         ),
       ),
     );

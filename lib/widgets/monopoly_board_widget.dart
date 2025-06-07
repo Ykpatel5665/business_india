@@ -19,7 +19,6 @@ class MonopolyBoardWidget extends StatelessWidget {
             ? constraints.maxWidth
             : constraints.maxHeight) / (11 + (2 * (AspectRatio - 1)));
         double largeCellSize = cellSize * AspectRatio;
-        print('MonopolyBoardWidget: cellSize=$cellSize, largeCellSize=$largeCellSize');
 
         return SizedBox(
           width: constraints.maxWidth < constraints.maxHeight ? constraints.maxWidth : constraints.maxHeight,
