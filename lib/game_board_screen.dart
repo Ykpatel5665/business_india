@@ -7,20 +7,48 @@ import 'game_logic/models/game_config.dart';
 import 'widgets/monopoly_board_widget.dart';
 import 'game_logic/models/board_tile.dart';
 import 'widgets/property_info_dialog.dart';
+import 'widgets/dice_widget.dart';
 
-class GameBoardScreen extends StatelessWidget {
+class GameBoardScreen extends StatefulWidget {
   final String? mode;
   final int? playerCount;
   const GameBoardScreen({Key? key, this.mode, this.playerCount}) : super(key: key);
 
   @override
+  State<GameBoardScreen> createState() => _GameBoardScreenState();
+}
+
+class _GameBoardScreenState extends State<GameBoardScreen> {
+  late final List<Player> players;
+  late final GameConfig config;
+  late final engine;
+  late final List<BoardTile> boardTiles;
+  int dice1 = 1;
+  int dice2 = 1;
+  bool rolling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    players = [Player(name: 'Bala', tokenId: 1)];
+    config = GameConfig();
+    engine = MonopolyGameEngineBuilder(players: players, config: config).create('uk');
+    boardTiles = engine.board;
+  }
+
+  void _rollDice() async {
+    setState(() { rolling = true; });
+    await Future.delayed(const Duration(milliseconds: 300));
+    final result = engine.rollDice();
+    setState(() {
+      dice1 = result[0];
+      dice2 = result[1];
+      rolling = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Example: create a dummy player list and config for preview/demo
-    final players = [Player(name: 'Bala', tokenId: 1)];
-    final config = GameConfig();
-    // Use UK edition for now
-    final engine = MonopolyGameEngineBuilder(players: players, config: config).create('uk');
-    final boardTiles = engine.board;
     return Scaffold(
       appBar: AppBar(title: const Text('Game Board')),
       body: Center(
@@ -34,6 +62,12 @@ class GameBoardScreen extends StatelessWidget {
               );
             }
           },
+          centerOverlay: DiceWidget(
+            dice1: dice1,
+            dice2: dice2,
+            rolling: rolling,
+            onRoll: _rollDice,
+          ),
         ),
       ),
     );
