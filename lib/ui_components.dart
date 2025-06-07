@@ -270,6 +270,7 @@ class LoginBoardHeader extends StatelessWidget {
 }
 
 /// GameModeButton: Large, visually engaging button for game mode options.
+///
 /// Accessibility: Adds semantic label and selected state.
 class GameModeButton extends StatelessWidget {
   final Color color; // Main color for the button (unique per mode)

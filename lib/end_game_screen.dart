@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'responsive_layout.dart';
 import 'app_theme.dart';
+import 'widgets/responsive_centered_text.dart';
 
 class EndGameScreen extends StatelessWidget {
   const EndGameScreen({super.key});
@@ -9,10 +9,11 @@ class EndGameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Game Over')),
-      body: ResponsiveLayout(
-        mobile: Center(child: Text('End Game (Mobile)', style: AppTextStyles.bodyLarge(1.0))),
-        tablet: Center(child: Text('End Game (Tablet)', style: AppTextStyles.titleLarge(1.1))),
-        desktop: Center(child: Text('End Game (Desktop)', style: AppTextStyles.titleLarge(1.3))),
+      body: const ResponsiveCenteredText(
+        mobileText: 'End Game (Mobile)',
+        tabletText: 'End Game (Tablet)',
+        desktopText: 'End Game (Desktop)',
+        styleBuilder: AppTextStyles.bodyLarge,
       ),
     );
   }

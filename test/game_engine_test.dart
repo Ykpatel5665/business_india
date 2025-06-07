@@ -902,7 +902,7 @@ void main() {
       expect(player1.balance, 2000 - (3 * 40 + 1 * 115));
     });
 
-  // --- Extra Community Chest Deck Tests ---
+    // --- Extra Community Chest Deck Tests ---
     test('Community Chest: Player receives money from all players', () {
       gameEngine.communityChestDeck.clear();
       final receiveFromAll = Card(

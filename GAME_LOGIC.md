@@ -6,7 +6,7 @@ This document outlines the complete backend logic, architecture, and persistence
 
 ## 1. Project Structure
 
-- All game logic is in `lib/game_logic/` (or `lib/monopoly_logic/`)
+- All game logic is in `lib/game_logic/`
 - Subfolders:
   - `models/` — Data classes, enums, and business logic
   - `engine/` — Game engine, turn management, event system
