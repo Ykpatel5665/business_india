@@ -14,7 +14,7 @@ class MonopolyGameEngineBuilder {
     required this.config,
   });
 
-  GameEngine create(edition String) {
+  GameEngine create(String edition) {
     switch (edition) {
       case 'uk':
         return UKMonopolyEdition(players: players, config: config).create();

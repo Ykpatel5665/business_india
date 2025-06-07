@@ -2,9 +2,17 @@
 import '../game_edition.dart';
 import '../../models/board_tile.dart';
 import '../../models/property.dart';
+import '../../models/player.dart';
 import '../../models/card.dart';
+import '../../models/enums.dart';
+import '../../models/game_config.dart';
 
 class UKMonopolyEdition extends MonopolyGameEdition {
+  UKMonopolyEdition({
+    required List<Player> players,
+    required GameConfig config,
+  }) : super(players: players, config: config);
+
   @override
   List<BoardTile> getBoard() => [
     BoardTile(position: 0, type: TileType.go, label: 'Go'),

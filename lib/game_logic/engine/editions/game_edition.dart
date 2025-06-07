@@ -15,7 +15,7 @@ abstract class MonopolyGameEdition {
     required this.config,
   });
 
-  Board getBoard();
+  List<BoardTile> getBoard();
   List<Card> getChanceDeck();
   List<Card> getCommunityChestDeck();
 
