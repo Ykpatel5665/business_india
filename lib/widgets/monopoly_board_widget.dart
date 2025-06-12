@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../game_logic/models/board_tile.dart';
 import 'board_tile_widget.dart';
 
-final double AspectRatio = 2;
+final double AspectRatio = 3;
 
 /// Widget to render the Monopoly board with rectangular view.
 /// First and last rows have bigger height, other rows have bigger width, corner grids remain square.

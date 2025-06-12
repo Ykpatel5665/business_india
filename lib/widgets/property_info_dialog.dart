@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../game_logic/models/property.dart';
+import '../game_logic/models/enums.dart';
+import 'property_details_section.dart';
 
 class PropertyInfoDialog extends StatelessWidget {
   final Property property;
@@ -35,18 +37,22 @@ class PropertyInfoDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+            children: [
+            if (property.canConstruct) ...[
+              Center(
+                child: Text(
+                  'Rent is doubled on owning all unimproved sites in the group.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              )
+            ],
             const SizedBox(height: 5),
-            _monoInfoRow('Purchase Price', '${currency}${property.price.toInt()}', highlight: true),
-            _monoInfoRow('Mortgage Value', '${currency}${property.mortgageValue.toInt()}'),
-            _monoInfoRow('Construction Cost', '${currency}${property.houseCost}'),
-            const Divider(height: 18, thickness: 1.1),
-            _monoInfoRow('Rent', '${currency}${property.baseRent.toInt()}'),
-            _monoRentRow(1, '${currency}${property.getRent(1).toInt()}'),
-            _monoRentRow(2, '${currency}${property.getRent(2).toInt()}'),
-            _monoRentRow(3, '${currency}${property.getRent(3).toInt()}'),
-            _monoRentRow(4, '${currency}${property.getRent(4).toInt()}'),
-            _monoRentRow(5, '${currency}${property.getRent(5).toInt()}')
+            PropertyDetailsSection(property: property),
           ],
         ),
       ),
@@ -56,80 +62,6 @@ class PropertyInfoDialog extends StatelessWidget {
           child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
-    );
-  }
-
-  // Helper for info row with icon
-  Widget _infoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.blueGrey[700]),
-          const SizedBox(width: 7),
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
-          Flexible(child: Text(value, style: const TextStyle(fontSize: 15))),
-        ],
-      ),
-    );
-  }
-
-  int _monopolyRent(Property property) {
-    // Example: double base rent for full set
-    return (property.baseRent * 2).toInt();
-  }
-
-  Widget _monoInfoRow(String label, String value, {bool highlight = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label,
-              style: TextStyle(
-                fontWeight: highlight ? FontWeight.bold : FontWeight.w500,
-                fontSize: 15.5,
-                color: highlight ? Colors.blue[900] : Colors.black87,
-              )),
-          Text(value,
-              style: TextStyle(
-                fontWeight: highlight ? FontWeight.bold : FontWeight.w600,
-                fontSize: 15.5,
-                color: highlight ? Colors.blue[900] : Colors.black87,
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget _monoRentRow(int count, String value) {
-    Widget iconWidget;
-    if (count == 5) {
-      iconWidget = const Icon(Icons.hotel, color: Colors.red, size: 20);
-    } else {
-      iconWidget = Row(
-        children: [
-          for (int i = 0; i < count; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: Icon(Icons.house, color: Colors.green[700], size: 18),
-            )
-        ],
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(children: [
-            const SizedBox(width: 2),
-            iconWidget,
-            const SizedBox(width: 8)
-          ]),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-        ],
-      ),
     );
   }
 }

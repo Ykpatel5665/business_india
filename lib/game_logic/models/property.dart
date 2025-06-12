@@ -43,9 +43,9 @@ class Property {
       return _calculateRailroadRent();
     }
     if (isMortgaged) return 0.0;
-    if (hasHotel) return getRent(5); // Rent with hotel
+    if (hasHotel) return getHouseRent(5); // Rent with hotel
     if (isMonopoly && houses == 0) return baseRent * 2; // Double rent for monopoly
-    return getRent(houses);
+    return getHouseRent(houses);
   }
 
   double _calculateUtilityRent(bool isMonopoly, int dice1, int dice2) {
@@ -54,11 +54,15 @@ class Property {
 
   double _calculateRailroadRent() {
     int ownedRailroads = _owner?.ownedProperties.where((p) => p.type == PropertyType.railroad).length ?? 0;
-    if (ownedRailroads == 0) return baseRent;
-    return baseRent * pow(2, ownedRailroads - 1);
+    return getRailRoadRent(ownedRailroads);
   }
 
-  double getRent(int houseCount) {
+  double getRailRoadRent(int houseCount) {
+    if (houseCount == 0) return baseRent;
+    return baseRent * pow(2, houseCount - 1);
+  }
+
+  double getHouseRent(int houseCount) {
     return baseRent * multipliers[houseCount];
   }
 
@@ -84,14 +88,11 @@ class Property {
     isMortgaged = false;
   }
 
-  bool showColorBar() {
-    return type == PropertyType.street;
-  }
-
   void upgrade(Bank? bank) {
     if (!canUpgrade) {
       throw Exception(_upgradeErrorMessage(bank));
     }
+    // TODO : Add even building rules for houses
     if (houses < 4) {
       if (bank != null) bank.giveHouse();
       houses++;
@@ -147,6 +148,10 @@ class Property {
 
   bool get canDowngrade {
     return hasHotel || houses > 0;
+  }
+
+  bool get canConstruct {
+    return type == PropertyType.street;
   }
 
   bool isOwned() {

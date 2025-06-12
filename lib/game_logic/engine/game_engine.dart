@@ -290,6 +290,7 @@ class GameEngine {
   void handleDeck(Card card) {
     Player player = players[currentPlayerIndex];
     if (card.type == CardType.moveTo) {
+      // TODO : Should acutal move
       if (card.targetTileIndex != null) {
         player.moveTo(card.targetTileIndex!, board.length);
       } else if (card.steps != null && card.steps! > 0) {
