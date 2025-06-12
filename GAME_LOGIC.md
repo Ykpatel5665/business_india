@@ -46,7 +46,7 @@ This document outlines the complete backend logic, architecture, and persistence
 - Methods to give/take houses/hotels
 
 ### Card
-- Chance/Community Chest, with effect functions
+- Chance/Community Chest
 - Deck reshuffling after depletion
 
 ### Trade

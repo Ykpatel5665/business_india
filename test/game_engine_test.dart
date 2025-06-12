@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:business_india/game_logic/engine/game_engine.dart';
 import 'package:business_india/game_logic/models/player.dart';
-import 'package:business_india/game_logic/models/bank.dart';
 import 'package:business_india/game_logic/models/property.dart';
 import 'package:business_india/game_logic/models/board_tile.dart';
 import 'package:business_india/game_logic/models/enums.dart';
@@ -683,10 +682,8 @@ void main() {
       type: CardType.goToJail,
       );
       gameEngine.chanceDeck.add(goToJailCard);
-
       // Move player to Chance
       gameEngine.movePlayer(1, 0);
-
       // Draw and handle the card
       final card = gameEngine.drawChanceDeck();
       gameEngine.handleDeck(card);

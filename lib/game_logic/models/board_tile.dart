@@ -19,4 +19,14 @@ class BoardTile {
     this.icon,
     this.color,
   });
+
+  bool get isPropertyTile => type == TileType.property && property != null;
+  bool get isOwnable => property != null;
+  bool get isChanceTile => type == TileType.chance;
+  bool get isCommunityChestTile => type == TileType.communityChest;
+  bool get isGoTile => type == TileType.go;
+  bool get isJailTile => type == TileType.jail;
+  bool get isGoToJailTile => type == TileType.goToJail;
+  bool get isTaxTile => type == TileType.tax;
+  bool get isFreeParkingTile => type == TileType.freeParking;
 }

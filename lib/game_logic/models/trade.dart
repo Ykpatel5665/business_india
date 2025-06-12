@@ -56,12 +56,25 @@ class Trade {
     status = TradeStatus.cancelled;
   }
 
+  bool get isPending => status == TradeStatus.pending;
+  bool get isAccepted => status == TradeStatus.accepted;
+  bool get isRejected => status == TradeStatus.rejected;
+  bool get isCancelled => status == TradeStatus.cancelled;
+
+  bool canOfferProperties() => fromPlayer.ownedProperties.containsAll(offeredProperties);
+  bool canRequestProperties() => toPlayer.ownedProperties.containsAll(requestedProperties);
+  bool canOfferCash() => fromPlayer.balance >= offeredCash;
+  bool canRequestCash() => toPlayer.balance >= requestedCash;
+  bool canExecute() => isPending && canOfferProperties() && canRequestProperties() && canOfferCash() && canRequestCash();
+
   /// Validates the trade to ensure it can be executed.
   bool isValid() {
-    if (status != TradeStatus.pending) return false;
+    if (!isPending) return false;
     if (offeredCash < 0 || requestedCash < 0) return false;
-    if (!fromPlayer.ownedProperties.containsAll(offeredProperties)) return false;
-    if (!toPlayer.ownedProperties.containsAll(requestedProperties)) return false;
+    if (!canOfferProperties()) return false;
+    if (!canRequestProperties()) return false;
+    if (!canOfferCash()) return false;
+    if (!canRequestCash()) return false;
     return true;
   }
 
@@ -73,33 +86,28 @@ class Trade {
     _executeTrade();
   }
 
+  void _transferProperties(List<Property> properties, Player from, Player to) {
+    for (var property in properties) {
+      if (!from.ownedProperties.contains(property)) {
+        throw Exception("Property not owned by the transferring player");
+      }
+      from.ownedProperties.remove(property);
+      to.ownedProperties.add(property);
+      property.owner = to;
+    }
+  }
+
+  void _transferCash(double amount, Player from, Player to) {
+    if (amount > 0) {
+      from.pay(amount);
+      to.receive(amount);
+    }
+  }
+
   void _executeTrade() {
-    for (var property in offeredProperties) {
-      if (!fromPlayer.ownedProperties.contains(property)) {
-        throw Exception("Property not owned by the offering player");
-      }
-      fromPlayer.ownedProperties.remove(property);
-      toPlayer.ownedProperties.add(property);
-      property.owner = toPlayer;
-    }
-
-    for (var property in requestedProperties) {
-      if (!toPlayer.ownedProperties.contains(property)) {
-        throw Exception("Property not owned by the receiving player");
-      }
-      toPlayer.ownedProperties.remove(property);
-      fromPlayer.ownedProperties.add(property);
-      property.owner = fromPlayer;
-    }
-
-    if (offeredCash > 0) {
-      fromPlayer.pay(offeredCash);
-      toPlayer.receive(offeredCash);
-    }
-
-    if (requestedCash > 0) {
-      toPlayer.pay(requestedCash);
-      fromPlayer.receive(requestedCash);
-    }
+    _transferProperties(offeredProperties, fromPlayer, toPlayer);
+    _transferProperties(requestedProperties, toPlayer, fromPlayer);
+    _transferCash(offeredCash, fromPlayer, toPlayer);
+    _transferCash(requestedCash, toPlayer, fromPlayer);
   }
 }

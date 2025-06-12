@@ -9,8 +9,11 @@ class Bank {
     this.availableHotels = 12,
   });
 
+  bool get canGiveHouse => availableHouses > 0;
+  bool get canGiveHotel => availableHotels > 0;
+
   void giveHouse() {
-    if (availableHouses <= 0) {
+    if (!canGiveHouse) {
       throw Exception("No houses available in the bank");
     }
     availableHouses--;
@@ -21,7 +24,7 @@ class Bank {
   }
 
   void giveHotel() {
-    if (availableHotels <= 0) {
+    if (!canGiveHotel) {
       throw Exception("No hotels available in the bank");
     }
     availableHotels--;

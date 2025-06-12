@@ -229,26 +229,21 @@ class GameEngine {
   bool canBuyProperty() {
     final player = players[currentPlayerIndex];
     final tile = board[player.position];
-    // Not a property tile
-    if (tile.type != TileType.property || tile.property == null) return false;
+    if (!tile.isPropertyTile) return false;
     final property = tile.property!;
-    // Check if the property is buyable
-    if (property.isMortgaged) return false; // Property is mortgaged
-    if (property.owner != null) return false; // Property is already owned
-    if (player.balance < property.price) {
-      return false; // Player cannot afford the property
-    }
-    return true; // Player can buy the property
+    // Use player and property utility methods
+    return !property.isOwned();
   }
 
   void _handlePropertyLanding(Player player, BoardTile tile) {
-    if (tile.property == null) return; // Not a property tile
-    if (tile.property!.owner == null) {
+    if (!tile.isPropertyTile) return;
+    final property = tile.property!;
+    if (property.owner == null) {
       // Property is unowned, player can buy it
-    } else if (tile.property!.owner != null && tile.property!.owner != player) {
-      final monopoly = isMonopoly(tile.property!);
-      final rent = tile.property!.calculateRent(monopoly, dice1, dice2);
-      payRent(player, tile.property!.owner!, rent, property: tile.property);
+    } else if (property.owner != player) {
+      final monopoly = isMonopoly(property);
+      final rent = property.calculateRent(monopoly, dice1, dice2);
+      payRent(player, property.owner!, rent, property: property);
     }
   }
 
@@ -407,18 +402,9 @@ class GameEngine {
   void buyProperty() {
     final currentPlayer = players[currentPlayerIndex];
     final tile = board[currentPlayer.position];
-
-    // Check if the tile is a property and is buyable
-    if (tile.type != TileType.property || tile.property == null) {
-      return;
-    }
-
+    if (!tile.isPropertyTile) return;
     final property = tile.property!;
-
-    // If already owned or mortgaged, do nothing
-    if (property.owner != null || property.isMortgaged) {
-      return;
-    }
+    if (property.isOwned()) return;
 
     // If player can't afford, do nothing
     if (currentPlayer.balance < property.price) {

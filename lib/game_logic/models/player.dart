@@ -71,25 +71,48 @@ class Player {
     return true; // Purchase successful
   }
 
+  bool ownsProperty(Property property) => ownedProperties.contains(property);
+
+  bool canMortgageProperty(Property property) {
+    return ownsProperty(property) && property.canMortgage;
+  }
+
+  bool canUnmortgageProperty(Property property) {
+    return ownsProperty(property) && property.canUnmortgage && balance >= property.unmortgageValue;
+  }
+
+  bool canUpgradeProperty(Property property, [Bank? bank]) {
+    if (!ownsProperty(property) || !property.canUpgrade) return false;
+    if (bank != null) {
+      if (property.houses < 4 && bank.availableHouses <= 0) return false;
+      if (property.houses == 4 && bank.availableHotels <= 0) return false;
+    }
+    return balance >= property.houseCost;
+  }
+
+  bool canTrade(Property property, Player toPlayer, double cashAmount) {
+    return toPlayer != this && ownsProperty(property) && !toPlayer.isBankrupt && toPlayer.balance >= cashAmount;
+  }
+
   void mortgageProperty(Property property) {
-    if (!ownedProperties.contains(property)) {
-      throw Exception("Property not owned by player");
+    if (!canMortgageProperty(property)) {
+      throw Exception("Cannot mortgage this property");
     }
     property.mortgage();
     receive(property.mortgageValue);
   }
 
   void unmortgageProperty(Property property) {
-    if (!ownedProperties.contains(property)) {
-      throw Exception("Property not owned by player");
+    if (!canUnmortgageProperty(property)) {
+      throw Exception("Cannot unmortgage this property");
     }
-    pay(property.mortgageValue * 1.1); // 10% interest
+    pay(property.unmortgageValue);
     property.unmortgage();
   }
 
   void upgradeProperty(Property property, [Bank? bank]) {
-    if (!ownedProperties.contains(property)) {
-      throw Exception("Property not owned by player");
+    if (!canUpgradeProperty(property, bank)) {
+      throw Exception("Cannot upgrade this property");
     }
     property.upgrade(bank);
     pay(property.houseCost.toDouble());
@@ -104,17 +127,8 @@ class Player {
   }
 
   void trade(Property property, Player toPlayer, double cashAmount) {
-    if (toPlayer == this) {
-      throw Exception("Cannot trade with yourself");
-    }
-    if (!ownedProperties.contains(property)) {
-      throw Exception("Property not owned by player");
-    }
-    if (toPlayer.isBankrupt) {
-      throw Exception("Cannot trade with a bankrupt player");
-    }
-    if (toPlayer.balance < cashAmount) {
-      throw Exception("Trading player does not have enough cash");
+    if (!canTrade(property, toPlayer, cashAmount)) {
+      throw Exception("Cannot trade this property");
     }
     pay(cashAmount);
     toPlayer.receive(cashAmount);
