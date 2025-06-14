@@ -44,4 +44,10 @@ class Bank {
     freeParkingPot = 0;
     return funds;
   }
+
+  void copyFrom(Bank other) {
+    availableHouses = other.availableHouses;
+    availableHotels = other.availableHotels;
+    freeParkingPot = other.freeParkingPot;
+  }
 }

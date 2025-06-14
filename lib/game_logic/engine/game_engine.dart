@@ -183,8 +183,14 @@ class GameEngine {
   void notifyGameEvents(String event, {Map<String, dynamic>? data}) {
     // Example: Notify listeners about the current player's turn
     print("Event: $event, Data: $data");
-    // Extend this to integrate with a proper event system or callback mechanism
+    // Forward to UI if available
+    if (gameListener != null) {
+      gameListener!(event, data);
+    }
   }
+
+  // Add a listener for UI notifications
+  void Function(String event, Map<String, dynamic>? data)? gameListener;
 
   bool isMonopoly(Property propertyToCheck) {
     final tiles = board.where((tile) => tile.type == TileType.property && tile.property?.colorGroup == propertyToCheck.colorGroup);
@@ -434,5 +440,10 @@ class GameEngine {
     player.declareBankruptcy();
     notifyGameEvents("PlayerBankrupt", data: {"player": player.name});
     checkGameEnd();
+  }
+
+  // Add a stub for buildProperty to resolve missing method errors
+  void buildProperty(Property property, Player player) {
+    // TODO: Implement property building logic
   }
 }

@@ -88,21 +88,23 @@ class Property {
     isMortgaged = false;
   }
 
-  void upgrade(Bank? bank) {
+  void upgrade(Bank? bank, {bool buildHotel = false}) {
     if (!canUpgrade) {
       throw Exception(_upgradeErrorMessage(bank));
     }
     // TODO : Add even building rules for houses
-    if (houses < 4) {
+    if (buildHotel) {
+      if (houses == 4 && bank != null && bank.canGiveHotel) {
+        bank.giveHotel();
+        houses = 5;
+      } else {
+        throw Exception("Cannot build hotel: must have 4 houses and hotel available in bank");
+      }
+    } else if (houses < 4) {
       if (bank != null) bank.giveHouse();
       houses++;
     } else {
-      if (bank != null) {
-        bank.giveHotel();
-        for (int i = 0; i < 4; i++) bank.takeHouse();
-      }
-      houses = 0;
-      hasHotel = true;
+      throw Exception("Cannot build more than 4 houses unless building hotel");
     }
   }
 
@@ -156,5 +158,15 @@ class Property {
 
   bool isOwned() {
     return _owner != null;
+  }
+
+  bool canBuildHouse(dynamic bank) {
+    // TODO: Implement actual logic
+    return true;
+  }
+
+  bool canBuildHotel(dynamic bank) {
+    // TODO: Implement actual logic
+    return true;
   }
 }

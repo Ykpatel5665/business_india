@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:rive/rive.dart';
 import 'app_theme.dart';
-import 'widgets/responsive_centered_text.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/login');
       }
@@ -24,11 +23,39 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const ResponsiveCenteredText(
-        mobileText: 'Splash Screen (Mobile)',
-        tabletText: 'Splash Screen (Tablet)',
-        desktopText: 'Splash Screen (Desktop)',
-        styleBuilder: AppTextStyles.bodyLarge,
+      backgroundColor: AppColors.primary,
+      body: Stack(
+        children: [
+          // Animated Rive or fallback animation
+          const Center(
+            child: SizedBox(
+              width: 220,
+              height: 220,
+              child: RiveAnimation.asset(
+                'assets/monopoly_splash.riv',
+                fit: BoxFit.contain,
+                // fallback: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 260),
+              child: Text(
+                'Monopoly City',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 2,
+                  shadows: [
+                    Shadow(blurRadius: 8, color: Colors.black26, offset: Offset(0, 2)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

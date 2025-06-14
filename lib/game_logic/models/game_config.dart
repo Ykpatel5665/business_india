@@ -40,4 +40,10 @@ class GameConfig {
     this.monopolyRentMultiplier = 2.0,
     this.mortgageInterestRate = 0.1,
   });
+
+  void copyFrom(GameConfig other) {
+    // This method cannot mutate final fields, but is required for persistence compatibility.
+    // You should replace the instance in the caller, or refactor to use a new instance.
+    throw UnimplementedError('GameConfig is immutable. Replace the instance instead.');
+  }
 }

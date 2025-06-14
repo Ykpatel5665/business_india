@@ -1,90 +1,78 @@
 import 'package:flutter/material.dart';
-import 'responsive_layout.dart';
-import 'splash_screen.dart';
-import 'mode_selection_screen.dart';
-import 'game_board_screen.dart';
-import 'end_game_screen.dart';
-import 'login_screen.dart';
+import 'game/game_board_flame_screen.dart';
+import 'game_logic/engine/game_factory.dart';
+import 'game_logic/models/player.dart';
+import 'game_logic/models/game_config.dart';
+import '../game_logic/models/ai_player.dart';
+import 'game/custom_rules.dart';
 
 void main() {
-  runApp(const MonopolyCityApp());
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'Monopoly City',
+    home: const MonopolyFlameApp(),
+  ));
 }
 
-class MonopolyCityApp extends StatelessWidget {
-  const MonopolyCityApp({super.key});
+class MonopolyFlameApp extends StatefulWidget {
+  const MonopolyFlameApp({super.key});
+
+  @override
+  State<MonopolyFlameApp> createState() => _MonopolyFlameAppState();
+}
+
+class _MonopolyFlameAppState extends State<MonopolyFlameApp> {
+  CustomRules _customRules = CustomRules();
+  late dynamic engine;
+
+  @override
+  void initState() {
+    super.initState();
+    _createEngine();
+  }
+
+  void _createEngine() {
+    final players = [
+      Player(name: 'Player 1', tokenId: 0),
+      AIPlayer(name: 'AI Bot', tokenId: 1),
+    ];
+    final config = GameConfig();
+    engine = MonopolyGameEngineBuilder(players: players, config: config).create('uk');
+  }
+
+  void _showCustomRulesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => CustomRulesDialog(
+        initialRules: _customRules,
+        onApply: (rules) {
+          setState(() {
+            _customRules = rules;
+            _createEngine();
+          });
+          Navigator.pop(ctx);
+        },
+        onCancel: () => Navigator.pop(ctx),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Monopoly City',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/mode': (context) => const ModeSelectionScreen(),
-        '/player': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-          return GameBoardScreen(
-            mode: args?['mode'],
-            playerCount: args?['playerCount'],
-          );
-        },
-        '/game': (context) => const GameBoardScreen(),
-        '/end': (context) => const EndGameScreen(),
-      },
       debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Monopoly City'),
-      ),
-      body: ResponsiveLayout(
-        mobile: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Home Screen (Mobile)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/mode'),
-              child: const Text('Start Game'),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Monopoly City'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () => _showCustomRulesDialog(context),
             ),
           ],
         ),
-        tablet: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Home Screen (Tablet)', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/mode'),
-              child: const Text('Start Game'),
-            ),
-          ],
-        ),
-        desktop: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Home Screen (Desktop)', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () => Navigator.pushNamed(context, '/mode'),
-              child: const Text('Start Game'),
-            ),
-          ],
-        ),
+        body: GameBoardFlameScreen(engine: engine),
       ),
     );
   }
