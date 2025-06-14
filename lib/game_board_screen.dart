@@ -4,10 +4,11 @@ import 'widgets/responsive_centered_text.dart';
 import 'game_logic/engine/game_factory.dart';
 import 'game_logic/models/player.dart';
 import 'game_logic/models/game_config.dart';
-import 'widgets/monopoly_board_widget.dart';
+import 'widgets/monopoly_game.dart';
 import 'game_logic/models/board_tile.dart';
 import 'widgets/property_info_dialog.dart';
 import 'widgets/dice_widget.dart';
+import 'package:flame/game.dart';
 
 class GameBoardScreen extends StatefulWidget {
   final String? mode;
@@ -52,22 +53,25 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Game Board')),
       body: Center(
-        child: MonopolyBoardWidget(
-          boardTiles: boardTiles,
-          onTileTap: (tile) {
-            if (tile.property != null) {
-              showDialog(
-                context: context,
-                builder: (ctx) => PropertyInfoDialog(property: tile.property!),
-              );
-            }
+        child: GameWidget(
+          game: MonopolyGame(tiles: boardTiles),
+          overlayBuilderMap: {
+            'dice': (ctx, game) => DiceWidget(
+                  dice1: dice1,
+                  dice2: dice2,
+                  rolling: rolling,
+                  onRoll: _rollDice,
+                ),
+            'propertyInfo': (ctx, game) {
+              final MonopolyGame flameGame = game as MonopolyGame;
+              final tile = flameGame.selectedTile;
+              if (tile?.property != null) {
+                return PropertyInfoDialog(property: tile!.property!);
+              }
+              return const SizedBox.shrink();
+            },
           },
-          centerOverlay: DiceWidget(
-            dice1: dice1,
-            dice2: dice2,
-            rolling: rolling,
-            onRoll: _rollDice,
-          ),
+          initialActiveOverlays: const ['dice'],
         ),
       ),
     );
