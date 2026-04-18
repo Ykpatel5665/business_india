@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:business_india/controllers/game_controller.dart';
 import 'package:business_india/game_logic/engine/game_engine.dart';
 import 'package:business_india/game_logic/engine/game_factory.dart';
 import 'package:business_india/game_logic/models/player.dart';
@@ -232,6 +233,96 @@ void main() {
       expect(p1.inJail, false);
       expect(p1.goojfCards.length, 1, reason: 'GOOJF card preserved');
       expect(p1.balance, balanceBefore - engine.config.jailExitCost);
+    });
+  });
+
+  group('Task 6 — Doubles preserved across async UI', () {
+    test('doubles preserved after buying a property', () {
+      final controller = GameController();
+      controller.startGame([
+        PlayerSlot(name: 'P1', colorIndex: 0, avatarIndex: 0),
+        PlayerSlot(name: 'P2', colorIndex: 1, avatarIndex: 1),
+      ]);
+
+      // Simulate: rolled doubles, landed on unowned property.
+      final p1 = controller.currentPlayer;
+      p1.position = 1; // Nashik (unowned)
+      controller.pendingProperty = controller.engine.board[1].property!;
+      controller.storeMoveResult(MoveResult(shouldRollAgain: true, sentToJail: false));
+
+      controller.buyPendingProperty();
+
+      expect(controller.phase, TurnPhase.idle,
+          reason: 'After buying with doubles, player should roll again');
+    });
+
+    test('doubles preserved after non-moving card', () {
+      final controller = GameController();
+      controller.startGame([
+        PlayerSlot(name: 'P1', colorIndex: 0, avatarIndex: 0),
+        PlayerSlot(name: 'P2', colorIndex: 1, avatarIndex: 1),
+      ]);
+
+      controller.storeMoveResult(MoveResult(shouldRollAgain: true, sentToJail: false));
+      controller.pendingCard = game_card.Card(
+        description: 'Collect 50000',
+        type: CardType.receive,
+        amount: 50000,
+      );
+
+      controller.acknowledgeCard();
+
+      expect(controller.phase, TurnPhase.idle,
+          reason: 'After non-moving card with doubles, player should roll again');
+    });
+
+    test('no doubles after Go To Jail card', () {
+      final controller = GameController();
+      controller.startGame([
+        PlayerSlot(name: 'P1', colorIndex: 0, avatarIndex: 0),
+        PlayerSlot(name: 'P2', colorIndex: 1, avatarIndex: 1),
+      ]);
+
+      controller.storeMoveResult(MoveResult(shouldRollAgain: true, sentToJail: false));
+      controller.pendingCard = game_card.Card(
+        description: 'Go to Jail',
+        type: CardType.goToJail,
+      );
+
+      controller.acknowledgeCard();
+
+      expect(controller.phase, isNot(TurnPhase.idle),
+          reason: 'Go To Jail card cancels doubles');
+    });
+  });
+
+  group('Task 7 — Trade wired through controller', () {
+    test('executeTrade updates log and notifies', () {
+      final controller = GameController();
+      controller.startGame([
+        PlayerSlot(name: 'P1', colorIndex: 0, avatarIndex: 0),
+        PlayerSlot(name: 'P2', colorIndex: 1, avatarIndex: 1),
+      ]);
+
+      final prop = controller.engine.board[1].property!;
+      final p1 = controller.currentPlayer;
+      final p2 = controller.engine.players[1];
+      prop.owner = p1;
+      p1.ownedProperties.add(prop);
+
+      final logCountBefore = controller.log.length;
+
+      final result = controller.executeTrade(
+        partner: p2,
+        offeredProperties: [prop],
+        requestedProperties: [],
+        offeredCash: 0,
+        requestedCash: 0,
+      );
+
+      expect(result, true);
+      expect(prop.owner, p2);
+      expect(controller.log.length, greaterThan(logCountBefore));
     });
   });
 }
