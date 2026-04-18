@@ -1,23 +1,24 @@
 import 'enums.dart';
 import 'property.dart';
-import 'package:flutter/material.dart';
 
 /// Represents a tile on the Monopoly game board.
+///
+/// Pure-Dart model — no Flutter imports. UI-only metadata (colors, icons) is
+/// resolved in the presentation layer via `TileDisplay` lookups keyed by
+/// `position` or `type`.
 class BoardTile {
   final int position;
   final TileType type;
   final String label;
   final Property? property;
-  final IconData? icon;
-  final Color? color;
+  final int? taxAmount;
 
   BoardTile({
     required this.position,
     required this.type,
     required this.label,
     this.property,
-    this.icon,
-    this.color,
+    this.taxAmount,
   });
 
   bool get isPropertyTile => type == TileType.property && property != null;
