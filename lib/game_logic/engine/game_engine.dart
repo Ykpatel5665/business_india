@@ -267,16 +267,13 @@ class GameEngine {
     notifyGameEvents("PlayerSentToJail", data: {"player": player.name});
   }
 
-  /// Handles non-doubles jail outcome. On the 3rd failed attempt (or if the
-  /// player holds a GOOJF card), the player leaves jail.
+  /// Handles non-doubles jail outcome. On the 3rd failed attempt, the player
+  /// is forced to pay bail. GOOJF cards are never auto-used — that's always
+  /// the player's voluntary choice via `useGoojfToLeaveJail`.
   void handleJailExit(Player player) {
-    if (player.jailTurns >= config.maxJailTurns - 1 ||
-        player.goojfCards.isNotEmpty) {
-      if (player.goojfCards.isNotEmpty) {
-        _useGoojfCard(player);
-      } else {
-        _chargePlayer(player, config.jailExitCost, creditor: null);
-      }
+    if (player.jailTurns >= config.maxJailTurns - 1) {
+      // 3rd failed attempt: forced to pay bail. GOOJF is never auto-used.
+      _chargePlayer(player, config.jailExitCost, creditor: null);
       player.inJail = false;
       player.jailTurns = 0;
       notifyGameEvents("PlayerExitedJail", data: {"player": player.name});
@@ -660,6 +657,11 @@ class GameEngine {
       "property": property?.name,
       "bankrupt": outcome == PayOutcome.bankrupted,
     });
+  }
+
+  /// Public charge path used by Card effects that need bankruptcy handling.
+  PayOutcome chargePlayer(Player player, int amount, {Player? creditor}) {
+    return _chargePlayer(player, amount, creditor: creditor);
   }
 
   /// Charges `player` for `amount`. If they can't pay, triggers bankruptcy

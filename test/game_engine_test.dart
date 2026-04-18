@@ -12,7 +12,7 @@ class TestPlayer extends Player {
   TestPlayer({
     required String name,
     required int tokenId,
-    double balance = 1500,
+    int balance = 1500,
     this.bidStrategy,
   }) : super(name: name, tokenId: tokenId, balance: balance);
   @override
@@ -207,10 +207,16 @@ void main() {
     test('Player is declared bankrupt if unable to pay rent', () {
       final property = gameEngine.board[1].property!;
       property.owner = player2;
+      player2.ownedProperties.add(property);
       player1.balance = 1;
       player1.position = 0;
       gameEngine.currentPlayerIndex = 0;
-      expect(() => gameEngine.movePlayer(1, 0), throwsException);
+      gameEngine.movePlayer(1, 0);
+      // New behaviour (Phase 2): bankruptcy is handled silently; assets
+      // transfer to the creditor.
+      expect(player1.isBankrupt, true);
+      expect(property.owner, player2);
+      expect(player1.balance, 0);
     });
 
     test('Player lands on tax tile and pays tax', () {
@@ -220,11 +226,12 @@ void main() {
       expect(player1.balance, 1300);
     });
 
-    test('Player uses Get Out of Jail Free card', () {
+    test('Player uses Get Out of Jail Free card voluntarily', () {
       player1.inJail = true;
       player1.getOutOfJailCards = 1;
       gameEngine.currentPlayerIndex = 0;
-      gameEngine.movePlayer(1, 2);
+      // GOOJF is voluntary — use the explicit API, not auto-used on failed roll.
+      gameEngine.useGoojfToLeaveJail(player1);
       expect(player1.inJail, false);
       expect(player1.getOutOfJailCards, 0);
     });
@@ -307,7 +314,7 @@ void main() {
 
     test('Mortgage/unmortgage: player receives and pays cash', () {
       final property = gameEngine.board[1].property!;
-      double balance = player1.balance;
+      int balance = player1.balance;
       property.owner = player1;
       player1.ownedProperties.add(property);
       player1.mortgageProperty(property);
@@ -315,7 +322,7 @@ void main() {
       expect(property.isMortgaged, true);
       expect(player1.balance, balance);
       player1.unmortgageProperty(property);
-      balance = balance - property.mortgageValue * 1.1; // 10% interest
+      balance = balance - property.unmortgageValue; // 10% interest (integer)
       expect(property.isMortgaged, false);
       expect(player1.balance, balance);
     });
@@ -464,11 +471,15 @@ void main() {
     test('Player cannot pay rent if both are bankrupt', () {
       final property = gameEngine.board[1].property!;
       property.owner = player2;
+      player2.ownedProperties.add(property);
       player1.balance = 0;
       player2.balance = 0;
       player1.position = 0;
       gameEngine.currentPlayerIndex = 0;
-      expect(() => gameEngine.movePlayer(1, 0), throwsException);
+      gameEngine.movePlayer(1, 0);
+      // New behaviour (Phase 2): tenant is bankrupted silently; creditor
+      // receives whatever assets the debtor had (here: nothing).
+      expect(player1.isBankrupt, true);
     });
 
     test('Player lands on their own mortgaged property, nothing happens', () {

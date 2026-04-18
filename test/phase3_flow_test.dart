@@ -1,8 +1,54 @@
+import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:business_india/game_logic/engine/game_engine.dart';
 import 'package:business_india/game_logic/engine/game_factory.dart';
 import 'package:business_india/game_logic/models/player.dart';
+import 'package:business_india/game_logic/models/property.dart';
+import 'package:business_india/game_logic/models/board_tile.dart';
+import 'package:business_india/game_logic/models/card.dart' as game_card;
+import 'package:business_india/game_logic/models/game_config.dart';
 import 'package:business_india/game_logic/models/enums.dart';
 import 'package:business_india/game_logic/engine/editions/board_india.dart';
+
+GameEngine buildTestEngine({int balance = 1500, Random? random}) {
+  final board = <BoardTile>[
+    BoardTile(position: 0, type: TileType.go, label: 'Go'),
+    BoardTile(position: 1, type: TileType.property, label: 'Brown 1',
+      property: Property(name: 'Brown 1', price: 60, baseRent: 2, colorGroup: 0, houseCost: 50,
+          rentTable: [2, 10, 30, 90, 160, 250])),
+    BoardTile(position: 2, type: TileType.communityChest, label: 'CC'),
+    BoardTile(position: 3, type: TileType.property, label: 'Brown 2',
+      property: Property(name: 'Brown 2', price: 60, baseRent: 4, colorGroup: 0, houseCost: 50,
+          rentTable: [4, 20, 60, 180, 320, 450])),
+    BoardTile(position: 4, type: TileType.tax, label: 'Tax'),
+    BoardTile(position: 5, type: TileType.property, label: 'Railroad A',
+      property: Property(name: 'Railroad A', price: 200, baseRent: 25, colorGroup: 8, type: PropertyType.railroad)),
+    for (var i = 6; i <= 9; i++)
+      BoardTile(position: i, type: TileType.chance, label: 'Chance'),
+    BoardTile(position: 10, type: TileType.jail, label: 'Jail'),
+    BoardTile(position: 11, type: TileType.property, label: 'Utility A',
+      property: Property(name: 'Utility A', price: 150, baseRent: 4, colorGroup: 9, type: PropertyType.utility)),
+    for (var i = 12; i <= 29; i++)
+      BoardTile(position: i, type: TileType.chance, label: 'Filler'),
+    BoardTile(position: 30, type: TileType.goToJail, label: 'GoToJail'),
+    for (var i = 31; i <= 35; i++)
+      BoardTile(position: i, type: TileType.chance, label: 'Filler'),
+    BoardTile(position: 36, type: TileType.property, label: 'Railroad B',
+      property: Property(name: 'Railroad B', price: 200, baseRent: 25, colorGroup: 8, type: PropertyType.railroad)),
+    for (var i = 37; i <= 39; i++)
+      BoardTile(position: i, type: TileType.chance, label: 'Filler'),
+  ];
+  final p1 = Player(name: 'P1', tokenId: 1, balance: balance);
+  final p2 = Player(name: 'P2', tokenId: 2, balance: balance);
+  return GameEngine(
+    players: [p1, p2],
+    board: board,
+    chanceDeck: [],
+    communityChestDeck: [],
+    config: const GameConfig(),
+    random: random,
+  );
+}
 
 void main() {
   group('Task 1 — Nearest Utility/Railroad Chance cards', () {
@@ -89,6 +135,103 @@ void main() {
       p1.position = 38;
       engine.handleLanding(p1);
       expect(p1.balance, balanceBefore2 - 100000, reason: 'Luxury Tax should charge 100000');
+    });
+  });
+
+  group('Task 4 — Card payments handle bankruptcy', () {
+    test('pay card with insufficient funds triggers bankruptcy, not crash', () {
+      final engine = buildTestEngine(balance: 10);
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      final card = game_card.Card(
+        description: 'Pay 500',
+        type: CardType.pay,
+        amount: 500,
+      );
+      expect(() => card.applyEffect(p1, engine), returnsNormally);
+      expect(p1.isBankrupt, true);
+    });
+
+    test('propertyRepairs card with insufficient funds triggers bankruptcy', () {
+      final engine = buildTestEngine(balance: 10);
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      final prop = engine.board[1].property!;
+      prop.owner = p1;
+      p1.ownedProperties.add(prop);
+      prop.houses = 3;
+      final card = game_card.Card(
+        description: 'Repairs',
+        type: CardType.propertyRepairs,
+        amount: 25,
+        amount2: 100,
+      );
+      expect(() => card.applyEffect(p1, engine), returnsNormally);
+      expect(p1.isBankrupt, true);
+    });
+
+    test('collectFromOtherPlayers does not make payers go negative', () {
+      final engine = buildTestEngine(balance: 5);
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      final p2 = engine.players[1];
+      p2.balance = 5;
+      final card = game_card.Card(
+        description: 'Collect 50 from each',
+        type: CardType.collectFromOtherPlayers,
+        amount: 50,
+      );
+      card.applyEffect(p1, engine);
+      expect(p2.balance, greaterThanOrEqualTo(0));
+      expect(p2.isBankrupt, true);
+    });
+
+    test('payOtherPlayers bankrupts payer if they cannot afford', () {
+      final engine = buildTestEngine(balance: 30);
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      final card = game_card.Card(
+        description: 'Pay each player 50',
+        type: CardType.payOtherPlayers,
+        amount: 50,
+      );
+      card.applyEffect(p1, engine);
+      expect(p1.isBankrupt, true);
+    });
+  });
+
+  group('Task 5 — GOOJF card is not auto-used', () {
+    test('player with GOOJF who fails jail roll on turn 1 keeps the card', () {
+      final engine = buildTestEngine();
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      p1.inJail = true;
+      p1.jailTurns = 0;
+      p1.position = 10;
+      p1.goojfCards.add(DeckOrigin.chance);
+
+      engine.movePlayer(3, 4); // non-doubles
+
+      expect(p1.inJail, true, reason: 'Should remain in jail');
+      expect(p1.goojfCards.length, 1, reason: 'GOOJF card should NOT be auto-used');
+      expect(p1.jailTurns, 1);
+    });
+
+    test('player forced to pay on 3rd failed jail roll, keeps GOOJF card', () {
+      final engine = buildTestEngine();
+      engine.status = GameStatus.active;
+      final p1 = engine.players[0];
+      p1.inJail = true;
+      p1.jailTurns = 2; // 3rd attempt
+      p1.position = 10;
+      p1.goojfCards.add(DeckOrigin.chance);
+      final balanceBefore = p1.balance;
+
+      engine.movePlayer(3, 4); // non-doubles
+
+      expect(p1.inJail, false);
+      expect(p1.goojfCards.length, 1, reason: 'GOOJF card preserved');
+      expect(p1.balance, balanceBefore - engine.config.jailExitCost);
     });
   });
 }

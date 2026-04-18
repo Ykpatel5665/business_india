@@ -2,14 +2,22 @@ import 'enums.dart';
 import '../models/player.dart';
 import '../engine/game_engine.dart';
 
-/// Represents a card in the Monopoly game.
+/// Represents a Chance or Community Chest card.
+///
+/// `origin` is tagged by the engine at draw time (or by board authors) so
+/// Get-Out-of-Jail-Free cards can be returned to the correct deck when used.
 class Card {
   final String description;
   final CardType type;
   final int? targetTileIndex;
-  final double? amount;
-  final double? amount2;
+  final int? amount;
+  final int? amount2;
   final int? steps;
+
+  /// Which deck this card belongs to. Set at draw time by the engine if not
+  /// provided at construction. Defaults to `DeckOrigin.chance` when a Card
+  /// is applied outside a draw (e.g. in isolated unit tests).
+  DeckOrigin? origin;
 
   Card({
     required this.description,
@@ -18,6 +26,7 @@ class Card {
     this.amount,
     this.amount2,
     this.steps,
+    this.origin,
   });
 
   bool get isGoToJailCard => type == CardType.goToJail;
@@ -26,26 +35,25 @@ class Card {
   bool get isPayCard => type == CardType.pay;
   bool get isPropertyRepairsCard => type == CardType.propertyRepairs;
   bool get isPayOtherPlayersCard => type == CardType.payOtherPlayers;
-  bool get isCollectFromOtherPlayersCard => type == CardType.collectFromOtherPlayers;
+  bool get isCollectFromOtherPlayersCard =>
+      type == CardType.collectFromOtherPlayers;
 
-  /// Applies the effect of the card to the player.
   void applyEffect(Player player, GameEngine gameEngine) {
     switch (type) {
       case CardType.goToJail:
         gameEngine.sendToJail(player);
         break;
       case CardType.getOutOfJail:
-        // Give player a Get Out of Jail Free card
-        player.getOutOfJailCards++;
+        player.goojfCards.add(origin ?? DeckOrigin.chance);
         break;
       case CardType.receive:
-        _applyReceive(player);
+        player.receive(amount!);
         break;
       case CardType.pay:
-        _applyPay(player);
+        gameEngine.chargePlayer(player, amount!);
         break;
       case CardType.propertyRepairs:
-        _applyPropertyRepairs(player);
+        _applyPropertyRepairs(player, gameEngine);
         break;
       case CardType.payOtherPlayers:
         _applyPayOtherPlayers(player, gameEngine);
@@ -58,46 +66,38 @@ class Card {
     }
   }
 
-  void _applyReceive(Player player) {
-    // Collect money from the bank
-    player.receive(amount!);
-  }
-
-  void _applyPay(Player player) {
-    // Pay money to the bank
-    player.pay(amount!);
-  }
-
-  void _applyPropertyRepairs(Player player) {
-    // Pay for property repairs: amount is cost per house/hotel
+  void _applyPropertyRepairs(Player player, GameEngine gameEngine) {
     int houseCount = 0;
     int hotelCount = 0;
     for (final property in player.ownedProperties) {
       houseCount += property.houses;
       if (property.hasHotel) hotelCount++;
     }
-    final double houseCost = houseCount * (amount ?? 0);
-    final double hotelCost = hotelCount * (amount2 ?? 0);
-    final double total = houseCost + hotelCost;
-    player.pay(total);
+    final int total = houseCount * (amount ?? 0) + hotelCount * (amount2 ?? 0);
+    if (total > 0) {
+      gameEngine.chargePlayer(player, total);
+    }
   }
 
   void _applyPayOtherPlayers(Player player, GameEngine gameEngine) {
-    // Pay each other player a fixed amount
     for (final other in gameEngine.players) {
       if (other != player && !other.isBankrupt) {
-        player.pay(amount!);
-        other.receive(amount!);
+        final outcome = gameEngine.chargePlayer(player, amount!, creditor: other);
+        if (outcome == PayOutcome.paid) {
+          other.receive(amount!);
+        }
+        if (player.isBankrupt) break;
       }
     }
   }
 
   void _applyCollectFromOtherPlayers(Player player, GameEngine gameEngine) {
-    // Collect a fixed amount from each other player
     for (final other in gameEngine.players) {
       if (other != player && !other.isBankrupt) {
-        other.pay(amount!, true);
-        player.receive(amount!);
+        final outcome = gameEngine.chargePlayer(other, amount!, creditor: player);
+        if (outcome == PayOutcome.paid) {
+          player.receive(amount!);
+        }
       }
     }
   }
