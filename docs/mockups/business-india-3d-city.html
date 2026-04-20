@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business India — 3D City Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --gold:#FFD700;--gold-dk:#B8960F;--gold-lt:#FFE866;--gold-glow:rgba(255,215,0,.3);
+  --green:#00E676;--green-dk:#00C853;--red:#FF1744;--blue:#448AFF;--purple:#7C4DFF;
+  --cyan:#00E5FF;--pink:#FF4081;--saffron:#FF8C00;--orange:#FF6E40;
+  --sky-top:#87CEEB;--sky-bot:#B8E6FF;
+  --grass:#4CAF50;--grass-dk:#388E3C;--road:#555;--road-lt:#777;
+  --sand:#F5DEB3;
+  --w:#fff;--w80:rgba(255,255,255,.8);--w50:rgba(255,255,255,.5);--w20:rgba(255,255,255,.2);
+  --shadow:rgba(0,0,0,.3);
+  --ph-w:400px;--ph-h:870px;
+}
+body{background:#0A0A12;font-family:'Poppins',sans-serif;color:var(--w);}
+
+.head{text-align:center;padding:40px 20px 6px;}
+.head h1{font-family:'Baloo 2';font-size:38px;color:var(--gold);text-shadow:0 0 30px var(--gold-glow);}
+.head p{font-size:11px;color:#555;letter-spacing:5px;text-transform:uppercase;margin-top:2px;}
+
+.nav{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding:14px 16px 24px;max-width:750px;margin:0 auto;}
+.nav b{background:rgba(255,215,0,.04);border:1px solid rgba(255,215,0,.1);color:var(--gold-dk);padding:6px 14px;border-radius:20px;font-family:'Poppins';font-size:11px;font-weight:600;letter-spacing:1.5px;cursor:pointer;transition:.2s;}
+.nav b:hover,.nav b.on{background:rgba(255,215,0,.12);border-color:var(--gold);color:var(--gold);}
+
+.grid{display:flex;flex-wrap:wrap;justify-content:center;gap:50px;padding:0 20px 80px;}
+.mc{display:none}.mc.v{display:block}
+.ml{text-align:center;font-family:'Baloo 2';font-size:18px;color:var(--gold);margin-bottom:2px;}
+.ms{text-align:center;font-size:10px;color:#444;margin-bottom:12px;}
+
+.ph{width:var(--ph-w);height:var(--ph-h);border-radius:42px;overflow:hidden;border:3px solid #1A1A2E;box-shadow:0 40px 100px rgba(0,0,0,.8);position:relative;}
+.ph::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:24px;background:#0A0A12;border-radius:0 0 14px 14px;z-index:300;}
+.sc{width:100%;height:100%;position:relative;overflow:hidden;}
+
+/* ═══════════════════════════════════════════ */
+/* 3D BUTTON SYSTEM                            */
+/* ═══════════════════════════════════════════ */
+.b3{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border:none;border-radius:16px;cursor:pointer;
+  font-family:'Baloo 2',cursive;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;transition:transform .08s;
+}
+.b3:active{transform:translateY(3px);}
+.b3-gold{
+  background:linear-gradient(180deg,#FFE866 0%,#FFD700 40%,#E8B800 100%);
+  color:#5A3D00;font-size:18px;padding:16px 32px;
+  box-shadow:0 6px 0 #B8960F,0 8px 20px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.4);
+}
+.b3-gold:active{box-shadow:0 2px 0 #B8960F,inset 0 2px 0 rgba(255,255,255,.4);}
+.b3-gold::after{content:'';position:absolute;top:0;left:-120%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shm 3s ease-in-out infinite;}
+@keyframes shm{0%{left:-120%;}40%,100%{left:120%;}}
+.b3-green{background:linear-gradient(180deg,#69F0AE,#00E676,#00C853);color:#003D14;font-size:16px;padding:14px 28px;box-shadow:0 5px 0 #00953D,0 7px 15px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.3);}
+.b3-red{background:linear-gradient(180deg,#FF8A80,#FF1744,#D50000);color:#fff;font-size:15px;padding:12px 24px;box-shadow:0 4px 0 #9B0000,inset 0 2px 0 rgba(255,255,255,.2);}
+.b3-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--w50);font-size:14px;padding:12px 24px;}
+
+/* ═══════════════════════════════════════════ */
+/* 1. SPLASH — 3D CITY REVEAL                 */
+/* ═══════════════════════════════════════════ */
+.splash{
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 40%,#C5E8C5 60%,var(--grass) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+/* Clouds */
+.cloud{
+  position:absolute;background:#fff;border-radius:50%;opacity:.6;
+  box-shadow:20px 0 0 #fff,-20px 0 0 #fff,10px -10px 0 #fff,-10px -10px 0 #fff;
+}
+.cloud:nth-child(1){width:60px;height:20px;top:15%;left:10%;animation:drift 20s linear infinite;}
+.cloud:nth-child(2){width:80px;height:24px;top:10%;left:50%;animation:drift 28s linear infinite;animation-delay:-5s;}
+.cloud:nth-child(3){width:50px;height:16px;top:20%;left:75%;animation:drift 22s linear infinite;animation-delay:-10s;}
+@keyframes drift{0%{transform:translateX(0);}100%{transform:translateX(400px);}}
+
+/* 3D City silhouette */
+.splash-city{
+  position:absolute;bottom:25%;left:50%;transform:translateX(-50%) perspective(400px) rotateX(15deg);
+  display:flex;align-items:flex-end;gap:4px;opacity:.15;
+}
+.splash-bldg{background:linear-gradient(180deg,#666,#333);border-radius:2px 2px 0 0;}
+
+/* Logo */
+.sp-logo{
+  width:120px;height:120px;border-radius:28px;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold),var(--gold-dk));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 0 var(--gold-dk),0 12px 40px rgba(0,0,0,.3),0 0 60px var(--gold-glow);
+  margin-bottom:20px;z-index:5;
+  animation:logoBnc 2s ease-in-out infinite;
+}
+@keyframes logoBnc{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.sp-logo::after{content:'';position:absolute;inset:4px;border-radius:24px;border:2px solid rgba(255,255,255,.3);}
+.sp-rupee{font-family:'Baloo 2';font-size:64px;font-weight:800;color:#5A3D00;}
+.sp-name{font-family:'Baloo 2';font-size:36px;font-weight:800;color:#2D5016;text-shadow:0 1px 0 rgba(255,255,255,.5);z-index:5;}
+.sp-sub{font-family:'Poppins';font-size:13px;font-weight:700;letter-spacing:8px;color:var(--saffron);opacity:.7;z-index:5;}
+.sp-bar{width:150px;height:6px;border-radius:6px;background:rgba(0,0,0,.1);margin-top:40px;z-index:5;overflow:hidden;}
+.sp-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold),var(--saffron));animation:ld 2.5s ease-in-out infinite;}
+@keyframes ld{0%{width:0;}100%{width:100%;}}
+
+/* ═══════════════════════════════════════════ */
+/* 2. MAIN MENU — CITY BACKDROP               */
+/* ═══════════════════════════════════════════ */
+.menu{
+  background:linear-gradient(180deg,#FFB347 0%,#FF8C00 20%,#E65100 50%,#1A0A00 100%);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+/* Sunset city silhouette */
+.menu-skyline{
+  position:absolute;bottom:35%;left:0;right:0;height:120px;
+  display:flex;align-items:flex-end;justify-content:center;gap:3px;opacity:.12;
+}
+.menu-b{background:#000;border-radius:2px 2px 0 0;}
+.menu-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding-top:40px;}
+.menu-logo{
+  width:85px;height:85px;border-radius:22px;
+  background:linear-gradient(135deg,var(--gold-lt),var(--gold),var(--gold-dk));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2';font-size:44px;font-weight:800;color:#5A3D00;
+  box-shadow:0 6px 0 var(--gold-dk),0 10px 30px rgba(0,0,0,.4),0 0 50px var(--gold-glow);
+  margin-bottom:14px;
+}
+.menu-title{font-family:'Baloo 2';font-size:36px;font-weight:800;color:var(--w);text-shadow:0 2px 4px rgba(0,0,0,.3);}
+.menu-sub{font-size:11px;font-weight:700;letter-spacing:8px;color:rgba(255,255,255,.4);margin-top:-4px;}
+.menu-btns{width:calc(100% - 48px);max-width:310px;display:flex;flex-direction:column;gap:12px;margin-top:32px;z-index:2;}
+.menu-play{width:100%;border-radius:18px;}
+.menu-online{
+  width:100%;padding:14px;border-radius:14px;background:rgba(0,0,0,.2);
+  border:1px solid rgba(255,255,255,.1);font-family:'Baloo 2';font-size:15px;
+  color:rgba(255,255,255,.25);text-align:center;cursor:pointer;
+}
+.menu-bottom{z-index:2;padding:20px 24px 38px;display:flex;justify-content:space-around;}
+.menu-ic{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.menu-ic-c{
+  width:50px;height:50px;border-radius:14px;
+  background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+}
+.menu-ic span{font-size:9px;font-weight:600;letter-spacing:1px;color:rgba(255,255,255,.2);}
+
+/* ═══════════════════════════════════════════ */
+/* 3. GAME — 3D ISOMETRIC CITY                */
+/* ═══════════════════════════════════════════ */
+.game{
+  background:linear-gradient(180deg,#87CEEB 0%,#B8E6FF 30%,#E8F5E9 45%,#81C784 100%);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+/* Sun */
+.sun{
+  position:absolute;top:8%;right:15%;width:50px;height:50px;border-radius:50%;
+  background:radial-gradient(circle,#FFFF88,#FFD700);
+  box-shadow:0 0 40px rgba(255,215,0,.4),0 0 80px rgba(255,215,0,.2);
+  z-index:1;
+}
+/* Clouds */
+.g-cloud{position:absolute;background:rgba(255,255,255,.7);border-radius:50%;z-index:2;
+  box-shadow:15px 0 0 rgba(255,255,255,.7),-15px 0 0 rgba(255,255,255,.7),8px -6px 0 rgba(255,255,255,.7);}
+
+/* Floating HUD - glassmorphic */
+.g-hud{
+  position:absolute;top:44px;left:12px;right:12px;z-index:50;
+  display:flex;gap:8px;
+}
+.g-active-card{
+  flex:1;display:flex;align-items:center;gap:8px;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.1);border-radius:16px;
+  padding:8px 12px;
+}
+.g-av{
+  width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2';font-size:17px;font-weight:800;color:#fff;
+  border:2px solid rgba(255,255,255,.5);
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.g-av-glow{box-shadow:0 0 12px var(--gold-glow),0 2px 8px rgba(0,0,0,.3);border-color:var(--gold);}
+.g-det{flex:1;}
+.g-nm{font-family:'Baloo 2';font-size:13px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+.g-bal{font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--gold);text-shadow:0 1px 2px rgba(0,0,0,.5);}
+.g-pips{display:flex;gap:4px;}
+.g-pip{
+  width:30px;height:30px;border-radius:10px;font-size:13px;font-weight:800;
+  background:rgba(0,0,0,.3);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;opacity:.5;
+  font-family:'Baloo 2';color:#fff;
+}
+
+/* THE ISOMETRIC CITY */
+.city-view{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:3;
+  perspective:600px;
+}
+.iso-world{
+  width:360px;height:360px;
+  transform:rotateX(50deg) rotateZ(-45deg) scale(.75);
+  transform-style:preserve-3d;
+  position:relative;
+}
+/* Ground plane */
+.ground{
+  position:absolute;inset:0;
+  background:
+    linear-gradient(135deg,#8BC34A,#689F38,#7CB342,#558B2F);
+  border-radius:8px;
+  box-shadow:0 30px 60px rgba(0,0,0,.3);
+}
+/* Roads (cross pattern) */
+.road-h,.road-v{position:absolute;background:var(--road);}
+.road-h{height:24px;left:0;right:0;top:50%;transform:translateY(-50%);
+  background:linear-gradient(180deg,#555,#666,#555);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 -1px 0 rgba(0,0,0,.2);}
+.road-v{width:24px;top:0;bottom:0;left:50%;transform:translateX(-50%);
+  background:linear-gradient(90deg,#555,#666,#555);
+  box-shadow:inset 1px 0 0 rgba(255,255,255,.1),inset -1px 0 0 rgba(0,0,0,.2);}
+/* Road markings */
+.road-h::after{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,#FFD700 0,#FFD700 10px,transparent 10px,transparent 20px);}
+.road-v::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:repeating-linear-gradient(180deg,#FFD700 0,#FFD700 10px,transparent 10px,transparent 20px);}
+
+/* BUILDINGS — 3D extruded blocks */
+.bldg{
+  position:absolute;
+  transform-style:preserve-3d;
+}
+.bldg-face{
+  position:absolute;bottom:0;width:100%;
+  border-radius:2px 2px 0 0;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.15);
+}
+/* Side face (gives 3D depth) */
+.bldg-side{
+  position:absolute;bottom:0;right:-8px;width:8px;
+  transform:skewY(-45deg);
+  transform-origin:bottom left;
+}
+/* Top face */
+.bldg-top{
+  position:absolute;width:100%;height:8px;
+  transform:skewX(-45deg);
+  transform-origin:bottom left;
+}
+/* Windows on buildings */
+.bldg-windows{
+  position:absolute;inset:4px 4px auto 4px;
+  display:grid;gap:2px;
+}
+.bldg-win{background:rgba(255,255,200,.5);border-radius:1px;}
+
+/* Empty lot (unowned property) */
+.lot{
+  position:absolute;width:40px;height:40px;
+  border:2px dashed rgba(255,255,255,.3);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.05);
+}
+.lot-price{
+  font-family:'JetBrains Mono';font-size:6px;font-weight:700;
+  color:rgba(255,255,255,.6);background:rgba(0,0,0,.4);
+  padding:1px 4px;border-radius:3px;
+}
+
+/* Player tokens (3D characters) */
+.char{
+  position:absolute;z-index:20;
+  display:flex;flex-direction:column;align-items:center;
+}
+.char-body{
+  width:16px;height:20px;border-radius:8px 8px 4px 4px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2';font-size:9px;font-weight:800;color:#fff;
+  box-shadow:0 3px 8px rgba(0,0,0,.4);
+  border:2px solid rgba(255,255,255,.6);
+}
+.char-shadow{
+  width:14px;height:4px;border-radius:50%;
+  background:rgba(0,0,0,.2);margin-top:-1px;
+}
+.char.active .char-body{
+  border-color:var(--gold);
+  box-shadow:0 0 10px var(--gold-glow),0 3px 8px rgba(0,0,0,.4);
+  animation:charBounce 1s ease-in-out infinite;
+}
+@keyframes charBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+/* Property name labels floating above buildings */
+.prop-label{
+  position:absolute;z-index:15;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  padding:2px 6px;border-radius:6px;
+  font-family:'Poppins';font-size:5px;font-weight:700;color:#fff;
+  white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.3);
+  border:1px solid;
+}
+
+/* ACTION BAR — floating at bottom */
+.g-act{
+  position:absolute;bottom:24px;left:12px;right:12px;z-index:50;
+}
+.g-glass{
+  background:rgba(0,0,0,.4);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.08);border-radius:22px;
+  padding:12px 14px 14px;
+}
+.g-turn{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;}
+.g-turn-d{width:8px;height:8px;border-radius:50%;}
+.g-turn-t{font-family:'Poppins';font-size:10px;font-weight:700;letter-spacing:3px;color:var(--w50);text-shadow:0 1px 2px rgba(0,0,0,.5);}
+.g-roll{width:100%;border-radius:16px;margin-bottom:6px;font-size:17px;padding:14px;}
+.g-row{display:flex;gap:6px;}
+.g-sm{
+  flex:1;padding:9px;border-radius:12px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);
+  font-family:'Poppins';font-size:10px;font-weight:700;letter-spacing:1px;
+  color:var(--w20);text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+
+/* ═══════════════════════════════════════════ */
+/* 4. DICE ROLL — 3D CINEMATIC                */
+/* ═══════════════════════════════════════════ */
+.droll{
+  background:radial-gradient(circle at 50% 45%,#B8E6FF 0%,#87CEEB 30%,#689F38 80%,#2E7D32 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+/* Blur the background to focus on dice */
+.droll::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);}
+.dr-content{position:relative;z-index:2;text-align:center;}
+.dr-dice{display:flex;gap:20px;margin-bottom:20px;animation:dSlam .5s cubic-bezier(.34,1.56,.64,1);}
+@keyframes dSlam{0%{transform:scale(3) rotate(360deg);opacity:0;}100%{transform:scale(1) rotate(0);opacity:1;}}
+.dr-d{
+  width:88px;height:88px;border-radius:18px;
+  background:linear-gradient(135deg,#FFFEF5,#F0E8D0);
+  box-shadow:0 8px 0 #C4B890,0 10px 0 #A09060,0 16px 50px rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.9);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:14px;
+}
+.dr-p{width:14px;height:14px;border-radius:50%;background:#2D3436;align-self:center;justify-self:center;box-shadow:inset 0 1px 2px rgba(0,0,0,.3);}
+.dr-total{font-family:'Baloo 2';font-size:72px;font-weight:800;color:var(--w);text-shadow:0 4px 0 rgba(0,0,0,.2),0 0 40px rgba(255,255,255,.3);animation:tPop .3s cubic-bezier(.34,1.56,.64,1) .2s both;}
+@keyframes tPop{0%{transform:scale(0);}100%{transform:scale(1);}}
+.dr-lbl{font-family:'Poppins';font-size:11px;font-weight:700;letter-spacing:4px;color:var(--w50);}
+.dr-doubles{
+  margin-top:14px;padding:8px 24px;border-radius:24px;
+  background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(255,140,0,.2));
+  border:2px solid var(--gold);
+  font-family:'Baloo 2';font-size:14px;font-weight:700;color:var(--gold);
+  box-shadow:0 0 20px var(--gold-glow);
+  animation:dpulse 1s ease-in-out infinite;
+}
+@keyframes dpulse{0%,100%{box-shadow:0 0 15px var(--gold-glow);}50%{box-shadow:0 0 35px var(--gold-glow);}}
+
+/* ═══════════════════════════════════════════ */
+/* 5. PROPERTY POPUP — over 3D world          */
+/* ═══════════════════════════════════════════ */
+.prop-sc{
+  background:linear-gradient(180deg,rgba(135,206,235,.3),rgba(76,175,80,.3));
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+.prop-sc::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);}
+.prop-card{
+  width:100%;max-width:350px;border-radius:24px;overflow:hidden;
+  background:rgba(20,20,30,.92);border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+  z-index:2;animation:cup .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes cup{0%{transform:translateY(80px) scale(.9);opacity:0;}100%{transform:translateY(0) scale(1);opacity:1;}}
+.prop-hdr{padding:24px 20px 16px;text-align:center;position:relative;}
+.prop-cband{position:absolute;top:0;left:0;right:0;height:6px;}
+.prop-badge{display:inline-block;padding:4px 14px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:2px;color:#fff;margin-bottom:8px;}
+.prop-name{font-family:'Baloo 2';font-size:28px;font-weight:800;color:var(--w);}
+.prop-price{font-family:'JetBrains Mono';font-size:18px;font-weight:700;color:var(--gold);margin-top:2px;}
+/* Building preview */
+.prop-preview{
+  display:flex;justify-content:center;padding:0 0 12px;
+}
+.prop-bldg-preview{
+  width:60px;height:50px;border-radius:4px 4px 0 0;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;
+  font-size:8px;color:rgba(255,255,255,.5);
+  box-shadow:4px 0 0 rgba(0,0,0,.15),-4px 0 0 rgba(0,0,0,.05);
+}
+.prop-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:0 16px 12px;}
+.prop-cell{background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+.prop-cell.wide{grid-column:1/3;}
+.prop-cell.hl{background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.1);}
+.prop-cl{font-size:11px;color:var(--w50);}
+.prop-cv{font-family:'JetBrains Mono';font-size:12px;font-weight:600;color:var(--w80);}
+.prop-cell.hl .prop-cv{color:var(--gold);}
+.prop-btns{display:flex;gap:8px;padding:12px 16px 20px;}
+.prop-btns .b3{flex:1;}
+
+/* ═══════════════════════════════════════════ */
+/* 6. RENT — COIN TRAIL                       */
+/* ═══════════════════════════════════════════ */
+.rent-sc{
+  background:linear-gradient(180deg,rgba(135,206,235,.2),rgba(76,175,80,.2));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;
+}
+.rent-sc::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);}
+.rent-content{position:relative;z-index:2;width:100%;max-width:320px;}
+.rent-pl{display:flex;align-items:center;gap:12px;}
+.rent-av{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:24px;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.rent-nm{font-family:'Baloo 2';font-size:16px;font-weight:700;}
+.rent-bl{font-family:'JetBrains Mono';font-size:11px;color:var(--gold);opacity:.5;}
+.rent-flow{display:flex;flex-direction:column;align-items:center;margin:14px 0;}
+.rent-amt{font-family:'JetBrains Mono';font-size:34px;font-weight:700;color:var(--red);text-shadow:0 0 25px rgba(255,23,68,.3);animation:tPop .4s cubic-bezier(.34,1.56,.64,1);}
+.rent-coins{display:flex;gap:3px;margin:8px 0;}
+.rent-coin{
+  width:18px;height:18px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,var(--gold-lt),var(--gold));
+  border:1.5px solid var(--gold-dk);font-family:'Baloo 2';font-size:7px;color:#5A3D00;
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+  animation:cdrop .5s ease-out both;
+}
+.rent-coin:nth-child(2){animation-delay:.08s;}.rent-coin:nth-child(3){animation-delay:.16s;}.rent-coin:nth-child(4){animation-delay:.24s;}.rent-coin:nth-child(5){animation-delay:.32s;}
+@keyframes cdrop{0%{transform:translateY(-30px) scale(.5);opacity:0;}100%{transform:translateY(0) scale(1);opacity:1;}}
+.rent-prop{font-family:'Poppins';font-size:11px;font-weight:700;letter-spacing:3px;color:var(--w20);text-align:center;margin-top:10px;}
+
+/* ═══════════════════════════════════════════ */
+/* 7. GAME OVER — SKY CELEBRATION             */
+/* ═══════════════════════════════════════════ */
+.over-sc{
+  background:linear-gradient(180deg,#FF8C00 0%,#FFB347 20%,#87CEEB 50%,#4CAF50 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;
+  overflow:hidden;
+}
+.over-particles{position:absolute;inset:0;overflow:hidden;}
+.over-p{position:absolute;border-radius:3px;animation:pf 3s ease-in infinite;}
+@keyframes pf{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(900px) rotate(720deg);opacity:0;}}
+.over-crown{font-size:72px;z-index:1;animation:cbnc .6s cubic-bezier(.34,1.56,.64,1);margin-bottom:6px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));}
+@keyframes cbnc{0%{transform:scale(0) rotate(-20deg);}100%{transform:scale(1) rotate(0);}}
+.over-title{font-family:'Baloo 2';font-size:44px;font-weight:800;color:var(--w);text-shadow:0 3px 0 rgba(0,0,0,.2),0 0 30px rgba(255,255,255,.3);z-index:1;}
+.over-name{font-family:'Poppins';font-size:14px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:3px;z-index:1;margin-bottom:22px;}
+.over-ranks{width:100%;max-width:300px;z-index:1;margin-bottom:18px;}
+.over-rank{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;margin-bottom:4px;background:rgba(0,0,0,.15);backdrop-filter:blur(8px);}
+.over-rank:first-child{background:rgba(255,215,0,.2);border:1px solid rgba(255,215,0,.3);}
+.over-rn{font-family:'Baloo 2';font-size:20px;font-weight:800;color:var(--gold);width:24px;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+.over-rav{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:16px;font-weight:800;color:#fff;}
+.over-rname{flex:1;font-size:14px;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.2);}
+.over-ramt{font-family:'JetBrains Mono';font-size:11px;font-weight:600;color:var(--gold);}
+.over-btn{width:100%;max-width:300px;border-radius:16px;z-index:1;font-size:17px;padding:14px;}
+</style>
+</head>
+<body>
+<div class="head"><h1>Business India</h1><p>3D City Game Concept</p></div>
+
+<div class="nav" id="nav">
+  <b class="on" data-s="all">All</b>
+  <b data-s="splash">Splash</b>
+  <b data-s="menu">Menu</b>
+  <b data-s="board">City View</b>
+  <b data-s="dice">Dice</b>
+  <b data-s="prop">Property</b>
+  <b data-s="rent">Rent</b>
+  <b data-s="over">Victory</b>
+</div>
+
+<div class="grid">
+
+<!-- SPLASH -->
+<div class="mc v" data-id="splash">
+<div class="ml">Splash</div>
+<div class="ms">Daytime sky, city silhouette, bouncing logo</div>
+<div class="ph"><div class="sc splash">
+  <div class="cloud"></div><div class="cloud"></div><div class="cloud"></div>
+  <div class="splash-city">
+    <div class="splash-bldg" style="width:14px;height:35px;"></div>
+    <div class="splash-bldg" style="width:10px;height:55px;"></div>
+    <div class="splash-bldg" style="width:18px;height:40px;"></div>
+    <div class="splash-bldg" style="width:8px;height:70px;"></div>
+    <div class="splash-bldg" style="width:14px;height:45px;"></div>
+    <div class="splash-bldg" style="width:20px;height:30px;"></div>
+    <div class="splash-bldg" style="width:12px;height:60px;"></div>
+    <div class="splash-bldg" style="width:16px;height:38px;"></div>
+    <div class="splash-bldg" style="width:10px;height:50px;"></div>
+    <div class="splash-bldg" style="width:22px;height:25px;"></div>
+    <div class="splash-bldg" style="width:14px;height:48px;"></div>
+    <div class="splash-bldg" style="width:8px;height:65px;"></div>
+  </div>
+  <div class="sp-logo"><span class="sp-rupee">₹</span></div>
+  <div class="sp-name">Business India</div>
+  <div class="sp-sub">NAVO VEPAR</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+</div></div>
+</div>
+
+<!-- MENU -->
+<div class="mc v" data-id="menu">
+<div class="ml">Main Menu</div>
+<div class="ms">Sunset skyline, warm Indian evening feel</div>
+<div class="ph"><div class="sc menu">
+  <div class="menu-skyline">
+    <div class="menu-b" style="width:12px;height:30px;"></div>
+    <div class="menu-b" style="width:8px;height:50px;"></div>
+    <div class="menu-b" style="width:16px;height:35px;"></div>
+    <div class="menu-b" style="width:6px;height:65px;"></div>
+    <div class="menu-b" style="width:14px;height:40px;"></div>
+    <div class="menu-b" style="width:20px;height:25px;"></div>
+    <div class="menu-b" style="width:10px;height:55px;"></div>
+    <div class="menu-b" style="width:18px;height:32px;"></div>
+    <div class="menu-b" style="width:8px;height:48px;"></div>
+    <div class="menu-b" style="width:24px;height:20px;"></div>
+    <div class="menu-b" style="width:12px;height:42px;"></div>
+    <div class="menu-b" style="width:6px;height:58px;"></div>
+    <div class="menu-b" style="width:16px;height:28px;"></div>
+    <div class="menu-b" style="width:10px;height:45px;"></div>
+    <div class="menu-b" style="width:20px;height:22px;"></div>
+  </div>
+  <div class="menu-content">
+    <div class="menu-logo">₹</div>
+    <div class="menu-title">Business India</div>
+    <div class="menu-sub">NAVO VEPAR</div>
+    <div class="menu-btns">
+      <button class="b3 b3-gold menu-play">▶ &nbsp; PLAY GAME</button>
+      <div class="menu-online">🔒 &nbsp; PLAY ONLINE (SOON)</div>
+    </div>
+  </div>
+  <div class="menu-bottom">
+    <div class="menu-ic"><div class="menu-ic-c">⚙️</div><span>Settings</span></div>
+    <div class="menu-ic"><div class="menu-ic-c">📖</div><span>Rules</span></div>
+    <div class="menu-ic"><div class="menu-ic-c">🏆</div><span>Stats</span></div>
+    <div class="menu-ic"><div class="menu-ic-c">🎨</div><span>Themes</span></div>
+  </div>
+</div></div>
+</div>
+
+<!-- 3D CITY GAME VIEW -->
+<div class="mc v" data-id="board">
+<div class="ml">3D City View</div>
+<div class="ms">Isometric city — buildings ARE properties, characters walk streets</div>
+<div class="ph"><div class="sc game">
+  <div class="sun"></div>
+  <div class="g-cloud" style="width:40px;height:14px;top:12%;left:5%;"></div>
+  <div class="g-cloud" style="width:55px;height:16px;top:8%;left:55%;"></div>
+
+  <!-- HUD -->
+  <div class="g-hud">
+    <div class="g-active-card">
+      <div class="g-av g-av-glow" style="background:linear-gradient(135deg,#EF5350,#C62828);">P</div>
+      <div class="g-det"><div class="g-nm">Pradip</div><div class="g-bal">₹12,45,000</div></div>
+    </div>
+    <div class="g-pips">
+      <div class="g-pip" style="color:#2EC4B6;">A</div>
+      <div class="g-pip" style="color:#448AFF;">R</div>
+      <div class="g-pip" style="color:#FFEE58;">V</div>
+    </div>
+  </div>
+
+  <!-- ISOMETRIC CITY -->
+  <div class="city-view">
+    <div class="iso-world">
+      <div class="ground"></div>
+      <div class="road-h"></div>
+      <div class="road-v"></div>
+
+      <!-- BUILDINGS (owned properties) -->
+      <!-- Jaipur — 2 houses (small building) -->
+      <div class="bldg" style="left:30px;top:30px;">
+        <div class="bldg-face" style="width:38px;height:30px;background:linear-gradient(180deg,#81D4FA,#4FC3F7);"></div>
+        <div class="bldg-side" style="height:30px;background:#29B6F6;"></div>
+        <div class="bldg-top" style="left:0;top:0;background:#B3E5FC;transform:translateY(-30px) skewX(-45deg);"></div>
+        <div class="bldg-windows" style="top:6px;grid-template:repeat(3,5px)/repeat(3,5px);">
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+        </div>
+      </div>
+      <div class="prop-label" style="left:22px;top:2px;border-color:#4FC3F7;">Jaipur 🏠🏠</div>
+
+      <!-- Lucknow — 1 house -->
+      <div class="bldg" style="left:80px;top:30px;">
+        <div class="bldg-face" style="width:32px;height:22px;background:linear-gradient(180deg,#81D4FA,#4FC3F7);"></div>
+        <div class="bldg-side" style="height:22px;background:#29B6F6;"></div>
+        <div class="bldg-top" style="left:0;background:#B3E5FC;transform:translateY(-22px) skewX(-45deg);"></div>
+      </div>
+      <div class="prop-label" style="left:72px;top:10px;border-color:#4FC3F7;">Lucknow 🏠</div>
+
+      <!-- Ahmedabad — owned, no houses -->
+      <div class="bldg" style="right:60px;top:40px;">
+        <div class="bldg-face" style="width:30px;height:16px;background:linear-gradient(180deg,#EF9A9A,#EF5350);"></div>
+        <div class="bldg-side" style="height:16px;background:#E53935;"></div>
+        <div class="bldg-top" style="left:0;background:#FFCDD2;transform:translateY(-16px) skewX(-45deg);"></div>
+      </div>
+      <div class="prop-label" style="right:50px;top:22px;border-color:#EF5350;">Ahmedabad</div>
+
+      <!-- Mumbai Bandra — HOTEL (tall tower) -->
+      <div class="bldg" style="right:30px;bottom:60px;">
+        <div class="bldg-face" style="width:36px;height:65px;background:linear-gradient(180deg,#90CAF9,#42A5F5);"></div>
+        <div class="bldg-side" style="height:65px;background:#1E88E5;"></div>
+        <div class="bldg-top" style="left:0;background:#BBDEFB;transform:translateY(-65px) skewX(-45deg);"></div>
+        <div class="bldg-windows" style="top:6px;grid-template:repeat(8,5px)/repeat(3,5px);">
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+          <div class="bldg-win"></div><div class="bldg-win"></div><div class="bldg-win"></div>
+        </div>
+      </div>
+      <div class="prop-label" style="right:18px;bottom:130px;border-color:#42A5F5;">Mumbai Bandra 🏨</div>
+
+      <!-- Ranchi — owned by P1 -->
+      <div class="bldg" style="left:30px;bottom:60px;">
+        <div class="bldg-face" style="width:28px;height:14px;background:linear-gradient(180deg,#BCAAA4,#8D6E63);"></div>
+        <div class="bldg-side" style="height:14px;background:#6D4C41;"></div>
+        <div class="bldg-top" style="left:0;background:#D7CCC8;transform:translateY(-14px) skewX(-45deg);"></div>
+      </div>
+      <div class="prop-label" style="left:20px;bottom:78px;border-color:#8D6E63;">Ranchi</div>
+
+      <!-- Empty lots (unowned properties) -->
+      <div class="lot" style="left:140px;top:40px;"><div class="lot-price">₹1.4L</div></div>
+      <div class="lot" style="right:120px;bottom:70px;"><div class="lot-price">₹3L</div></div>
+      <div class="lot" style="left:100px;bottom:50px;"><div class="lot-price">₹60K</div></div>
+
+      <!-- Player characters on the road -->
+      <div class="char active" style="left:165px;top:165px;">
+        <div class="char-body" style="background:linear-gradient(180deg,#EF5350,#C62828);">P</div>
+        <div class="char-shadow"></div>
+      </div>
+      <div class="char" style="left:130px;top:182px;">
+        <div class="char-body" style="background:linear-gradient(180deg,#2EC4B6,#1A8A7E);">A</div>
+        <div class="char-shadow"></div>
+      </div>
+      <div class="char" style="left:195px;top:170px;">
+        <div class="char-body" style="background:linear-gradient(180deg,#448AFF,#1565C0);">R</div>
+        <div class="char-shadow"></div>
+      </div>
+      <div class="char" style="left:180px;top:190px;">
+        <div class="char-body" style="background:linear-gradient(180deg,#FFEE58,#F9A825);color:#333;">V</div>
+        <div class="char-shadow"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="g-act">
+    <div class="g-glass">
+      <div class="g-turn"><div class="g-turn-d" style="background:#EF5350;"></div><div class="g-turn-t">PRADIP'S TURN</div></div>
+      <button class="b3 b3-gold g-roll">🎲 &nbsp; ROLL DICE</button>
+      <div class="g-row">
+        <div class="g-sm">🏠 Manage</div>
+        <div class="g-sm">🔄 Trade</div>
+        <div class="g-sm">📋 Properties</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- DICE ROLL -->
+<div class="mc v" data-id="dice">
+<div class="ml">Dice Roll</div>
+<div class="ms">World blurs, dice slam in, doubles pulse</div>
+<div class="ph"><div class="sc droll">
+  <div class="dr-content">
+    <div class="dr-dice">
+      <div class="dr-d">
+        <span></span><span></span><span class="dr-p"></span>
+        <span></span><span class="dr-p"></span><span></span>
+        <span class="dr-p"></span><span></span><span class="dr-p"></span>
+      </div>
+      <div class="dr-d">
+        <span></span><span></span><span class="dr-p"></span>
+        <span></span><span class="dr-p"></span><span></span>
+        <span class="dr-p"></span><span></span><span class="dr-p"></span>
+      </div>
+    </div>
+    <div class="dr-total">8</div>
+    <div class="dr-lbl">TOTAL</div>
+    <div class="dr-doubles">⚡ DOUBLES — ROLL AGAIN!</div>
+  </div>
+</div></div>
+</div>
+
+<!-- PROPERTY -->
+<div class="mc v" data-id="prop">
+<div class="ml">Property Landing</div>
+<div class="ms">Building preview, buy to construct</div>
+<div class="ph"><div class="sc prop-sc">
+  <div class="prop-card">
+    <div class="prop-hdr">
+      <div class="prop-cband" style="background:linear-gradient(90deg,#EF5350,#C62828);"></div>
+      <div class="prop-badge" style="background:rgba(239,83,80,.3);">Red Group</div>
+      <div class="prop-name">Ahmedabad</div>
+      <div class="prop-price">₹2,20,000</div>
+    </div>
+    <div class="prop-preview">
+      <div class="prop-bldg-preview" style="background:linear-gradient(180deg,#EF9A9A,#EF5350);">
+        <span>Buy to build</span>
+      </div>
+    </div>
+    <div class="prop-grid">
+      <div class="prop-cell"><span class="prop-cl">Base rent</span><span class="prop-cv">₹18K</span></div>
+      <div class="prop-cell hl"><span class="prop-cl">Monopoly</span><span class="prop-cv">₹36K</span></div>
+      <div class="prop-cell"><span class="prop-cl">🏠×1</span><span class="prop-cv">₹90K</span></div>
+      <div class="prop-cell"><span class="prop-cl">🏠×2</span><span class="prop-cv">₹2.5L</span></div>
+      <div class="prop-cell"><span class="prop-cl">🏠×3</span><span class="prop-cv">₹7L</span></div>
+      <div class="prop-cell"><span class="prop-cl">🏠×4</span><span class="prop-cv">₹8.75L</span></div>
+      <div class="prop-cell hl wide"><span class="prop-cl">🏨 Hotel</span><span class="prop-cv">₹10.5L</span></div>
+      <div class="prop-cell"><span class="prop-cl">🏗 Build</span><span class="prop-cv">₹1.5L</span></div>
+      <div class="prop-cell"><span class="prop-cl">📄 Mortgage</span><span class="prop-cv">₹1.1L</span></div>
+    </div>
+    <div class="prop-btns">
+      <button class="b3 b3-ghost" style="flex:1;">PASS</button>
+      <button class="b3 b3-green" style="flex:2;">BUY & BUILD</button>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- RENT -->
+<div class="mc v" data-id="rent">
+<div class="ml">Rent Payment</div>
+<div class="ms">Coins cascade between players</div>
+<div class="ph"><div class="sc rent-sc">
+  <div class="rent-content">
+    <div class="rent-pl">
+      <div class="rent-av" style="background:linear-gradient(135deg,#EF5350,#C62828);">P</div>
+      <div><div class="rent-nm">Pradip</div><div class="rent-bl">₹12,45,000 → ₹11,55,000</div></div>
+    </div>
+    <div class="rent-flow">
+      <div class="rent-amt">−₹90,000</div>
+      <div class="rent-coins">
+        <div class="rent-coin">₹</div><div class="rent-coin">₹</div><div class="rent-coin">₹</div><div class="rent-coin">₹</div><div class="rent-coin">₹</div>
+      </div>
+      <div style="font-size:18px;">⬇️</div>
+    </div>
+    <div class="rent-pl">
+      <div class="rent-av" style="background:linear-gradient(135deg,#2EC4B6,#1A8A7E);">A</div>
+      <div><div class="rent-nm">Amit</div><div class="rent-bl">₹8,20,000 → ₹9,10,000</div></div>
+    </div>
+    <div class="rent-prop">JAIPUR • 🏠🏠 2 HOUSES</div>
+  </div>
+</div></div>
+</div>
+
+<!-- GAME OVER -->
+<div class="mc v" data-id="over">
+<div class="ml">Victory</div>
+<div class="ms">Sunset celebration, confetti over city</div>
+<div class="ph"><div class="sc over-sc">
+  <div class="over-particles">
+    <div class="over-p" style="left:8%;width:8px;height:8px;background:var(--gold);animation-delay:0s;"></div>
+    <div class="over-p" style="left:22%;width:6px;height:10px;background:var(--red);animation-delay:.4s;"></div>
+    <div class="over-p" style="left:38%;width:10px;height:6px;background:var(--cyan);animation-delay:.8s;"></div>
+    <div class="over-p" style="left:52%;width:7px;height:7px;background:var(--saffron);animation-delay:.2s;"></div>
+    <div class="over-p" style="left:68%;width:9px;height:5px;background:var(--pink);animation-delay:.6s;"></div>
+    <div class="over-p" style="left:82%;width:6px;height:8px;background:var(--blue);animation-delay:1s;"></div>
+    <div class="over-p" style="left:14%;width:5px;height:9px;background:var(--green);animation-delay:1.4s;"></div>
+    <div class="over-p" style="left:46%;width:7px;height:7px;background:var(--purple);animation-delay:.5s;"></div>
+    <div class="over-p" style="left:90%;width:8px;height:6px;background:var(--gold);animation-delay:1.8s;"></div>
+  </div>
+  <div class="over-crown">👑</div>
+  <div class="over-title">VICTORY!</div>
+  <div class="over-name">PRADIP DOMINATES INDIA</div>
+  <div class="over-ranks">
+    <div class="over-rank"><div class="over-rn">1</div><div class="over-rav" style="background:linear-gradient(135deg,#EF5350,#C62828);">P</div><div class="over-rname">Pradip</div><div class="over-ramt">₹28,40,000</div></div>
+    <div class="over-rank"><div class="over-rn" style="color:#666;">2</div><div class="over-rav" style="background:rgba(46,196,182,.3);">A</div><div class="over-rname" style="opacity:.4;">Amit</div><div class="over-ramt" style="opacity:.2;">Bankrupt</div></div>
+    <div class="over-rank"><div class="over-rn" style="color:#666;">3</div><div class="over-rav" style="background:rgba(68,138,255,.3);">R</div><div class="over-rname" style="opacity:.4;">Riya</div><div class="over-ramt" style="opacity:.2;">Bankrupt</div></div>
+    <div class="over-rank"><div class="over-rn" style="color:#666;">4</div><div class="over-rav" style="background:rgba(255,238,88,.3);color:#FFEE58;">V</div><div class="over-rname" style="opacity:.4;">Vijay</div><div class="over-ramt" style="opacity:.2;">Bankrupt</div></div>
+  </div>
+  <button class="b3 b3-gold over-btn">PLAY AGAIN</button>
+</div></div>
+</div>
+
+</div>
+
+<script>
+const n=document.getElementById('nav'),cs=document.querySelectorAll('.mc'),bs=n.querySelectorAll('b');
+bs.forEach(b=>b.addEventListener('click',()=>{
+  bs.forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const s=b.dataset.s;cs.forEach(c=>{s==='all'||c.dataset.id===s?c.classList.add('v'):c.classList.remove('v');});
+}));
+</script>
+</body>
+</html>

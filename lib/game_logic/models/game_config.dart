@@ -1,7 +1,10 @@
 /// Represents all configurable settings and rules for the Monopoly game.
+///
+/// Money values are integer rupees (or integer currency units for test boards).
+/// Multipliers/rates remain `double` because they're ratios, not money.
 class GameConfig {
   // Game settings
-  final double startingBalance;
+  final int startingBalance;
   final bool enableAuctions;
   final bool limitedBankResources;
   final bool jailRules;
@@ -9,41 +12,33 @@ class GameConfig {
   final List<String> customBoardLayout;
 
   // Game rules
-  final double goReward;
-  final double jailExitCost;
+  final int goReward;
+  final int jailExitCost;
   final int maxJailTurns;
-  final double taxAmount;
+  final int taxAmount;
   final bool freeParkingCollects;
-  final double freeParkingStart;
+  final int freeParkingStart;
   final int initialHouses;
   final int initialHotels;
   final double monopolyRentMultiplier;
   final double mortgageInterestRate;
 
   const GameConfig({
-    // Settings
-    this.startingBalance = 1500.0,
+    this.startingBalance = 1500,
     this.enableAuctions = true,
     this.limitedBankResources = true,
     this.jailRules = true,
     this.freeParkingRules = false,
     this.customBoardLayout = const [],
-    // Rules
-    this.goReward = 200.0,
-    this.jailExitCost = 50.0,
+    this.goReward = 200,
+    this.jailExitCost = 50,
     this.maxJailTurns = 3,
-    this.taxAmount = 200.0,
+    this.taxAmount = 200,
     this.freeParkingCollects = false,
-    this.freeParkingStart = 0.0,
+    this.freeParkingStart = 0,
     this.initialHouses = 32,
     this.initialHotels = 12,
     this.monopolyRentMultiplier = 2.0,
     this.mortgageInterestRate = 0.1,
   });
-
-  void copyFrom(GameConfig other) {
-    // This method cannot mutate final fields, but is required for persistence compatibility.
-    // You should replace the instance in the caller, or refactor to use a new instance.
-    throw UnimplementedError('GameConfig is immutable. Replace the instance instead.');
-  }
 }

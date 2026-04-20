@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business India — Game UI Concept</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Teko:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0B0A12;
+  --felt: #1A3326;
+  --felt-dark: #0F2018;
+  --felt-light: #264D38;
+  --gold: #F5C542;
+  --gold-dim: #A68B2D;
+  --gold-glow: rgba(245, 197, 66, 0.35);
+  --saffron: #FF9933;
+  --white: #FFFEF5;
+  --cream: #F5E6C8;
+  --red: #E63946;
+  --green: #2DC653;
+  --blue: #3A86FF;
+  --purple: #7B2FF7;
+  --teal: #2EC4B6;
+  --pink: #FF6B9D;
+  --orange: #FF8C42;
+  --shadow: rgba(0,0,0,0.6);
+  --phone-w: 400px;
+  --phone-h: 870px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#050408;font-family:'Rajdhani',sans-serif;color:var(--white);overflow-x:hidden;}
+
+.page-head{text-align:center;padding:50px 20px 10px;}
+.page-head h1{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:8px;background:linear-gradient(135deg,var(--saffron),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-head p{color:#665;font-size:13px;letter-spacing:5px;text-transform:uppercase;margin-top:4px;}
+
+.nav{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;padding:20px 16px 30px;max-width:800px;margin:0 auto;}
+.nav button{background:rgba(245,197,66,0.06);border:1px solid rgba(245,197,66,0.12);color:var(--gold-dim);padding:7px 16px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:.25s;}
+.nav button:hover,.nav button.on{background:rgba(245,197,66,0.15);border-color:var(--gold);color:var(--gold);}
+
+.wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:50px;padding:10px 30px 80px;}
+.card{display:none;}.card.vis{display:block;}
+.card-label{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);letter-spacing:4px;margin-bottom:4px;}
+.card-sub{text-align:center;font-size:11px;color:#554;letter-spacing:1px;margin-bottom:14px;}
+
+.phone{width:var(--phone-w);height:var(--phone-h);border-radius:40px;overflow:hidden;border:3px solid #1A1520;box-shadow:0 0 0 1px rgba(245,197,66,0.08),0 40px 100px rgba(0,0,0,0.7);position:relative;}
+.phone::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px;height:26px;background:#0B0A12;border-radius:0 0 16px 16px;z-index:200;}
+.scr{width:100%;height:100%;position:relative;overflow:hidden;}
+
+/* ══════════════════ SPLASH ══════════════════ */
+.sp{
+  background:radial-gradient(circle at 50% 45%,#1A3326 0%,#0F2018 40%,#080D0A 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.sp-glow{
+  width:280px;height:280px;position:relative;display:flex;align-items:center;justify-content:center;
+}
+.sp-ring{
+  position:absolute;border-radius:50%;border:1px solid rgba(245,197,66,0.15);
+  animation:pulse 3s ease-in-out infinite;
+}
+.sp-ring:nth-child(1){inset:0;animation-delay:0s;}
+.sp-ring:nth-child(2){inset:20px;animation-delay:0.4s;border-color:rgba(255,153,51,0.12);}
+.sp-ring:nth-child(3){inset:40px;animation-delay:0.8s;}
+.sp-ring:nth-child(4){inset:55px;animation-delay:1.2s;border-color:rgba(255,153,51,0.1);}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(1.05);opacity:1;}}
+
+.sp-dice-group{
+  display:flex;gap:12px;z-index:2;
+  animation:floatDice 2.5s ease-in-out infinite;
+}
+@keyframes floatDice{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-10px) rotate(2deg);}}
+.sp-die{
+  width:56px;height:56px;border-radius:12px;
+  background:linear-gradient(135deg,#fff,#e8e0d0);
+  box-shadow:0 8px 30px rgba(0,0,0,0.4),inset 0 -2px 4px rgba(0,0,0,0.1);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px;
+  transform:perspective(200px) rotateX(8deg);
+}
+.sp-pip{width:8px;height:8px;border-radius:50%;background:#1A3326;align-self:center;justify-self:center;}
+
+.sp-title{
+  font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:8px;
+  color:var(--gold);margin-top:30px;
+  text-shadow:0 0 40px var(--gold-glow),0 2px 0 #A68B2D;
+}
+.sp-sub{
+  font-family:'Teko',sans-serif;font-size:18px;letter-spacing:12px;
+  color:var(--saffron);opacity:.5;text-transform:uppercase;margin-top:-4px;
+}
+.sp-bar{width:140px;height:2px;background:rgba(245,197,66,0.1);border-radius:2px;margin-top:40px;overflow:hidden;}
+.sp-fill{height:100%;background:var(--gold);border-radius:2px;animation:load 2s ease-in-out infinite;}
+@keyframes load{0%{width:0;}100%{width:100%;}}
+
+/* ══════════════════ MAIN MENU ══════════════════ */
+.mm{
+  background:radial-gradient(ellipse at 50% 60%,#1A3326 0%,#0F2018 50%,#080D0A 100%);
+  display:flex;flex-direction:column;
+}
+.mm-board-bg{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) perspective(600px) rotateX(55deg) rotateZ(5deg);
+  width:500px;height:500px;opacity:.08;
+  background:
+    linear-gradient(0deg,transparent 49%,rgba(245,197,66,.3) 49%,rgba(245,197,66,.3) 51%,transparent 51%) 0 0/50px 50px,
+    linear-gradient(90deg,transparent 49%,rgba(245,197,66,.3) 49%,rgba(245,197,66,.3) 51%,transparent 51%) 0 0/50px 50px;
+}
+.mm-content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;padding:60px 30px 0;}
+.mm-logo{
+  width:90px;height:90px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--gold),var(--saffron),var(--gold),var(--saffron),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 50px var(--gold-glow),0 0 100px rgba(245,197,66,0.1);
+  animation:logoSpin 8s linear infinite;
+  margin-bottom:20px;
+}
+@keyframes logoSpin{to{background:conic-gradient(from 360deg,var(--gold),var(--saffron),var(--gold),var(--saffron),var(--gold));}}
+.mm-logo-inner{
+  width:74px;height:74px;border-radius:50%;background:var(--felt-dark);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--gold);
+}
+.mm-title{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:6px;color:var(--white);}
+.mm-tagline{font-family:'Teko',sans-serif;font-size:16px;letter-spacing:10px;color:var(--saffron);opacity:.4;margin-top:-6px;}
+
+.mm-btns{width:100%;max-width:300px;margin-top:40px;display:flex;flex-direction:column;gap:12px;z-index:2;}
+.mm-play{
+  position:relative;padding:20px;border-radius:16px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--saffron));
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;
+  color:#1A3326;cursor:pointer;overflow:hidden;
+  box-shadow:0 0 30px var(--gold-glow),0 8px 25px rgba(0,0,0,0.3);
+}
+.mm-play::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+  animation:shimmer 2.5s ease-in-out infinite;
+}
+@keyframes shimmer{0%{left:-100%;}60%,100%{left:150%;}}
+.mm-play-icon{display:inline-block;margin-right:8px;font-size:18px;}
+
+.mm-online{
+  padding:16px;border-radius:14px;border:1px solid rgba(245,197,66,0.12);
+  background:rgba(245,197,66,0.04);font-family:'Teko',sans-serif;font-size:17px;
+  letter-spacing:4px;color:var(--gold-dim);cursor:pointer;opacity:.5;
+}
+
+.mm-bottom{z-index:2;padding:30px;display:flex;justify-content:space-around;}
+.mm-icon-btn{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  color:rgba(245,197,66,0.3);font-size:10px;letter-spacing:2px;cursor:pointer;
+}
+.mm-icon-circle{
+  width:48px;height:48px;border-radius:14px;
+  background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.08);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+
+/* ══════════════════ GAME BOARD (ISOMETRIC) ══════════════════ */
+.gb{
+  background:radial-gradient(ellipse at 50% 55%,var(--felt) 0%,var(--felt-dark) 60%,#080D0A 100%);
+  display:flex;flex-direction:column;
+}
+/* Felt texture */
+.gb::after{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='6' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='1' height='1' fill='%23fff' opacity='.015'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+
+/* Floating HUD - top */
+.hud-top{
+  position:relative;z-index:20;padding:48px 16px 0;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.hud-player-active{
+  flex:1;display:flex;align-items:center;gap:10px;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(12px);
+  border:1px solid rgba(245,197,66,0.15);border-radius:16px;padding:10px 14px;
+}
+.hud-av{
+  width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;
+  border:2px solid rgba(255,255,255,0.4);box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+.hud-detail{flex:1;}
+.hud-name{font-family:'Teko',sans-serif;font-size:16px;font-weight:600;letter-spacing:2px;}
+.hud-money{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold);font-weight:600;}
+.hud-others-col{display:flex;flex-direction:column;gap:4px;}
+.hud-other{
+  width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:14px;color:#fff;
+  border:1px solid rgba(255,255,255,0.15);opacity:.5;
+  background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);
+}
+
+/* The isometric board */
+.board-container{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+  perspective:800px;
+}
+.iso-board{
+  width:340px;height:340px;
+  transform:rotateX(42deg) rotateZ(-2deg) scale(0.92);
+  transform-style:preserve-3d;
+  position:relative;
+}
+.iso-board-face{
+  width:100%;height:100%;border-radius:8px;
+  background:linear-gradient(135deg,#F5E6C8,#EDD9B0);
+  border:2px solid rgba(180,150,80,0.4);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.5),
+    0 2px 0 #C4A050,
+    0 4px 0 #A08030,
+    0 6px 0 #806020,
+    0 8px 30px rgba(0,0,0,0.4);
+  position:relative;
+  display:grid;
+  grid-template-columns:48px repeat(9,1fr) 48px;
+  grid-template-rows:48px repeat(9,1fr) 48px;
+}
+
+/* Tiles on iso board */
+.t{border:.5px solid rgba(0,0,0,0.08);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.t-lbl{font-size:4.5px;font-family:'Rajdhani',sans-serif;font-weight:700;text-align:center;color:#333;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;}
+.t-pr{font-family:'JetBrains Mono',monospace;font-size:3.5px;text-align:center;color:#888;padding-bottom:1px;}
+.t-clr{height:7px;}
+.cn{
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:7px;letter-spacing:.5px;
+  background:rgba(245,230,200,0.5);color:#555;
+}
+
+/* Bottom row tiles */
+.tb{grid-row:11;}.tb .t-clr{order:-1;}
+/* Left column */
+.tl{grid-column:1;}.tl .t-clr{height:100%;width:7px;position:absolute;right:0;top:0;}
+/* Top row */
+.tt{grid-row:1;}
+/* Right column */
+.tr{grid-column:11;}.tr .t-clr{height:100%;width:7px;position:absolute;left:0;top:0;}
+
+/* Board center */
+.iso-center{
+  grid-column:2/11;grid-row:2/11;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(245,230,200,0.8),rgba(237,217,176,1));
+  position:relative;
+}
+.iso-center-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#6B4226;letter-spacing:4px;}
+.iso-center-sub{font-family:'Teko',sans-serif;font-size:9px;color:var(--gold-dim);letter-spacing:6px;}
+
+/* 3D dice floating above board */
+.dice-float{
+  position:absolute;
+  top:42%;left:50%;transform:translate(-50%,-50%) translateZ(60px);
+  display:flex;gap:14px;z-index:30;
+  filter:drop-shadow(0 15px 20px rgba(0,0,0,0.5));
+  animation:diceHover 2s ease-in-out infinite;
+}
+@keyframes diceHover{0%,100%{transform:translate(-50%,-50%) translateZ(60px) translateY(0);}50%{transform:translate(-50%,-50%) translateZ(60px) translateY(-6px);}}
+.d3d{
+  width:44px;height:44px;border-radius:8px;
+  background:linear-gradient(135deg,#fff,#F0E8D8);
+  border:1px solid rgba(0,0,0,0.08);
+  box-shadow:0 4px 0 #D4C8A8,0 6px 0 #B0A080,0 10px 20px rgba(0,0,0,0.3);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:6px;
+  transform:rotateX(-20deg);
+}
+.d3d .p{width:7px;height:7px;border-radius:50%;background:var(--felt-dark);align-self:center;justify-self:center;}
+
+/* 3D player tokens (floating pieces) */
+.tk{
+  position:absolute;z-index:10;
+  width:16px;height:22px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.tk-head{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.6);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:8px;color:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+.tk-base{
+  width:10px;height:4px;border-radius:50%;
+  background:rgba(0,0,0,0.25);margin-top:1px;
+}
+/* Token glow for active player */
+.tk.active .tk-head{
+  box-shadow:0 0 12px rgba(245,197,66,0.6),0 2px 8px rgba(0,0,0,0.4);
+  border-color:var(--gold);
+}
+
+/* Property ownership indicators - colored flags */
+.own-flag{
+  position:absolute;top:1px;right:1px;
+  width:4px;height:6px;border-radius:0 0 2px 2px;
+}
+
+/* Building indicators */
+.bld{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);display:flex;gap:1px;}
+.bld-h{width:4px;height:4px;background:var(--green);border-radius:1px;box-shadow:0 0 2px rgba(45,198,83,0.5);}
+.bld-hotel{width:6px;height:5px;background:var(--red);border-radius:1px;box-shadow:0 0 3px rgba(230,57,70,0.5);}
+
+/* ═══ ACTION BAR (game-style, bottom) ═══ */
+.act-bar{
+  position:relative;z-index:20;
+  padding:0 16px 30px;
+}
+.act-glass{
+  background:rgba(0,0,0,0.5);backdrop-filter:blur(16px);
+  border:1px solid rgba(245,197,66,0.1);border-radius:20px;
+  padding:14px 18px 16px;
+}
+.act-who{
+  display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;
+}
+.act-dot{width:6px;height:6px;border-radius:50%;}
+.act-txt{font-family:'Teko',sans-serif;font-size:13px;letter-spacing:4px;color:rgba(245,197,66,0.5);}
+
+.act-roll{
+  width:100%;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--saffron));
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;
+  color:#1A3326;cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:0 0 20px var(--gold-glow);
+  margin-bottom:8px;
+}
+.act-roll::after{
+  content:'';position:absolute;top:0;left:-100%;width:40%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+  animation:shimmer 2s ease-in-out infinite;
+}
+.act-row{display:flex;gap:8px;}
+.act-sm{
+  flex:1;padding:10px;border-radius:10px;
+  background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.08);
+  font-family:'Teko',sans-serif;font-size:13px;letter-spacing:2px;
+  color:rgba(245,197,66,0.4);cursor:pointer;text-align:center;
+}
+
+/* ══════════════════ PROPERTY POPUP (game-style) ══════════════════ */
+.pp{background:rgba(8,13,10,0.9);display:flex;align-items:center;justify-content:center;padding:20px;}
+.pp-card{
+  width:100%;max-width:340px;position:relative;
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,0.6);
+}
+.pp-top{
+  padding:28px 24px 20px;text-align:center;position:relative;
+}
+.pp-badge{
+  display:inline-block;padding:4px 14px;border-radius:20px;
+  font-family:'Teko',sans-serif;font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;color:#fff;margin-bottom:8px;
+}
+.pp-name{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:4px;color:var(--white);}
+.pp-price{
+  font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;
+  color:var(--gold);margin-top:4px;
+}
+.pp-rents{
+  padding:0 24px 16px;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+}
+.pp-rent-item{
+  background:rgba(255,255,255,0.04);border-radius:10px;padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.pp-rent-item.full{grid-column:1/3;}
+.pp-rent-lbl{font-size:12px;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:4px;}
+.pp-rent-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--white);}
+.pp-rent-item.highlight .pp-rent-val{color:var(--gold);}
+.pp-rent-item.highlight{border:1px solid rgba(245,197,66,0.15);}
+
+.pp-btns{display:flex;gap:10px;padding:16px 24px 24px;}
+.pp-btn{
+  flex:1;padding:16px;border-radius:14px;border:none;
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;
+  cursor:pointer;
+}
+.pp-buy{
+  background:linear-gradient(135deg,var(--gold),var(--saffron));color:#1A3326;
+  box-shadow:0 0 20px var(--gold-glow);
+}
+.pp-pass{
+  background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* ══════════════════ DICE ROLL MOMENT ══════════════════ */
+.dr{
+  background:radial-gradient(circle at 50% 50%,var(--felt) 0%,var(--felt-dark) 50%,#080D0A 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.dr-dice-area{
+  display:flex;gap:20px;margin-bottom:30px;
+  animation:diceSlam .6s ease-out;
+}
+@keyframes diceSlam{0%{transform:scale(2) rotate(180deg);opacity:0;}60%{transform:scale(.9) rotate(-5deg);}100%{transform:scale(1) rotate(0);}}
+.dr-die{
+  width:80px;height:80px;border-radius:16px;
+  background:linear-gradient(135deg,#FFFEF5,#F0E8D8);
+  box-shadow:0 8px 0 #C4B890,0 10px 0 #A09870,0 15px 40px rgba(0,0,0,0.4),0 0 60px rgba(245,197,66,0.15);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:12px;
+}
+.dr-pip{width:12px;height:12px;border-radius:50%;background:var(--felt-dark);align-self:center;justify-self:center;}
+
+.dr-total{
+  font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--gold);
+  text-shadow:0 0 40px var(--gold-glow);
+  letter-spacing:4px;
+  animation:totalPop .4s ease-out .3s both;
+}
+@keyframes totalPop{0%{transform:scale(0);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.dr-label{
+  font-family:'Teko',sans-serif;font-size:14px;letter-spacing:6px;
+  color:rgba(245,197,66,0.4);margin-top:-4px;
+}
+.dr-doubles{
+  margin-top:12px;padding:6px 20px;border-radius:20px;
+  background:rgba(245,197,66,0.15);border:1px solid rgba(245,197,66,0.3);
+  font-family:'Teko',sans-serif;font-size:13px;letter-spacing:3px;color:var(--gold);
+  animation:doublePulse 1s ease-in-out infinite;
+}
+@keyframes doublePulse{0%,100%{box-shadow:0 0 10px var(--gold-glow);}50%{box-shadow:0 0 25px var(--gold-glow);}}
+
+/* ══════════════════ CHANCE/CC CARD ══════════════════ */
+.cc{background:rgba(8,13,10,0.9);display:flex;align-items:center;justify-content:center;padding:24px;}
+.cc-card{
+  width:300px;border-radius:20px;padding:30px 24px;text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 25px 70px rgba(0,0,0,0.5);
+}
+.cc-chance{background:linear-gradient(180deg,#2A1A08,#1A0F04);border:1px solid rgba(255,153,51,0.3);}
+.cc-chest{background:linear-gradient(180deg,#0A1A2A,#04101A);border:1px solid rgba(58,134,255,0.3);}
+.cc-icon{font-size:48px;margin-bottom:14px;}
+.cc-type{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:6px;}
+.cc-chance .cc-type{color:var(--saffron);}
+.cc-chest .cc-type{color:var(--blue);}
+.cc-text{font-size:16px;line-height:1.5;color:rgba(255,255,255,0.8);margin:12px 0 16px;}
+.cc-amount{
+  font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;
+  margin-bottom:20px;
+}
+.cc-amount.pos{color:var(--green);text-shadow:0 0 20px rgba(45,198,83,0.3);}
+.cc-amount.neg{color:var(--red);text-shadow:0 0 20px rgba(230,57,70,0.3);}
+.cc-ok{
+  width:100%;padding:14px;border-radius:12px;border:none;
+  font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;
+}
+.cc-chance .cc-ok{background:linear-gradient(135deg,var(--saffron),var(--gold));color:#1A0F04;}
+.cc-chest .cc-ok{background:linear-gradient(135deg,var(--blue),#1D5FBF);color:#fff;}
+
+/* ══════════════════ RENT MOMENT ══════════════════ */
+.rm{
+  background:radial-gradient(circle at 50% 45%,rgba(230,57,70,0.15) 0%,rgba(8,13,10,0.95) 60%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;
+}
+.rm-from,.rm-to{display:flex;align-items:center;gap:12px;}
+.rm-av{
+  width:50px;height:50px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;
+  border:2px solid rgba(255,255,255,0.3);
+}
+.rm-info{text-align:left;}
+.rm-pname{font-family:'Teko',sans-serif;font-size:18px;letter-spacing:2px;}
+.rm-bal{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);opacity:.6;}
+
+.rm-arrow{
+  margin:16px 0;display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.rm-amount{
+  font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;
+  color:var(--red);text-shadow:0 0 30px rgba(230,57,70,0.3);
+}
+.rm-arrow-line{
+  width:2px;height:30px;background:linear-gradient(180deg,var(--red),transparent);
+}
+.rm-prop-name{
+  font-family:'Teko',sans-serif;font-size:14px;letter-spacing:3px;
+  color:rgba(255,255,255,0.4);margin-top:8px;
+}
+.rm-coins{
+  position:absolute;pointer-events:none;
+}
+.rm-coin{
+  position:absolute;width:16px;height:16px;border-radius:50%;
+  background:var(--gold);border:2px solid #A68B2D;
+  font-family:'Bebas Neue',sans-serif;font-size:8px;color:#6B4226;
+  display:flex;align-items:center;justify-content:center;
+  animation:coinFly 1s ease-out forwards;
+}
+@keyframes coinFly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0.5);}
+}
+
+/* ══════════════════ JAIL ══════════════════ */
+.jl{background:radial-gradient(circle at 50% 40%,#1A1525 0%,#0D0A12 60%);display:flex;align-items:center;justify-content:center;padding:20px;}
+.jl-card{
+  width:100%;max-width:340px;
+  background:rgba(13,10,18,0.95);border:1px solid rgba(123,47,247,0.2);
+  border-radius:24px;padding:28px 20px;text-align:center;
+  box-shadow:0 30px 70px rgba(0,0,0,0.5),inset 0 0 40px rgba(123,47,247,0.05);
+}
+.jl-bars{
+  display:flex;justify-content:center;gap:6px;margin-bottom:16px;
+}
+.jl-bar{width:4px;height:40px;background:linear-gradient(180deg,#555,#333);border-radius:2px;}
+.jl-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:4px;color:var(--white);}
+.jl-turn{
+  font-family:'Teko',sans-serif;font-size:14px;letter-spacing:3px;
+  color:var(--red);margin:4px 0 20px;
+}
+.jl-opts{display:flex;flex-direction:column;gap:8px;}
+.jl-opt{
+  padding:16px;border-radius:14px;border:none;
+  display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;
+}
+.jl-opt-roll{background:linear-gradient(135deg,var(--gold),var(--saffron));color:#1A3326;}
+.jl-opt-pay{background:rgba(42,157,143,0.12);border:1px solid rgba(42,157,143,0.2);color:var(--teal);}
+.jl-opt-card{background:rgba(245,197,66,0.04);border:1px solid rgba(245,197,66,0.08);color:var(--gold-dim);opacity:.35;}
+.jl-opt-icon{font-size:22px;width:34px;text-align:center;}
+.jl-opt-main{font-size:15px;font-weight:700;}
+.jl-opt-sub{font-size:11px;opacity:.6;margin-top:2px;}
+
+/* ══════════════════ GAME OVER ══════════════════ */
+.go{
+  background:radial-gradient(ellipse at 50% 30%,rgba(245,197,66,0.1) 0%,transparent 50%),
+  radial-gradient(circle at 50% 50%,#1A3326 0%,#080D0A 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;
+}
+.go-particles{position:absolute;inset:0;overflow:hidden;z-index:0;}
+.go-p{
+  position:absolute;border-radius:2px;
+  animation:fall 2.5s ease-in infinite;
+}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(900px) rotate(600deg);opacity:0;}}
+
+.go-crown{font-size:70px;z-index:1;animation:crownBounce .7s ease-out;margin-bottom:10px;}
+@keyframes crownBounce{0%{transform:scale(0) rotate(-30deg);}60%{transform:scale(1.15) rotate(5deg);}100%{transform:scale(1) rotate(0);}}
+.go-win-text{
+  font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:6px;
+  color:var(--gold);text-shadow:0 0 40px var(--gold-glow);z-index:1;
+}
+.go-winner-name{
+  font-family:'Teko',sans-serif;font-size:18px;letter-spacing:4px;
+  color:rgba(255,255,255,0.6);z-index:1;margin-bottom:28px;
+}
+.go-ranks{width:100%;max-width:300px;z-index:1;margin-bottom:24px;}
+.go-rank{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;margin-bottom:4px;
+}
+.go-rank:first-child{
+  background:rgba(245,197,66,0.1);border:1px solid rgba(245,197,66,0.15);
+  box-shadow:0 0 15px rgba(245,197,66,0.08);
+}
+.go-rank-num{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);width:22px;text-align:center;
+}
+.go-rank-av{
+  width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:15px;color:#fff;
+}
+.go-rank-name{flex:1;font-weight:600;font-size:14px;}
+.go-rank-amt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);opacity:.7;}
+
+.go-btn{
+  width:100%;max-width:300px;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,var(--gold),var(--saffron));
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:4px;
+  color:#1A3326;cursor:pointer;z-index:1;
+  box-shadow:0 0 20px var(--gold-glow);
+}
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>BUSINESS INDIA</h1>
+  <p>Game UI Concepts — v2</p>
+</div>
+
+<div class="nav" id="nav">
+  <button class="on" data-s="all">All</button>
+  <button data-s="splash">Splash</button>
+  <button data-s="menu">Menu</button>
+  <button data-s="board">Board</button>
+  <button data-s="dice">Dice Roll</button>
+  <button data-s="prop">Property</button>
+  <button data-s="card">Cards</button>
+  <button data-s="rent">Rent</button>
+  <button data-s="jail">Jail</button>
+  <button data-s="over">Game Over</button>
+</div>
+
+<div class="wrap">
+
+<!-- SPLASH -->
+<div class="card vis" data-id="splash">
+<div class="card-label">SPLASH</div>
+<div class="card-sub">Pulsing rings, floating dice, cinematic entry</div>
+<div class="phone"><div class="scr sp">
+  <div class="sp-glow">
+    <div class="sp-ring"></div><div class="sp-ring"></div><div class="sp-ring"></div><div class="sp-ring"></div>
+    <div class="sp-dice-group">
+      <div class="sp-die">
+        <span></span><span></span><span class="sp-pip"></span>
+        <span></span><span class="sp-pip"></span><span></span>
+        <span class="sp-pip"></span><span></span><span></span>
+      </div>
+      <div class="sp-die">
+        <span class="sp-pip"></span><span></span><span class="sp-pip"></span>
+        <span></span><span></span><span></span>
+        <span class="sp-pip"></span><span></span><span class="sp-pip"></span>
+      </div>
+    </div>
+  </div>
+  <div class="sp-title">BUSINESS INDIA</div>
+  <div class="sp-sub">Navo Vepar</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+</div></div>
+</div>
+
+<!-- MENU -->
+<div class="card vis" data-id="menu">
+<div class="card-label">MAIN MENU</div>
+<div class="card-sub">Felt table, glowing play button, isometric board ghost</div>
+<div class="phone"><div class="scr mm">
+  <div class="mm-board-bg"></div>
+  <div class="mm-content">
+    <div class="mm-logo"><div class="mm-logo-inner">₹</div></div>
+    <div class="mm-title">BUSINESS INDIA</div>
+    <div class="mm-tagline">Navo Vepar</div>
+    <div class="mm-btns">
+      <button class="mm-play"><span class="mm-play-icon">▶</span> PLAY GAME</button>
+      <button class="mm-online">🔒 &nbsp; ONLINE &nbsp; (COMING SOON)</button>
+    </div>
+  </div>
+  <div class="mm-bottom">
+    <div class="mm-icon-btn"><div class="mm-icon-circle">⚙</div>SETTINGS</div>
+    <div class="mm-icon-btn"><div class="mm-icon-circle">📖</div>RULES</div>
+    <div class="mm-icon-btn"><div class="mm-icon-circle">🏆</div>STATS</div>
+    <div class="mm-icon-btn"><div class="mm-icon-circle">🎨</div>THEMES</div>
+  </div>
+</div></div>
+</div>
+
+<!-- GAME BOARD -->
+<div class="card vis" data-id="board">
+<div class="card-label">GAME BOARD</div>
+<div class="card-sub">Isometric 3D perspective, floating dice, felt table</div>
+<div class="phone"><div class="scr gb">
+  <div class="hud-top">
+    <div class="hud-player-active">
+      <div class="hud-av" style="background:linear-gradient(135deg,#E63946,#B71C2C);">P</div>
+      <div class="hud-detail">
+        <div class="hud-name">PRADIP</div>
+        <div class="hud-money">₹12,45,000</div>
+      </div>
+    </div>
+    <div class="hud-others-col">
+      <div class="hud-other" style="background:rgba(46,196,182,0.2);">A</div>
+      <div class="hud-other" style="background:rgba(58,134,255,0.2);">R</div>
+      <div class="hud-other" style="background:rgba(249,199,79,0.2);color:#F9C74F;">V</div>
+    </div>
+  </div>
+  <div class="board-container">
+    <div class="iso-board">
+      <div class="iso-board-face">
+        <!-- CORNERS -->
+        <div class="cn" style="grid-column:11;grid-row:11;color:var(--red);font-size:6px;">GO →</div>
+        <div class="cn" style="grid-column:1;grid-row:11;font-size:5px;">JAIL</div>
+        <div class="cn" style="grid-column:1;grid-row:1;font-size:4.5px;">FREE<br>PARK</div>
+        <div class="cn" style="grid-column:11;grid-row:1;font-size:4.5px;color:var(--red);">GO TO<br>JAIL</div>
+
+        <!-- BOTTOM ROW -->
+        <div class="t tb" style="grid-column:10;"><div class="t-clr" style="background:#8B6C42"></div><div class="t-lbl">Nashik</div><div class="t-pr">60K</div></div>
+        <div class="t tb" style="grid-column:9;"><div class="t-lbl" style="font-size:3.5px;color:#72B4D9;">CC</div></div>
+        <div class="t tb" style="grid-column:8;"><div class="t-clr" style="background:#8B6C42"></div><div class="t-lbl">Ranchi</div><div class="t-pr">60K</div><div class="own-flag" style="background:#E63946;"></div></div>
+        <div class="t tb" style="grid-column:7;"><div class="t-lbl" style="font-size:3.5px;color:var(--red);">TAX<br>₹2L</div></div>
+        <div class="t tb" style="grid-column:6;"><div class="t-clr" style="background:#555"></div><div class="t-lbl" style="font-size:3.5px;">Mumbai<br>Ctrl</div><div class="t-pr">2L</div></div>
+        <div class="t tb" style="grid-column:5;"><div class="t-clr" style="background:#72B4D9"></div><div class="t-lbl">Jaipur</div><div class="t-pr">1L</div><div class="own-flag" style="background:#2EC4B6;"></div><div class="bld"><div class="bld-h"></div><div class="bld-h"></div></div></div>
+        <div class="t tb" style="grid-column:4;"><div class="t-lbl" style="color:var(--saffron);font-size:3.5px;">?</div></div>
+        <div class="t tb" style="grid-column:3;"><div class="t-clr" style="background:#72B4D9"></div><div class="t-lbl" style="font-size:3.5px;">Lucknow</div><div class="t-pr">1L</div><div class="own-flag" style="background:#2EC4B6;"></div><div class="bld"><div class="bld-h"></div></div></div>
+        <div class="t tb" style="grid-column:2;"><div class="t-clr" style="background:#72B4D9"></div><div class="t-lbl">Bhopal</div><div class="t-pr">1.2L</div><div class="own-flag" style="background:#2EC4B6;"></div><div class="bld"><div class="bld-h"></div><div class="bld-h"></div></div></div>
+
+        <!-- LEFT COL -->
+        <div class="t tl" style="grid-row:10;"><div class="t-clr" style="background:#D64E8A"></div><div class="t-lbl" style="font-size:3px;">Chandi-<br>garh</div></div>
+        <div class="t tl" style="grid-row:9;"><div class="t-lbl" style="font-size:3px;color:#888;">Tata<br>Pwr</div></div>
+        <div class="t tl" style="grid-row:8;"><div class="t-clr" style="background:#D64E8A"></div><div class="t-lbl">Indore</div></div>
+        <div class="t tl" style="grid-row:7;"><div class="t-clr" style="background:#D64E8A"></div><div class="t-lbl">Nagpur</div></div>
+        <div class="t tl" style="grid-row:6;"><div class="t-clr" style="background:#555"></div><div class="t-lbl" style="font-size:3px;">Howrah<br>Jn</div></div>
+        <div class="t tl" style="grid-row:5;"><div class="t-clr" style="background:#E87D3E"></div><div class="t-lbl">Kochi</div></div>
+        <div class="t tl" style="grid-row:4;"><div class="t-lbl" style="font-size:3.5px;color:#72B4D9;">CC</div></div>
+        <div class="t tl" style="grid-row:3;"><div class="t-clr" style="background:#E87D3E"></div><div class="t-lbl" style="font-size:3px;">Coimba-<br>tore</div></div>
+        <div class="t tl" style="grid-row:2;"><div class="t-clr" style="background:#E87D3E"></div><div class="t-lbl" style="font-size:3px;">Vishak.</div></div>
+
+        <!-- TOP ROW -->
+        <div class="t tt" style="grid-column:2;"><div class="t-clr" style="background:#C62828"></div><div class="t-lbl" style="font-size:3px;">Ahmed-<br>abad</div><div class="own-flag" style="background:#E63946;"></div></div>
+        <div class="t tt" style="grid-column:3;"><div class="t-lbl" style="color:var(--saffron);font-size:3.5px;">?</div></div>
+        <div class="t tt" style="grid-column:4;"><div class="t-clr" style="background:#C62828"></div><div class="t-lbl">Pune</div></div>
+        <div class="t tt" style="grid-column:5;"><div class="t-clr" style="background:#C62828"></div><div class="t-lbl">Surat</div></div>
+        <div class="t tt" style="grid-column:6;"><div class="t-clr" style="background:#555"></div><div class="t-lbl" style="font-size:3px;">Chennai<br>Ctrl</div></div>
+        <div class="t tt" style="grid-column:7;"><div class="t-clr" style="background:#F9C74F"></div><div class="t-lbl" style="font-size:3px;">Hydera-<br>bad</div></div>
+        <div class="t tt" style="grid-column:8;"><div class="t-clr" style="background:#F9C74F"></div><div class="t-lbl" style="font-size:3px;">Banga-<br>lore</div></div>
+        <div class="t tt" style="grid-column:9;"><div class="t-lbl" style="font-size:3px;color:#888;">Indian<br>Oil</div></div>
+        <div class="t tt" style="grid-column:10;"><div class="t-clr" style="background:#F9C74F"></div><div class="t-lbl">Chennai</div></div>
+
+        <!-- RIGHT COL -->
+        <div class="t tr" style="grid-row:2;"><div class="t-clr" style="background:#2D6A4F"></div><div class="t-lbl">Kolkata</div></div>
+        <div class="t tr" style="grid-row:3;"><div class="t-clr" style="background:#2D6A4F"></div><div class="t-lbl">Delhi</div></div>
+        <div class="t tr" style="grid-row:4;"><div class="t-lbl" style="font-size:3.5px;color:#72B4D9;">CC</div></div>
+        <div class="t tr" style="grid-row:5;"><div class="t-clr" style="background:#2D6A4F"></div><div class="t-lbl" style="font-size:3px;">Mumbai<br>Sub</div></div>
+        <div class="t tr" style="grid-row:6;"><div class="t-clr" style="background:#555"></div><div class="t-lbl" style="font-size:3px;">New<br>Delhi</div></div>
+        <div class="t tr" style="grid-row:7;"><div class="t-lbl" style="color:var(--saffron);font-size:3.5px;">?</div></div>
+        <div class="t tr" style="grid-row:8;"><div class="t-clr" style="background:#1A3A6B"></div><div class="t-lbl" style="font-size:3px;">Mumbai<br>South</div></div>
+        <div class="t tr" style="grid-row:9;"><div class="t-lbl" style="font-size:3px;color:var(--red);">TAX<br>₹1L</div></div>
+        <div class="t tr" style="grid-row:10;"><div class="t-clr" style="background:#1A3A6B"></div><div class="t-lbl" style="font-size:3px;">Mumbai<br>Bandra</div><div class="bld"><div class="bld-hotel"></div></div></div>
+
+        <!-- CENTER -->
+        <div class="iso-center">
+          <div class="iso-center-title">BUSINESS</div>
+          <div class="iso-center-sub">INDIA</div>
+        </div>
+
+        <!-- Tokens -->
+        <div class="tk active" style="bottom:14px;right:90px;"><div class="tk-head" style="background:#E63946;">P</div><div class="tk-base"></div></div>
+        <div class="tk" style="bottom:58px;left:10px;"><div class="tk-head" style="background:#2EC4B6;">A</div><div class="tk-base"></div></div>
+        <div class="tk" style="bottom:14px;left:140px;"><div class="tk-head" style="background:#3A86FF;">R</div><div class="tk-base"></div></div>
+        <div class="tk" style="top:14px;left:100px;"><div class="tk-head" style="background:#F9C74F;color:#333;">V</div><div class="tk-base"></div></div>
+      </div>
+
+      <!-- Floating dice -->
+      <div class="dice-float">
+        <div class="d3d">
+          <span></span><span></span><span class="p"></span>
+          <span></span><span class="p"></span><span></span>
+          <span class="p"></span><span></span><span></span>
+        </div>
+        <div class="d3d">
+          <span class="p"></span><span></span><span></span>
+          <span></span><span class="p"></span><span></span>
+          <span></span><span></span><span class="p"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="act-bar">
+    <div class="act-glass">
+      <div class="act-who">
+        <div class="act-dot" style="background:#E63946;"></div>
+        <div class="act-txt">PRADIP'S TURN</div>
+      </div>
+      <button class="act-roll">🎲 &nbsp; ROLL DICE</button>
+      <div class="act-row">
+        <div class="act-sm">🏠 MANAGE</div>
+        <div class="act-sm">🔄 TRADE</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- DICE ROLL MOMENT -->
+<div class="card vis" data-id="dice">
+<div class="card-label">DICE ROLL</div>
+<div class="card-sub">Cinematic dice slam — full-screen moment</div>
+<div class="phone"><div class="scr dr">
+  <div class="dr-dice-area">
+    <div class="dr-die">
+      <span></span><span></span><span class="dr-pip"></span>
+      <span></span><span class="dr-pip"></span><span></span>
+      <span class="dr-pip"></span><span></span><span class="dr-pip"></span>
+    </div>
+    <div class="dr-die">
+      <span></span><span></span><span class="dr-pip"></span>
+      <span></span><span class="dr-pip"></span><span></span>
+      <span class="dr-pip"></span><span></span><span class="dr-pip"></span>
+    </div>
+  </div>
+  <div class="dr-total">8</div>
+  <div class="dr-label">TOTAL ROLL</div>
+  <div class="dr-doubles">⚡ DOUBLES — ROLL AGAIN!</div>
+</div></div>
+</div>
+
+<!-- PROPERTY POPUP -->
+<div class="card vis" data-id="prop">
+<div class="card-label">PROPERTY LANDING</div>
+<div class="card-sub">Dark glass card, game-style rent grid</div>
+<div class="phone"><div class="scr pp">
+  <div class="pp-card" style="background:linear-gradient(180deg,#1A0508,#120308);">
+    <div class="pp-top">
+      <div class="pp-badge" style="background:rgba(198,40,40,0.3);border:1px solid rgba(198,40,40,0.4);">RED GROUP</div>
+      <div class="pp-name">AHMEDABAD</div>
+      <div class="pp-price">₹2,20,000</div>
+    </div>
+    <div class="pp-rents">
+      <div class="pp-rent-item"><span class="pp-rent-lbl">Base</span><span class="pp-rent-val">₹18K</span></div>
+      <div class="pp-rent-item highlight"><span class="pp-rent-lbl">Monopoly</span><span class="pp-rent-val">₹36K</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">🏠×1</span><span class="pp-rent-val">₹90K</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">🏠×2</span><span class="pp-rent-val">₹2.5L</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">🏠×3</span><span class="pp-rent-val">₹7L</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">🏠×4</span><span class="pp-rent-val">₹8.75L</span></div>
+      <div class="pp-rent-item highlight full"><span class="pp-rent-lbl">🏨 Hotel</span><span class="pp-rent-val">₹10.5L</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">🏗 Build</span><span class="pp-rent-val">₹1.5L</span></div>
+      <div class="pp-rent-item"><span class="pp-rent-lbl">📄 Mortgage</span><span class="pp-rent-val">₹1.1L</span></div>
+    </div>
+    <div class="pp-btns">
+      <button class="pp-btn pp-pass">PASS</button>
+      <button class="pp-btn pp-buy">BUY ₹2.2L</button>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- CHANCE CARD -->
+<div class="card vis" data-id="card">
+<div class="card-label">CHANCE CARD</div>
+<div class="card-sub">Dramatic reveal with glow</div>
+<div class="phone"><div class="scr cc">
+  <div class="cc-card cc-chance">
+    <div class="cc-icon">🎯</div>
+    <div class="cc-type">CHANCE</div>
+    <div class="cc-text">Bank pays you a dividend.</div>
+    <div class="cc-amount pos">+₹50,000</div>
+    <button class="cc-ok">CONTINUE</button>
+  </div>
+</div></div>
+</div>
+
+<!-- RENT PAYMENT MOMENT -->
+<div class="card vis" data-id="rent">
+<div class="card-label">RENT MOMENT</div>
+<div class="card-sub">Money flies from payer to owner — dramatic</div>
+<div class="phone"><div class="scr rm">
+  <div class="rm-from">
+    <div class="rm-av" style="background:linear-gradient(135deg,#E63946,#B71C2C);">P</div>
+    <div class="rm-info">
+      <div class="rm-pname">PRADIP</div>
+      <div class="rm-bal">₹12,45,000 → ₹11,55,000</div>
+    </div>
+  </div>
+  <div class="rm-arrow">
+    <div class="rm-amount">−₹90,000</div>
+    <div class="rm-arrow-line"></div>
+    <div style="font-size:18px;">💸</div>
+  </div>
+  <div class="rm-to">
+    <div class="rm-av" style="background:linear-gradient(135deg,#2EC4B6,#1A8A7E);">A</div>
+    <div class="rm-info">
+      <div class="rm-pname">AMIT</div>
+      <div class="rm-bal">₹8,20,000 → ₹9,10,000</div>
+    </div>
+  </div>
+  <div class="rm-prop-name">JAIPUR • 🏠🏠 2 HOUSES</div>
+</div></div>
+</div>
+
+<!-- JAIL -->
+<div class="card vis" data-id="jail">
+<div class="card-label">JAIL CHOICE</div>
+<div class="card-sub">Dramatic jail bars, clear escape options</div>
+<div class="phone"><div class="scr jl">
+  <div class="jl-card">
+    <div class="jl-bars">
+      <div class="jl-bar"></div><div class="jl-bar"></div><div class="jl-bar"></div>
+      <div class="jl-bar"></div><div class="jl-bar"></div><div class="jl-bar"></div>
+      <div class="jl-bar"></div>
+    </div>
+    <div class="jl-title">YOU'RE IN JAIL</div>
+    <div class="jl-turn">ATTEMPT 2 OF 3</div>
+    <div class="jl-opts">
+      <button class="jl-opt jl-opt-roll">
+        <span class="jl-opt-icon">🎲</span>
+        <div><div class="jl-opt-main">ROLL FOR DOUBLES</div><div class="jl-opt-sub">Match both dice to escape free</div></div>
+      </button>
+      <button class="jl-opt jl-opt-pay">
+        <span class="jl-opt-icon">💰</span>
+        <div><div class="jl-opt-main">PAY ₹50,000 BAIL</div><div class="jl-opt-sub">Exit now and roll to move</div></div>
+      </button>
+      <button class="jl-opt jl-opt-card">
+        <span class="jl-opt-icon">🃏</span>
+        <div><div class="jl-opt-main">USE GOOJF CARD</div><div class="jl-opt-sub">No cards available</div></div>
+      </button>
+    </div>
+  </div>
+</div></div>
+</div>
+
+<!-- GAME OVER -->
+<div class="card vis" data-id="over">
+<div class="card-label">GAME OVER</div>
+<div class="card-sub">Confetti, crown, standings</div>
+<div class="phone"><div class="scr go">
+  <div class="go-particles">
+    <div class="go-p" style="left:8%;width:8px;height:8px;background:var(--gold);animation-delay:0s;"></div>
+    <div class="go-p" style="left:20%;width:6px;height:10px;background:var(--red);animation-delay:.3s;"></div>
+    <div class="go-p" style="left:35%;width:10px;height:6px;background:var(--teal);animation-delay:.7s;"></div>
+    <div class="go-p" style="left:50%;width:7px;height:7px;background:var(--saffron);animation-delay:.2s;"></div>
+    <div class="go-p" style="left:65%;width:9px;height:5px;background:var(--pink);animation-delay:.5s;"></div>
+    <div class="go-p" style="left:80%;width:6px;height:8px;background:var(--blue);animation-delay:.9s;"></div>
+    <div class="go-p" style="left:92%;width:8px;height:6px;background:var(--gold);animation-delay:1.2s;"></div>
+    <div class="go-p" style="left:15%;width:5px;height:9px;background:var(--green);animation-delay:1.5s;"></div>
+    <div class="go-p" style="left:45%;width:7px;height:7px;background:var(--purple);animation-delay:.4s;"></div>
+    <div class="go-p" style="left:75%;width:9px;height:5px;background:var(--orange);animation-delay:1.1s;"></div>
+  </div>
+  <div class="go-crown">👑</div>
+  <div class="go-win-text">VICTORY!</div>
+  <div class="go-winner-name">PRADIP DOMINATES INDIA</div>
+  <div class="go-ranks">
+    <div class="go-rank">
+      <div class="go-rank-num">1</div>
+      <div class="go-rank-av" style="background:linear-gradient(135deg,#E63946,#B71C2C);">P</div>
+      <div class="go-rank-name">Pradip</div>
+      <div class="go-rank-amt">₹28,40,000</div>
+    </div>
+    <div class="go-rank">
+      <div class="go-rank-num" style="color:#666;">2</div>
+      <div class="go-rank-av" style="background:rgba(46,196,182,0.4);">A</div>
+      <div class="go-rank-name" style="opacity:.5;">Amit</div>
+      <div class="go-rank-amt" style="opacity:.3;">Bankrupt</div>
+    </div>
+    <div class="go-rank">
+      <div class="go-rank-num" style="color:#666;">3</div>
+      <div class="go-rank-av" style="background:rgba(58,134,255,0.4);">R</div>
+      <div class="go-rank-name" style="opacity:.5;">Riya</div>
+      <div class="go-rank-amt" style="opacity:.3;">Bankrupt</div>
+    </div>
+    <div class="go-rank">
+      <div class="go-rank-num" style="color:#666;">4</div>
+      <div class="go-rank-av" style="background:rgba(249,199,79,0.4);">V</div>
+      <div class="go-rank-name" style="opacity:.5;">Vijay</div>
+      <div class="go-rank-amt" style="opacity:.3;">Bankrupt</div>
+    </div>
+  </div>
+  <button class="go-btn">PLAY AGAIN</button>
+</div></div>
+</div>
+
+</div>
+
+<script>
+const nav=document.getElementById('nav'),cards=document.querySelectorAll('.card'),btns=nav.querySelectorAll('button');
+btns.forEach(b=>b.addEventListener('click',()=>{
+  btns.forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  const s=b.dataset.s;
+  cards.forEach(c=>{s==='all'||c.dataset.id===s?c.classList.add('vis'):c.classList.remove('vis');});
+}));
+</script>
+</body>
+</html>

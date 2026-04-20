@@ -2,7 +2,7 @@
 class Bank {
   int availableHouses;
   int availableHotels;
-  double freeParkingPot = 0.0;
+  int freeParkingPot = 0;
 
   Bank({
     this.availableHouses = 32,
@@ -34,20 +34,14 @@ class Bank {
     availableHotels++;
   }
 
-  void addToFreeParking(double amount) {
+  void addToFreeParking(int amount) {
     freeParkingPot += amount;
   }
 
-  /// Collects funds from Free Parking (example implementation).
-  double collectFreeParkingFunds() {
+  /// Collects funds from Free Parking (house-rule pot).
+  int collectFreeParkingFunds() {
     final funds = freeParkingPot;
     freeParkingPot = 0;
     return funds;
-  }
-
-  void copyFrom(Bank other) {
-    availableHouses = other.availableHouses;
-    availableHotels = other.availableHotels;
-    freeParkingPot = other.freeParkingPot;
   }
 }

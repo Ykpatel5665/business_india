@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:business_india/controllers/game_controller.dart';
+import 'package:business_india/app/controllers/game_controller.dart';
 import 'package:business_india/game_logic/engine/game_engine.dart';
 import 'package:business_india/game_logic/engine/game_factory.dart';
 import 'package:business_india/game_logic/models/player.dart';

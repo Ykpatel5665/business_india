@@ -1,22 +1,32 @@
 import 'player.dart';
 import 'bank.dart';
 import 'enums.dart';
-import 'dart:math';
 
-List<int> multipliers = [1, 5, 15, 45, 65, 75];
+/// Legacy fallback rent multipliers used when a property has no explicit
+/// `rentTable`: [unimproved, 1h, 2h, 3h, 4h, hotel].
+///
+/// Real Monopoly uses per-property rent schedules (see board_india.dart).
+/// This fallback exists to keep legacy tests running.
+const List<int> _legacyRentMultipliers = [1, 5, 15, 45, 65, 75];
 
 /// Represents a property in the Monopoly game.
+///
+/// All money values are integer currency units.
 class Property {
   final String name;
-  final double price;
-  final double baseRent;
+  final int price;
+  final int baseRent;
   final int colorGroup;
   final PropertyType type;
-  Player? _owner;
+  Player? owner;
   bool isMortgaged;
   int houses;
   bool hasHotel;
   final int houseCost;
+
+  /// Rent schedule for streets: `[base, 1h, 2h, 3h, 4h, hotel]`.
+  /// When null, falls back to `baseRent * _legacyRentMultipliers[level]`.
+  final List<int>? rentTable;
 
   Property({
     required this.name,
@@ -24,46 +34,57 @@ class Property {
     required this.baseRent,
     required this.colorGroup,
     this.type = PropertyType.street,
-    Player? owner,
+    this.owner,
     this.isMortgaged = false,
     this.houses = 0,
     this.hasHotel = false,
-    this.houseCost = 100, // Default, should be set per property
-  }) : _owner = owner;
+    this.houseCost = 100,
+    this.rentTable,
+  });
 
-  double get mortgageValue => price * 0.5;
+  int get mortgageValue => price ~/ 2;
 
-  double get unmortgageValue => mortgageValue * 1.1; // 10% interest on unmortgage
+  /// Unmortgage cost = mortgage value + 10% interest (rounded up).
+  int get unmortgageValue => (mortgageValue * 11 + 9) ~/ 10;
 
-  double calculateRent(bool isMonopoly, int dice1, int dice2) {
+  /// 10% fee applied when a mortgaged property is transferred in a trade.
+  int get mortgageTransferFee => (mortgageValue + 9) ~/ 10;
+
+  int calculateRent(bool isMonopoly, int dice1, int dice2) {
+    if (isMortgaged) return 0;
     if (type == PropertyType.utility) {
       return _calculateUtilityRent(isMonopoly, dice1, dice2);
     }
     if (type == PropertyType.railroad) {
       return _calculateRailroadRent();
     }
-    if (isMortgaged) return 0.0;
-    if (hasHotel) return getHouseRent(5); // Rent with hotel
-    if (isMonopoly && houses == 0) return baseRent * 2; // Double rent for monopoly
+    if (hasHotel) return getHouseRent(5);
+    if (isMonopoly && houses == 0) return baseRent * 2;
     return getHouseRent(houses);
   }
 
-  double _calculateUtilityRent(bool isMonopoly, int dice1, int dice2) {
+  int _calculateUtilityRent(bool isMonopoly, int dice1, int dice2) {
     return (dice1 + dice2) * (isMonopoly ? 10 : 4);
   }
 
-  double _calculateRailroadRent() {
-    int ownedRailroads = _owner?.ownedProperties.where((p) => p.type == PropertyType.railroad).length ?? 0;
+  int _calculateRailroadRent() {
+    final ownedRailroads = owner?.ownedProperties
+            .where((p) => p.type == PropertyType.railroad && !p.isMortgaged)
+            .length ??
+        0;
     return getRailRoadRent(ownedRailroads);
   }
 
-  double getRailRoadRent(int houseCount) {
-    if (houseCount == 0) return baseRent;
-    return baseRent * pow(2, houseCount - 1);
+  int getRailRoadRent(int count) {
+    if (count == 0) return baseRent;
+    return baseRent * (1 << (count - 1));
   }
 
-  double getHouseRent(int houseCount) {
-    return baseRent * multipliers[houseCount];
+  int getHouseRent(int level) {
+    if (rentTable != null && level < rentTable!.length) {
+      return rentTable![level];
+    }
+    return baseRent * _legacyRentMultipliers[level];
   }
 
   void mortgage() {
@@ -75,9 +96,13 @@ class Property {
 
   String _mortgageErrorMessage() {
     if (isMortgaged) return "Property is already mortgaged";
-    if (_owner == null) return "Property must have an owner to mortgage";
-    if (houses > 0 || hasHotel) return "Cannot mortgage a property with houses or a hotel";
-    if (_owner!.isBankrupt) return "Cannot mortgage property owned by a bankrupt player";
+    if (owner == null) return "Property must have an owner to mortgage";
+    if (houses > 0 || hasHotel) {
+      return "Cannot mortgage a property with houses or a hotel";
+    }
+    if (owner!.isBankrupt) {
+      return "Cannot mortgage property owned by a bankrupt player";
+    }
     return "Cannot mortgage property";
   }
 
@@ -88,85 +113,99 @@ class Property {
     isMortgaged = false;
   }
 
+  /// Upgrade this property by one level. Auto-promotes 4 houses → hotel when
+  /// the bank has a hotel available, returning the 4 houses to the bank.
+  ///
+  /// NOTE: Rule-level checks (full color-group ownership, even building) live
+  /// in the engine's `upgradeProperty`. This method only enforces the
+  /// per-property invariants.
   void upgrade(Bank? bank, {bool buildHotel = false}) {
     if (!canUpgrade) {
       throw Exception(_upgradeErrorMessage(bank));
     }
-    // TODO : Add even building rules for houses
-    if (buildHotel) {
-      if (houses == 4 && bank != null && bank.canGiveHotel) {
+    if (houses == 4) {
+      if (bank != null) {
+        if (!bank.canGiveHotel) {
+          throw Exception("No hotels available in the bank");
+        }
         bank.giveHotel();
-        houses = 5;
-      } else {
-        throw Exception("Cannot build hotel: must have 4 houses and hotel available in bank");
+        for (var i = 0; i < 4; i++) {
+          bank.takeHouse();
+        }
       }
+      houses = 0;
+      hasHotel = true;
     } else if (houses < 4) {
-      if (bank != null) bank.giveHouse();
+      if (bank != null) {
+        if (!bank.canGiveHouse) {
+          throw Exception("No houses available in the bank");
+        }
+        bank.giveHouse();
+      }
       houses++;
     } else {
-      throw Exception("Cannot build more than 4 houses unless building hotel");
+      throw Exception("Cannot upgrade further");
     }
   }
 
   String _upgradeErrorMessage(Bank? bank) {
-    if (_owner == null) return "Property must have an owner to upgrade";
+    if (owner == null) return "Property must have an owner to upgrade";
     if (isMortgaged) return "Cannot upgrade a mortgaged property";
     if (hasHotel) return "Property already has a hotel";
-    if (houses < 4 && bank != null && bank.availableHouses <= 0) return "No houses available in the bank";
-    if (houses == 4 && bank != null && bank.availableHotels <= 0) return "No hotels available in the bank";
+    if (houses < 4 && bank != null && bank.availableHouses <= 0) {
+      return "No houses available in the bank";
+    }
+    if (houses == 4 && bank != null && bank.availableHotels <= 0) {
+      return "No hotels available in the bank";
+    }
     return "Cannot upgrade property";
   }
 
-  void downgrade() {
+  /// Downgrade this property by one level. Returns the house/hotel to the bank.
+  /// Does not handle the refund — engine handles that at `downgradeProperty`.
+  void downgrade(Bank? bank) {
     if (!canDowngrade) {
       throw Exception("Property has no houses or hotels to downgrade");
     }
     if (hasHotel) {
+      // Hotel → 4 houses: take 4 houses from bank and return hotel.
+      if (bank != null) {
+        if (bank.availableHouses < 4) {
+          throw Exception("Not enough houses in bank to break down hotel");
+        }
+        for (var i = 0; i < 4; i++) {
+          bank.giveHouse();
+        }
+        bank.takeHotel();
+      }
       hasHotel = false;
       houses = 4;
     } else {
+      if (bank != null) bank.takeHouse();
       houses--;
     }
   }
 
-  Player? get owner => _owner;
+  bool get canMortgage =>
+      !isMortgaged &&
+      owner != null &&
+      houses == 0 &&
+      !hasHotel &&
+      !(owner?.isBankrupt ?? false);
 
-  set owner(Player? newOwner) {
-    _owner = newOwner;
-  }
-
-  bool get canMortgage {
-    return !isMortgaged && _owner != null && houses == 0 && !hasHotel && !(_owner?.isBankrupt ?? false);
-  }
-
-  bool get canUnmortgage {
-    return isMortgaged;
-  }
+  bool get canUnmortgage => isMortgaged;
 
   bool get canUpgrade {
-    if (_owner == null || isMortgaged || hasHotel) return false;
+    if (owner == null || isMortgaged || hasHotel) return false;
     return true;
   }
 
-  bool get canDowngrade {
-    return hasHotel || houses > 0;
-  }
+  bool get canDowngrade => hasHotel || houses > 0;
 
-  bool get canConstruct {
-    return type == PropertyType.street;
-  }
+  bool get canConstruct => type == PropertyType.street;
 
-  bool isOwned() {
-    return _owner != null;
-  }
+  bool isOwned() => owner != null;
 
-  bool canBuildHouse(dynamic bank) {
-    // TODO: Implement actual logic
-    return true;
-  }
-
-  bool canBuildHotel(dynamic bank) {
-    // TODO: Implement actual logic
-    return true;
-  }
+  /// Improvement level, 0–5 (0 = unimproved, 5 = hotel).
+  int get improvementLevel => hasHotel ? 5 : houses;
 }

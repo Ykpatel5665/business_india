@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business India — 10 Board UI Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0A0A0F;font-family:'Poppins',sans-serif;color:#fff;padding:30px 20px 80px;}
+h1{text-align:center;font-family:'Baloo 2';font-size:26px;color:#FFD700;margin-bottom:4px;}
+.sub{text-align:center;font-size:10px;color:#555;letter-spacing:3px;margin-bottom:30px;}
+.designs{display:flex;flex-direction:column;gap:50px;max-width:800px;margin:0 auto;}
+.card{background:#111118;border-radius:16px;overflow:hidden;border:1px solid #1a1a25;}
+.card-head{padding:16px 20px 0;display:flex;gap:10px;align-items:baseline;}
+.card-num{font-family:'Baloo 2';font-size:13px;color:#FFD700;background:rgba(255,215,0,.1);padding:2px 10px;border-radius:8px;}
+.card-title{font-family:'Baloo 2';font-size:18px;}
+.card-desc{font-size:11px;color:#888;padding:6px 20px 14px;line-height:1.5;}
+.card-tags{padding:0 20px 12px;display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:9px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:#888;letter-spacing:.5px;}
+.board-wrap{padding:20px;display:flex;justify-content:center;}
+
+/* Property colors */
+.gc0{background:#8D6E63}.gc1{background:#4FC3F7}.gc2{background:#EC407A}.gc3{background:#FFA726}
+.gc4{background:#EF5350}.gc5{background:#FFEE58}.gc6{background:#66BB6A}.gc7{background:#42A5F5}
+.gcrr{background:#78909C}.gcut{background:#AB47BC}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 1: STRIP TILES — Color strip on inner edge,       */
+/* name + price stacked, clean minimal                      */
+/* ══════════════════════════════════════════════════════════ */
+.d1{
+  width:400px;height:400px;background:#FFFBF0;
+  border:2px solid #C8B080;border-radius:4px;
+  box-shadow:0 0 0 6px #2E5A2E,0 8px 30px rgba(0,0,0,.4);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d1 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#555;background:#F5ECD0;text-align:center;line-height:1.1;}
+.d1 .t{border:.5px solid rgba(0,0,0,.06);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.d1 .t-n{font-family:'Poppins';font-size:5px;font-weight:700;color:#333;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;}
+.d1 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:#999;text-align:center;font-weight:600;}
+.d1 .t-c{height:8px;}
+.d1 .tb .t-c{order:-1;}
+.d1 .tl .t-c{height:100%;width:8px;position:absolute;right:0;top:0;}
+.d1 .tr .t-c{height:100%;width:8px;position:absolute;left:0;top:0;}
+.d1 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse,#FFFBF0,#F5ECD0);}
+.d1 .ct-t{font-family:'Baloo 2';font-size:18px;color:#2E5A2E;}
+.d1 .ct-s{font-size:7px;color:#8B7D5B;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 2: CARD TILES — Each tile looks like a mini card  */
+/* with rounded corners, slight gap between tiles           */
+/* ══════════════════════════════════════════════════════════ */
+.d2{
+  width:400px;height:400px;background:#1A1A2E;
+  border-radius:12px;padding:3px;
+  box-shadow:0 0 30px rgba(255,215,0,.06),0 10px 40px rgba(0,0,0,.5);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+  gap:2px;
+}
+.d2 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#FFD700;background:#222240;border-radius:6px;text-align:center;line-height:1.1;}
+.d2 .t{background:#1E1E38;border-radius:4px;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.d2 .t-n{font-family:'Poppins';font-size:4.5px;font-weight:700;color:#ddd;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;}
+.d2 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:#FFD700;text-align:center;font-weight:600;padding-bottom:1px;}
+.d2 .t-c{height:4px;border-radius:0 0 2px 2px;}
+.d2 .tb .t-c{order:-1;border-radius:2px 2px 0 0;}
+.d2 .tl .t-c{height:100%;width:4px;position:absolute;right:0;top:0;border-radius:2px 0 0 2px;}
+.d2 .tr .t-c{height:100%;width:4px;position:absolute;left:0;top:0;border-radius:0 2px 2px 0;}
+.d2 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse,rgba(255,215,0,.03),#1A1A2E);border-radius:6px;}
+.d2 .ct-t{font-family:'Baloo 2';font-size:18px;color:#FFD700;text-shadow:0 0 15px rgba(255,215,0,.3);}
+.d2 .ct-s{font-size:7px;color:#B8960F;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 3: FULL-COLOR TILES — Entire tile bg is the       */
+/* group color, name in white, bold & vibrant               */
+/* ══════════════════════════════════════════════════════════ */
+.d3z{
+  width:400px;height:400px;background:#111;
+  border:3px solid #333;border-radius:8px;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d3z .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#fff;background:#222;text-align:center;line-height:1.1;}
+.d3z .t{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;border:.5px solid rgba(255,255,255,.05);}
+.d3z .t-n{font-family:'Poppins';font-size:4.5px;font-weight:800;color:#fff;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.5);line-height:1;}
+.d3z .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:rgba(255,255,255,.7);text-align:center;font-weight:600;margin-top:1px;}
+/* No separate color strip - whole tile IS the color */
+.d3z .t.tg0{background:#6D4C41}.d3z .t.tg1{background:#0288D1}.d3z .t.tg2{background:#C2185B}.d3z .t.tg3{background:#E65100}
+.d3z .t.tg4{background:#C62828}.d3z .t.tg5{background:#F9A825;}.d3z .t.tg5 .t-n{color:#333;text-shadow:none;}.d3z .t.tg5 .t-p{color:rgba(0,0,0,.5);}
+.d3z .t.tg6{background:#2E7D32}.d3z .t.tg7{background:#1565C0}
+.d3z .t.tgrr{background:#455A64}.d3z .t.tgut{background:#7B1FA2}
+.d3z .t.tgsp{background:#1A1A1A}
+.d3z .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#111;}
+.d3z .ct-t{font-family:'Baloo 2';font-size:20px;color:#fff;}
+.d3z .ct-s{font-size:7px;color:#555;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 4: PILL TILES — Rounded pill-shaped tiles with    */
+/* generous padding, floating on dark background            */
+/* ══════════════════════════════════════════════════════════ */
+.d4{
+  width:410px;height:410px;background:#0D1117;
+  border-radius:20px;padding:6px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+  display:grid;
+  grid-template-columns:54px repeat(9,1fr) 54px;
+  grid-template-rows:54px repeat(9,1fr) 54px;
+  gap:3px;
+}
+.d4 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#aaa;background:#161B22;border-radius:12px;text-align:center;line-height:1.1;}
+.d4 .t{background:#161B22;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.d4 .t-n{font-family:'Poppins';font-size:4.5px;font-weight:700;color:#ccc;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;}
+.d4 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:#58A6FF;text-align:center;font-weight:600;padding-bottom:2px;}
+/* Color as a glowing dot instead of strip */
+.d4 .t-dot{width:6px;height:6px;border-radius:50%;position:absolute;top:3px;left:50%;transform:translateX(-50%);box-shadow:0 0 4px currentColor;}
+.d4 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0D1117;border-radius:12px;}
+.d4 .ct-t{font-family:'Baloo 2';font-size:16px;color:#58A6FF;}
+.d4 .ct-s{font-size:7px;color:#30363D;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 5: ICON-FIRST — Tiles show emoji/icon as primary  */
+/* element, name is secondary, price floats                 */
+/* ══════════════════════════════════════════════════════════ */
+.d5{
+  width:400px;height:400px;background:#FFF8F0;
+  border:2px solid #E0D0B8;border-radius:10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.15);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d5 .cn{display:flex;align-items:center;justify-content:center;font-size:16px;background:#FFF0E0;text-align:center;}
+.d5 .t{border:.5px solid rgba(0,0,0,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;gap:1px;}
+.d5 .t-icon{font-size:10px;line-height:1;}
+.d5 .t-n{font-family:'Poppins';font-size:4px;font-weight:700;color:#666;text-align:center;line-height:1;}
+.d5 .t-c{height:3px;width:100%;position:absolute;bottom:0;}
+.d5 .tb .t-c{top:0;bottom:auto;}
+.d5 .tl .t-c{height:100%;width:3px;right:0;top:0;left:auto;}
+.d5 .tr .t-c{height:100%;width:3px;left:0;top:0;}
+.d5 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse,#FFF8F0,#FFF0E0);}
+.d5 .ct-t{font-family:'Baloo 2';font-size:20px;color:#B8860B;}
+.d5 .ct-s{font-size:7px;color:#C8A060;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 6: SIDE-INFO TILES — Name runs vertically along   */
+/* the color strip, price at bottom. Tall info density.     */
+/* ══════════════════════════════════════════════════════════ */
+.d6{
+  width:400px;height:400px;background:#F8F4EE;
+  border:1px solid #D0C8B8;border-radius:0;
+  box-shadow:0 6px 20px rgba(0,0,0,.1);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d6 .cn{display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-size:6px;font-weight:800;color:#333;background:#F0E8D8;text-align:center;line-height:1.1;letter-spacing:.5px;}
+.d6 .t{border:.5px solid rgba(0,0,0,.06);display:flex;overflow:hidden;position:relative;}
+/* Color fills the LEFT side, name is rotated vertically inside color area */
+.d6 .t-c{width:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-family:'Poppins';font-size:4px;font-weight:800;color:#fff;text-shadow:0 0 2px rgba(0,0,0,.3);letter-spacing:.5px;}
+.d6 .t-info{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.d6 .t-p{font-family:'JetBrains Mono';font-size:4.5px;color:#888;font-weight:600;}
+.d6 .tb .t-c{width:100%;height:12px;writing-mode:horizontal-tb;transform:none;order:-1;}
+.d6 .tl .t-c{position:absolute;right:0;top:0;height:100%;width:12px;}
+.d6 .tr .t-c{position:absolute;left:0;top:0;height:100%;width:12px;}
+.d6 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#F8F4EE;}
+.d6 .ct-t{font-family:'Poppins';font-size:14px;font-weight:800;color:#333;letter-spacing:4px;}
+.d6 .ct-s{font-size:7px;color:#888;letter-spacing:5px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 7: GRADIENT TILES — Each group has a gradient     */
+/* background fade. Tiles blend into each other. Soft.      */
+/* ══════════════════════════════════════════════════════════ */
+.d7{
+  width:400px;height:400px;background:#1E1E2E;
+  border:1px solid #333;border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d7 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#ccc;background:#262640;text-align:center;line-height:1.1;}
+.d7 .t{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;border:.5px solid rgba(255,255,255,.03);}
+.d7 .t-n{font-family:'Poppins';font-size:4.5px;font-weight:700;color:#fff;text-align:center;line-height:1;position:relative;z-index:1;}
+.d7 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:rgba(255,255,255,.5);text-align:center;font-weight:600;position:relative;z-index:1;}
+/* Gradient background per group */
+.d7 .t.tg0{background:linear-gradient(135deg,rgba(141,110,99,.4),rgba(141,110,99,.15));}
+.d7 .t.tg1{background:linear-gradient(135deg,rgba(79,195,247,.4),rgba(79,195,247,.1));}
+.d7 .t.tg2{background:linear-gradient(135deg,rgba(236,64,122,.4),rgba(236,64,122,.1));}
+.d7 .t.tg3{background:linear-gradient(135deg,rgba(255,167,38,.4),rgba(255,167,38,.1));}
+.d7 .t.tg4{background:linear-gradient(135deg,rgba(239,83,80,.4),rgba(239,83,80,.1));}
+.d7 .t.tg5{background:linear-gradient(135deg,rgba(255,238,88,.4),rgba(255,238,88,.1));}.d7 .t.tg5 .t-n{color:#333;}
+.d7 .t.tg6{background:linear-gradient(135deg,rgba(102,187,106,.4),rgba(102,187,106,.1));}
+.d7 .t.tg7{background:linear-gradient(135deg,rgba(66,165,245,.4),rgba(66,165,245,.1));}
+.d7 .t.tgrr{background:linear-gradient(135deg,rgba(120,144,156,.3),rgba(120,144,156,.1));}
+.d7 .t.tgut{background:linear-gradient(135deg,rgba(171,71,188,.3),rgba(171,71,188,.1));}
+.d7 .t.tgsp{background:rgba(255,255,255,.02);}
+.d7 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1E1E2E;}
+.d7 .ct-t{font-family:'Baloo 2';font-size:18px;color:#fff;}
+.d7 .ct-s{font-size:7px;color:#555;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 8: OUTLINED TILES — No fill, just colored         */
+/* borders per group. Ultra clean, architectural.            */
+/* ══════════════════════════════════════════════════════════ */
+.d8{
+  width:400px;height:400px;background:#FAFAFA;
+  border:1px solid #E0E0E0;border-radius:2px;
+  box-shadow:0 4px 16px rgba(0,0,0,.06);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d8 .cn{display:flex;align-items:center;justify-content:center;font-family:'Poppins';font-size:6px;font-weight:700;color:#333;background:#F5F5F5;text-align:center;line-height:1.1;}
+.d8 .t{display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;background:#fff;}
+/* Colored border on inner edge only */
+.d8 .tb{border-top:3px solid var(--bclr,#ddd);}
+.d8 .tt{border-bottom:3px solid var(--bclr,#ddd);}
+.d8 .tl{border-right:3px solid var(--bclr,#ddd);}
+.d8 .tr{border-left:3px solid var(--bclr,#ddd);}
+.d8 .t-n{font-family:'Poppins';font-size:4.5px;font-weight:600;color:#333;text-align:center;line-height:1;}
+.d8 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:#999;text-align:center;font-weight:600;}
+.d8 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;}
+.d8 .ct-t{font-family:'Poppins';font-size:14px;font-weight:800;color:#222;letter-spacing:5px;}
+.d8 .ct-s{font-size:7px;color:#bbb;letter-spacing:5px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 9: STACKED INFO — Price prominently on top,       */
+/* name below, color bar at very bottom. Price-first UI.    */
+/* ══════════════════════════════════════════════════════════ */
+.d9{
+  width:400px;height:400px;background:#0F1923;
+  border:2px solid #1E3A5F;border-radius:8px;
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+  display:grid;
+  grid-template-columns:52px repeat(9,1fr) 52px;
+  grid-template-rows:52px repeat(9,1fr) 52px;
+}
+.d9 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#4FC3F7;background:#13293D;text-align:center;line-height:1.1;}
+.d9 .t{border:.5px solid rgba(30,58,95,.3);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+/* Price is BIG and on top */
+.d9 .t-p{font-family:'JetBrains Mono';font-size:5.5px;color:#4FC3F7;text-align:center;font-weight:700;padding-top:2px;order:-2;}
+.d9 .t-n{font-family:'Poppins';font-size:3.5px;font-weight:600;color:rgba(255,255,255,.4);text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;}
+.d9 .t-c{height:4px;}
+.d9 .tb .t-c{order:1;}
+.d9 .tl .t-c{height:100%;width:4px;position:absolute;right:0;top:0;}
+.d9 .tr .t-c{height:100%;width:4px;position:absolute;left:0;top:0;}
+.d9 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse,rgba(79,195,247,.03),#0F1923);}
+.d9 .ct-t{font-family:'Baloo 2';font-size:18px;color:#4FC3F7;}
+.d9 .ct-s{font-size:7px;color:#1E3A5F;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════════════════════ */
+/* DESIGN 10: TICKET/STAMP TILES — Each tile looks like a   */
+/* torn ticket/stamp with perforated edges + notch corners  */
+/* ══════════════════════════════════════════════════════════ */
+.d10{
+  width:406px;height:406px;background:#2D1B0E;
+  border-radius:6px;padding:3px;
+  box-shadow:0 0 0 4px #1A0F06,0 10px 40px rgba(0,0,0,.5);
+  display:grid;
+  grid-template-columns:54px repeat(9,1fr) 54px;
+  grid-template-rows:54px repeat(9,1fr) 54px;
+  gap:2px;
+}
+.d10 .cn{display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:7px;color:#D4A843;background:#3D2B1A;border-radius:2px;text-align:center;line-height:1.1;
+  background-image:repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(212,168,67,.05) 4px,rgba(212,168,67,.05) 5px);}
+.d10 .t{background:#F5E6C8;border-radius:2px;display:flex;flex-direction:column;overflow:hidden;position:relative;
+  /* Perforated/ticket texture */
+  background-image:radial-gradient(circle,#D0C0A0 1px,transparent 1px);background-size:6px 6px;background-position:3px 3px;}
+.d10 .t-n{font-family:'Poppins';font-size:4.5px;font-weight:800;color:#3D2B1A;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1;position:relative;z-index:1;background:rgba(245,230,200,.85);}
+.d10 .t-p{font-family:'JetBrains Mono';font-size:3.5px;color:#8B6914;text-align:center;font-weight:700;padding-bottom:1px;position:relative;z-index:1;background:rgba(245,230,200,.85);}
+.d10 .t-c{height:6px;position:relative;z-index:1;}
+.d10 .tb .t-c{order:-1;}
+.d10 .tl .t-c{height:100%;width:6px;position:absolute;right:0;top:0;}
+.d10 .tr .t-c{height:100%;width:6px;position:absolute;left:0;top:0;}
+.d10 .ct{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#3D2B1A;border-radius:2px;
+  background-image:radial-gradient(circle,rgba(212,168,67,.03) 1px,transparent 1px);background-size:8px 8px;}
+.d10 .ct-t{font-family:'Baloo 2';font-size:18px;color:#D4A843;}
+.d10 .ct-s{font-size:7px;color:#8B6914;letter-spacing:4px;}
+</style>
+</head>
+<body>
+<h1>10 Board UI Designs</h1>
+<p class="sub">Different tile structures, layouts, info hierarchies</p>
+
+<div class="designs">
+
+<div class="card"><div class="card-head"><span class="card-num">#1</span><span class="card-title">Strip Tiles</span></div>
+<div class="card-desc">Classic approach. Color strip on inner edge. Name centered, price below. Clean and proven.</div>
+<div class="card-tags"><span class="tag">color strip</span><span class="tag">stacked name+price</span><span class="tag">cream bg</span><span class="tag">green felt frame</span></div>
+<div class="board-wrap" style="background:#2E5A2E;"><div class="d1" id="b1"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#2</span><span class="card-title">Floating Cards</span></div>
+<div class="card-desc">Each tile is a separate rounded card with a gap between them. Feels like individual property cards laid on a table.</div>
+<div class="card-tags"><span class="tag">separated tiles</span><span class="tag">rounded corners</span><span class="tag">dark bg</span><span class="tag">gold accent</span></div>
+<div class="board-wrap" style="background:#0D0D1A;"><div class="d2" id="b2"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#3</span><span class="card-title">Full-Color Blocks</span></div>
+<div class="card-desc">No color strip — the ENTIRE tile is the group color. Bold, vibrant, instant visual grouping. Name in white over color.</div>
+<div class="card-tags"><span class="tag">full tile color</span><span class="tag">white text on color</span><span class="tag">no strips</span><span class="tag">bold & vibrant</span></div>
+<div class="board-wrap" style="background:#080808;"><div class="d3z" id="b3"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#4</span><span class="card-title">Dot Indicators</span></div>
+<div class="card-desc">No color strips. Group color shown as a glowing dot at the top of each tile. Minimal, modern, GitHub-dark inspired.</div>
+<div class="card-tags"><span class="tag">color dots</span><span class="tag">no strips</span><span class="tag">pill-shaped tiles</span><span class="tag">dark minimal</span></div>
+<div class="board-wrap" style="background:#080C12;"><div class="d4" id="b4"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#5</span><span class="card-title">Icon-First</span></div>
+<div class="card-desc">Each tile shows a city EMOJI as the primary element. Name is secondary and tiny. The board becomes a visual map of icons.</div>
+<div class="card-tags"><span class="tag">emoji icons</span><span class="tag">name secondary</span><span class="tag">thin color bar</span><span class="tag">light & warm</span></div>
+<div class="board-wrap" style="background:#F0E8D8;"><div class="d5" id="b5"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#6</span><span class="card-title">Wide Color + Vertical Name</span></div>
+<div class="card-desc">Color strip is wide (12px) with the name INSIDE it, written vertically. Price in the remaining tile area. Dense info.</div>
+<div class="card-tags"><span class="tag">wide color strip</span><span class="tag">vertical name</span><span class="tag">name inside color</span><span class="tag">editorial</span></div>
+<div class="board-wrap" style="background:#E8E0D0;"><div class="d6" id="b6"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#7</span><span class="card-title">Gradient Fill</span></div>
+<div class="card-desc">Like #3 but softer — group color as a translucent gradient fill. Tiles blend and glow. Moody, atmospheric.</div>
+<div class="card-tags"><span class="tag">gradient bg</span><span class="tag">semi-transparent</span><span class="tag">glowing</span><span class="tag">atmospheric dark</span></div>
+<div class="board-wrap" style="background:#14142A;"><div class="d7" id="b7"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#8</span><span class="card-title">Colored Border Only</span></div>
+<div class="card-desc">No color fill at all. Group identity shown purely as a colored BORDER on the inner edge. Ultra-minimal, architectural blueprint feel.</div>
+<div class="card-tags"><span class="tag">border-only color</span><span class="tag">no fill</span><span class="tag">white tiles</span><span class="tag">architectural</span></div>
+<div class="board-wrap" style="background:#F0F0F0;"><div class="d8" id="b8"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#9</span><span class="card-title">Price-First</span></div>
+<div class="card-desc">PRICE is the biggest element on each tile (top, bold, cyan). City name is tiny below. Trader's board — money talks first.</div>
+<div class="card-tags"><span class="tag">price dominant</span><span class="tag">name secondary</span><span class="tag">thin color bar</span><span class="tag">trader aesthetic</span></div>
+<div class="board-wrap" style="background:#0A1520;"><div class="d9" id="b9"></div></div></div>
+
+<div class="card"><div class="card-head"><span class="card-num">#10</span><span class="card-title">Vintage Ticket</span></div>
+<div class="card-desc">Tiles look like vintage train tickets or stamps. Perforated dot texture, aged paper color, warm wood board. Old India railways feel.</div>
+<div class="card-tags"><span class="tag">ticket/stamp style</span><span class="tag">dot texture</span><span class="tag">vintage paper</span><span class="tag">wood board</span></div>
+<div class="board-wrap" style="background:#1A0F06;"><div class="d10" id="b10"></div></div></div>
+
+</div>
+
+<script>
+const tiles={
+  bottom:[
+    {n:'Nashik',p:'60K',g:0,e:'🏛'},{n:'CC',p:'',g:'sp',e:'📦'},{n:'Ranchi',p:'60K',g:0,e:'🏔'},
+    {n:'Tax',p:'₹2L',g:'sp',e:'💰'},{n:'Mum.Ctrl',p:'2L',g:'rr',e:'🚂'},
+    {n:'Jaipur',p:'1L',g:1,e:'🕌'},{n:'Chance',p:'',g:'sp',e:'❓'},{n:'Lucknow',p:'1L',g:1,e:'🏰'},{n:'Bhopal',p:'1.2L',g:1,e:'🌳'}
+  ],
+  left:[
+    {n:'Chandi.',p:'1.4L',g:2,e:'🌸'},{n:'Tata P',p:'1.5L',g:'ut',e:'⚡'},{n:'Indore',p:'1.4L',g:2,e:'🍜'},
+    {n:'Nagpur',p:'1.6L',g:2,e:'🍊'},{n:'Howrah',p:'2L',g:'rr',e:'🚂'},
+    {n:'Kochi',p:'1.8L',g:3,e:'🌴'},{n:'CC',p:'',g:'sp',e:'📦'},{n:'Coimb.',p:'1.8L',g:3,e:'🏭'},{n:'Vishak.',p:'2L',g:3,e:'🏖'}
+  ],
+  top:[
+    {n:'Ahmed.',p:'2.2L',g:4,e:'🏗'},{n:'Chance',p:'',g:'sp',e:'❓'},{n:'Pune',p:'2.2L',g:4,e:'📚'},
+    {n:'Surat',p:'2.4L',g:4,e:'💎'},{n:'Ch.Ctrl',p:'2L',g:'rr',e:'🚂'},
+    {n:'Hyder.',p:'2.6L',g:5,e:'🕌'},{n:'B\'lore',p:'2.6L',g:5,e:'💻'},{n:'Ind.Oil',p:'1.5L',g:'ut',e:'⛽'},{n:'Chennai',p:'2.8L',g:5,e:'🎭'}
+  ],
+  right:[
+    {n:'Kolkata',p:'3L',g:6,e:'🌉'},{n:'Delhi',p:'3L',g:6,e:'🏛'},{n:'CC',p:'',g:'sp',e:'📦'},
+    {n:'Mum.S',p:'3.2L',g:6,e:'🌆'},{n:'N.Delhi',p:'2L',g:'rr',e:'🚂'},
+    {n:'Chance',p:'',g:'sp',e:'❓'},{n:'Mum.So',p:'3.5L',g:7,e:'🏙'},{n:'Tax',p:'₹1L',g:'sp',e:'💰'},{n:'Bandra',p:'4L',g:7,e:'🌟'}
+  ]
+};
+
+const gcMap={0:'gc0',1:'gc1',2:'gc2',3:'gc3',4:'gc4',5:'gc5',6:'gc6',7:'gc7','rr':'gcrr','ut':'gcut','sp':''};
+const gcFull={0:'tg0',1:'tg1',2:'tg2',3:'tg3',4:'tg4',5:'tg5',6:'tg6',7:'tg7','rr':'tgrr','ut':'tgut','sp':'tgsp'};
+const bdrClr={0:'#8D6E63',1:'#4FC3F7',2:'#EC407A',3:'#FFA726',4:'#EF5350',5:'#FFEE58',6:'#66BB6A',7:'#42A5F5','rr':'#78909C','ut':'#AB47BC','sp':'#ddd'};
+const dotClr={0:'#8D6E63',1:'#4FC3F7',2:'#EC407A',3:'#FFA726',4:'#EF5350',5:'#FFEE58',6:'#66BB6A',7:'#42A5F5','rr':'#78909C','ut':'#AB47BC','sp':'transparent'};
+
+function build(id, type){
+  const el=document.getElementById(id);
+  let h='';
+
+  // Corners
+  const corners = {
+    1:{go:'GO →',jail:'JAIL',fp:'FREE<br>PARK',gtj:'GO TO<br>JAIL'},
+    5:{go:'🚀',jail:'⛓',fp:'🅿️',gtj:'👮'}
+  };
+  const cn = corners[type]||corners[1];
+
+  h+=`<div class="cn" style="grid-column:11;grid-row:11;">${cn.go}</div>`;
+  h+=`<div class="cn" style="grid-column:1;grid-row:11;">${cn.jail}</div>`;
+  h+=`<div class="cn" style="grid-column:1;grid-row:1;">${cn.fp}</div>`;
+  h+=`<div class="cn" style="grid-column:11;grid-row:1;">${cn.gtj}</div>`;
+
+  function tile(t,side,pos){
+    const gc=gcMap[t.g]||'';
+    const gf=gcFull[t.g]||'';
+    const bc=bdrClr[t.g]||'#ddd';
+    const dc=dotClr[t.g]||'transparent';
+    let cls=`t ${side}`;
+    let style='';
+
+    if(side==='tb') style=`grid-column:${pos};grid-row:11;`;
+    else if(side==='tl') style=`grid-column:1;grid-row:${pos};`;
+    else if(side==='tt') style=`grid-column:${pos};grid-row:1;`;
+    else if(side==='tr') style=`grid-column:11;grid-row:${pos};`;
+
+    switch(type){
+      case 1: // Strip tiles
+      case 2: // Card tiles
+        h+=`<div class="${cls}" style="${style}">`;
+        if(gc) h+=`<div class="t-c ${gc}"></div>`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+      case 3: // Full color
+        h+=`<div class="${cls} ${gf}" style="${style}">`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+      case 4: // Dot indicators
+        h+=`<div class="${cls}" style="${style}">`;
+        if(dc!=='transparent') h+=`<div class="t-dot" style="color:${dc};background:${dc};"></div>`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+      case 5: // Icon-first
+        h+=`<div class="${cls}" style="${style}">`;
+        h+=`<div class="t-icon">${t.e||''}</div>`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(gc) h+=`<div class="t-c ${gc}"></div>`;
+        h+=`</div>`;
+        break;
+      case 6: // Wide color + vertical name
+        h+=`<div class="${cls}" style="${style}">`;
+        if(gc){
+          h+=`<div class="t-c ${gc}">${t.n}</div>`;
+        }
+        h+=`<div class="t-info">`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div></div>`;
+        break;
+      case 7: // Gradient fill
+        h+=`<div class="${cls} ${gf}" style="${style}">`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+      case 8: // Colored border only
+        h+=`<div class="${cls}" style="${style}--bclr:${bc};">`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+      case 9: // Price-first
+        h+=`<div class="${cls}" style="${style}">`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(gc) h+=`<div class="t-c ${gc}"></div>`;
+        h+=`</div>`;
+        break;
+      case 10: // Vintage ticket
+        h+=`<div class="${cls}" style="${style}">`;
+        if(gc) h+=`<div class="t-c ${gc}"></div>`;
+        h+=`<div class="t-n">${t.n}</div>`;
+        if(t.p) h+=`<div class="t-p">${t.p}</div>`;
+        h+=`</div>`;
+        break;
+    }
+  }
+
+  tiles.bottom.forEach((t,i)=>tile(t,'tb',10-i));
+  tiles.left.forEach((t,i)=>tile(t,'tl',10-i));
+  tiles.top.forEach((t,i)=>tile(t,'tt',2+i));
+  tiles.right.forEach((t,i)=>tile(t,'tr',2+i));
+
+  h+=`<div class="ct"><div class="ct-t">BUSINESS</div><div class="ct-s">INDIA</div></div>`;
+  el.innerHTML=h;
+}
+
+build('b1',1);build('b2',2);build('b3',3);build('b4',4);build('b5',5);
+build('b6',6);build('b7',7);build('b8',8);build('b9',9);build('b10',10);
+</script>
+</body>
+</html>

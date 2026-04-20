@@ -26,9 +26,11 @@ enum PropertyType {
   utility,
 }
 
-/// Enum representing the types of cards in the Monopoly game.
+/// Represents the types of cards in the Monopoly game.
 enum CardType {
   moveTo,
+  advanceToNearestUtility,
+  advanceToNearestRailroad,
   pay,
   receive,
   getOutOfJail,
@@ -44,4 +46,17 @@ enum TradeStatus {
   accepted,
   rejected,
   cancelled,
+}
+
+/// Which deck a Get-Out-of-Jail-Free card came from, so it can be returned
+/// to the correct deck when used.
+enum DeckOrigin {
+  chance,
+  communityChest,
+}
+
+/// Outcome of a rent/tax payment attempt.
+enum PayOutcome {
+  paid,          // player had funds and paid in full
+  bankrupted,    // player could not pay; has been declared bankrupt
 }

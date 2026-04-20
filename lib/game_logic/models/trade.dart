@@ -2,26 +2,26 @@ import 'enums.dart';
 import 'player.dart';
 import 'property.dart';
 
-/// Adds a containsAll method for List<Property>.
 extension PropertyListExtensions on List<Property> {
   bool containsAll(List<Property> other) {
-    for (var property in other) {
-      if (!this.contains(property)) {
-        return false;
-      }
+    for (final property in other) {
+      if (!contains(property)) return false;
     }
     return true;
   }
 }
 
-/// Represents a trade offer between players in the Monopoly game.
+/// A trade offer between two players.
+///
+/// Cash amounts are integer currency. Property lists transfer as-is.
+/// NOTE: mortgaged-property transfer fees and GOOJF-card trading are Phase 2.
 class Trade {
   final Player fromPlayer;
   final Player toPlayer;
   final List<Property> offeredProperties;
   final List<Property> requestedProperties;
-  final double offeredCash;
-  final double requestedCash;
+  final int offeredCash;
+  final int requestedCash;
   TradeStatus status;
 
   Trade({
@@ -29,8 +29,8 @@ class Trade {
     required this.toPlayer,
     this.offeredProperties = const [],
     this.requestedProperties = const [],
-    this.offeredCash = 0.0,
-    this.requestedCash = 0.0,
+    this.offeredCash = 0,
+    this.requestedCash = 0,
     this.status = TradeStatus.pending,
   });
 
@@ -61,13 +61,19 @@ class Trade {
   bool get isRejected => status == TradeStatus.rejected;
   bool get isCancelled => status == TradeStatus.cancelled;
 
-  bool canOfferProperties() => fromPlayer.ownedProperties.containsAll(offeredProperties);
-  bool canRequestProperties() => toPlayer.ownedProperties.containsAll(requestedProperties);
+  bool canOfferProperties() =>
+      fromPlayer.ownedProperties.containsAll(offeredProperties);
+  bool canRequestProperties() =>
+      toPlayer.ownedProperties.containsAll(requestedProperties);
   bool canOfferCash() => fromPlayer.balance >= offeredCash;
   bool canRequestCash() => toPlayer.balance >= requestedCash;
-  bool canExecute() => isPending && canOfferProperties() && canRequestProperties() && canOfferCash() && canRequestCash();
+  bool canExecute() =>
+      isPending &&
+      canOfferProperties() &&
+      canRequestProperties() &&
+      canOfferCash() &&
+      canRequestCash();
 
-  /// Validates the trade to ensure it can be executed.
   bool isValid() {
     if (!isPending) return false;
     if (offeredCash < 0 || requestedCash < 0) return false;
@@ -78,7 +84,6 @@ class Trade {
     return true;
   }
 
-  /// Executes the trade if it is valid.
   void execute() {
     if (!isValid()) {
       throw Exception("Trade is not valid and cannot be executed");
@@ -87,7 +92,7 @@ class Trade {
   }
 
   void _transferProperties(List<Property> properties, Player from, Player to) {
-    for (var property in properties) {
+    for (final property in properties) {
       if (!from.ownedProperties.contains(property)) {
         throw Exception("Property not owned by the transferring player");
       }
@@ -97,7 +102,7 @@ class Trade {
     }
   }
 
-  void _transferCash(double amount, Player from, Player to) {
+  void _transferCash(int amount, Player from, Player to) {
     if (amount > 0) {
       from.pay(amount);
       to.receive(amount);

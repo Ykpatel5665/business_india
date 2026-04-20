@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business India — 10 Board Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0A0A0F;font-family:'Poppins',sans-serif;color:#fff;padding:30px 20px 60px;}
+h1{text-align:center;font-family:'Baloo 2';font-size:28px;color:#FFD700;margin-bottom:4px;}
+p.sub{text-align:center;font-size:11px;color:#555;letter-spacing:3px;margin-bottom:30px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:40px;max-width:1400px;margin:0 auto;}
+.card{background:#111118;border-radius:16px;overflow:hidden;border:1px solid #1a1a25;}
+.card-head{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;}
+.card-num{font-family:'Baloo 2';font-size:14px;color:#FFD700;background:rgba(255,215,0,.1);padding:2px 10px;border-radius:8px;}
+.card-title{font-family:'Baloo 2';font-size:18px;}
+.card-desc{font-size:10px;color:#666;padding:0 20px 12px;}
+.board-wrap{padding:16px;display:flex;justify-content:center;align-items:center;min-height:440px;}
+
+/* ══════════════════════════════════════════ */
+/* SHARED BOARD GRID SYSTEM                   */
+/* ══════════════════════════════════════════ */
+.board{
+  display:grid;
+  grid-template-columns:56px repeat(9,1fr) 56px;
+  grid-template-rows:56px repeat(9,1fr) 56px;
+  position:relative;
+}
+.corner{display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Baloo 2';font-weight:700;line-height:1.1;}
+.c-go{grid-column:11;grid-row:11;}
+.c-jail{grid-column:1;grid-row:11;}
+.c-fp{grid-column:1;grid-row:1;}
+.c-gtj{grid-column:11;grid-row:1;}
+.tile{position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.tile-lbl{font-family:'Poppins';font-weight:700;text-align:center;flex:1;display:flex;align-items:center;justify-content:center;line-height:1.05;}
+.tile-pr{font-family:'JetBrains Mono';text-align:center;font-weight:600;}
+.tile-clr{width:100%;}
+.center{grid-column:2/11;grid-row:2/11;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+
+/* Bottom row */
+.tb{grid-row:11;}.tb .tile-clr{order:-1;}
+/* Left col */
+.tl{grid-column:1;}.tl .tile-clr{height:100%!important;width:9px;position:absolute;right:0;top:0;}
+/* Top row */
+.tt{grid-row:1;}
+/* Right col */
+.tr{grid-column:11;}.tr .tile-clr{height:100%!important;width:9px;position:absolute;left:0;top:0;}
+
+/* ══════════════════════════════════════════ */
+/* 1. CLASSIC GREEN FELT                      */
+/* ══════════════════════════════════════════ */
+.b1{
+  width:400px;height:400px;
+  background:#FFFBF0;
+  border:3px solid #8B7D5B;
+  border-radius:4px;
+  box-shadow:0 0 0 8px #2E5A2E,0 0 0 10px #1A3A1A,0 8px 30px rgba(0,0,0,.5);
+}
+.b1 .corner{background:#F5ECD0;font-size:7px;color:#333;}
+.b1 .tile{border:.5px solid rgba(0,0,0,.08);font-size:5px;color:#333;}
+.b1 .tile-lbl{font-size:5px;}
+.b1 .tile-pr{font-size:4px;color:#888;padding-bottom:1px;}
+.b1 .tile-clr{height:9px;}
+.b1 .center{
+  background:radial-gradient(ellipse,#FFFBF0,#F5ECD0);
+}
+.b1 .center-title{font-family:'Baloo 2';font-size:20px;color:#2E5A2E;font-weight:800;}
+.b1 .center-sub{font-size:8px;color:#8B7D5B;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════ */
+/* 2. DARK PREMIUM GOLD                       */
+/* ══════════════════════════════════════════ */
+.b2{
+  width:400px;height:400px;
+  background:#1A1A2E;
+  border:2px solid #B8960F;
+  border-radius:6px;
+  box-shadow:0 0 30px rgba(255,215,0,.08),0 10px 40px rgba(0,0,0,.6);
+}
+.b2 .corner{background:#12122A;font-size:7px;color:#FFD700;border:1px solid rgba(255,215,0,.1);}
+.b2 .tile{border:.5px solid rgba(255,215,0,.06);font-size:5px;color:#ccc;}
+.b2 .tile-lbl{font-size:5px;color:#ddd;}
+.b2 .tile-pr{font-size:4px;color:#B8960F;padding-bottom:1px;}
+.b2 .tile-clr{height:9px;}
+.b2 .center{background:radial-gradient(ellipse,rgba(255,215,0,.04),#1A1A2E);}
+.b2 .center-title{font-family:'Baloo 2';font-size:20px;color:#FFD700;font-weight:800;text-shadow:0 0 20px rgba(255,215,0,.3);}
+.b2 .center-sub{font-size:8px;color:#B8960F;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════ */
+/* 3. NEON CYBERPUNK                          */
+/* ══════════════════════════════════════════ */
+.b3x{
+  width:400px;height:400px;
+  background:#0A0A14;
+  border:2px solid #00FFFF;
+  border-radius:4px;
+  box-shadow:0 0 20px rgba(0,255,255,.15),0 0 60px rgba(0,255,255,.05),0 10px 40px rgba(0,0,0,.6);
+}
+.b3x .corner{background:#0D0D1A;font-size:7px;color:#00FFFF;border:1px solid rgba(0,255,255,.15);text-shadow:0 0 8px rgba(0,255,255,.5);}
+.b3x .tile{border:.5px solid rgba(0,255,255,.08);font-size:5px;color:#aaa;}
+.b3x .tile-lbl{font-size:5px;color:#ccc;}
+.b3x .tile-pr{font-size:4px;color:#00FFFF;padding-bottom:1px;text-shadow:0 0 4px rgba(0,255,255,.5);}
+.b3x .tile-clr{height:9px;box-shadow:0 0 6px currentColor;}
+.b3x .center{background:radial-gradient(ellipse,rgba(0,255,255,.03),#0A0A14);}
+.b3x .center-title{font-family:'Baloo 2';font-size:18px;color:#00FFFF;font-weight:800;text-shadow:0 0 15px rgba(0,255,255,.5);letter-spacing:3px;}
+.b3x .center-sub{font-size:8px;color:#FF00FF;letter-spacing:4px;text-shadow:0 0 10px rgba(255,0,255,.5);}
+
+/* ══════════════════════════════════════════ */
+/* 4. WOODEN CARVED                           */
+/* ══════════════════════════════════════════ */
+.b4{
+  width:400px;height:400px;
+  background:linear-gradient(135deg,#DEB887,#D2B48C,#C8A876);
+  border:4px solid #8B6914;
+  border-radius:4px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,.15),0 0 0 2px #5C4A1E,0 8px 30px rgba(0,0,0,.5);
+}
+.b4 .corner{background:rgba(139,105,20,.15);font-size:7px;color:#5C3A0A;border:1px solid rgba(139,105,20,.2);}
+.b4 .tile{border:.5px solid rgba(139,105,20,.15);font-size:5px;color:#4A3520;}
+.b4 .tile-lbl{font-size:5px;color:#5C3A0A;}
+.b4 .tile-pr{font-size:4px;color:#8B6914;padding-bottom:1px;}
+.b4 .tile-clr{height:9px;opacity:.8;}
+.b4 .center{background:radial-gradient(ellipse,rgba(222,184,135,.3),transparent);}
+.b4 .center-title{font-family:'Baloo 2';font-size:20px;color:#5C3A0A;font-weight:800;}
+.b4 .center-sub{font-size:8px;color:#8B6914;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════ */
+/* 5. CANDY / CARTOON POP                     */
+/* ══════════════════════════════════════════ */
+.b5{
+  width:400px;height:400px;
+  background:#FFF5EE;
+  border:4px solid #FF6B9D;
+  border-radius:16px;
+  box-shadow:0 6px 0 #E0558A,0 10px 30px rgba(0,0,0,.2);
+}
+.b5 .corner{background:#FFE4EC;font-size:7px;color:#E91E63;border-radius:4px;}
+.b5 .tile{border:.5px solid rgba(255,107,157,.1);font-size:5px;color:#555;}
+.b5 .tile-lbl{font-size:5px;color:#333;font-weight:800;}
+.b5 .tile-pr{font-size:4px;color:#E91E63;padding-bottom:1px;}
+.b5 .tile-clr{height:10px;border-radius:0 0 3px 3px;}
+.b5 .center{background:radial-gradient(ellipse,#FFF0F5,#FFF5EE);}
+.b5 .center-title{font-family:'Baloo 2';font-size:22px;color:#E91E63;font-weight:800;}
+.b5 .center-sub{font-size:8px;color:#FF6B9D;letter-spacing:3px;}
+
+/* ══════════════════════════════════════════ */
+/* 6. MINIMALIST WHITE                        */
+/* ══════════════════════════════════════════ */
+.b6{
+  width:400px;height:400px;
+  background:#FFFFFF;
+  border:1px solid #E0E0E0;
+  border-radius:2px;
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+.b6 .corner{background:#FAFAFA;font-size:6px;color:#333;letter-spacing:1px;}
+.b6 .tile{border:.5px solid #F0F0F0;font-size:5px;color:#666;}
+.b6 .tile-lbl{font-size:4.5px;color:#444;font-weight:600;}
+.b6 .tile-pr{font-size:3.5px;color:#999;padding-bottom:1px;}
+.b6 .tile-clr{height:6px;}
+.b6 .center{background:#fff;}
+.b6 .center-title{font-family:'Poppins';font-size:16px;color:#222;font-weight:800;letter-spacing:3px;}
+.b6 .center-sub{font-size:7px;color:#999;letter-spacing:5px;}
+
+/* ══════════════════════════════════════════ */
+/* 7. INDIAN TRICOLOR INSPIRED                */
+/* ══════════════════════════════════════════ */
+.b7{
+  width:400px;height:400px;
+  background:#FFFDF5;
+  border:3px solid;
+  border-image:linear-gradient(180deg,#FF9933 0%,#FF9933 33%,#FFF 33%,#FFF 66%,#138808 66%,#138808 100%) 1;
+  border-radius:0;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);
+  position:relative;
+}
+.b7::before{content:'';position:absolute;inset:3px;border:1px solid rgba(0,0,0,.06);}
+.b7 .corner{background:rgba(255,153,51,.06);font-size:7px;color:#B35900;}
+.b7 .tile{border:.5px solid rgba(0,0,0,.06);font-size:5px;color:#333;}
+.b7 .tile-lbl{font-size:5px;color:#333;}
+.b7 .tile-pr{font-size:4px;color:#138808;padding-bottom:1px;}
+.b7 .tile-clr{height:9px;}
+.b7 .center{background:radial-gradient(ellipse,rgba(255,153,51,.05),#FFFDF5);}
+.b7 .center-title{font-family:'Baloo 2';font-size:20px;color:#FF9933;font-weight:800;}
+.b7 .center-sub{font-size:8px;color:#138808;letter-spacing:4px;}
+/* Ashoka chakra hint */
+.b7 .center::before{
+  content:'';position:absolute;width:60px;height:60px;border-radius:50%;
+  border:2px solid rgba(0,0,128,.08);
+}
+
+/* ══════════════════════════════════════════ */
+/* 8. ROYAL MAROON VELVET                     */
+/* ══════════════════════════════════════════ */
+.b8{
+  width:400px;height:400px;
+  background:linear-gradient(135deg,#3D0F18,#5A1A28,#3D0F18);
+  border:3px solid #D4A843;
+  border-radius:4px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.3),0 0 0 1px #2A0A10,0 10px 40px rgba(0,0,0,.6);
+}
+.b8 .corner{background:rgba(212,168,67,.06);font-size:7px;color:#D4A843;}
+.b8 .tile{border:.5px solid rgba(212,168,67,.08);font-size:5px;}
+.b8 .tile-lbl{font-size:5px;color:#F5E6B8;}
+.b8 .tile-pr{font-size:4px;color:#D4A843;padding-bottom:1px;}
+.b8 .tile-clr{height:9px;}
+.b8 .center{background:radial-gradient(ellipse,rgba(212,168,67,.06),transparent);}
+.b8 .center-title{font-family:'Baloo 2';font-size:20px;color:#D4A843;font-weight:800;}
+.b8 .center-sub{font-size:8px;color:#8B6C42;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════ */
+/* 9. OCEAN BLUE GLASS                        */
+/* ══════════════════════════════════════════ */
+.b9{
+  width:400px;height:400px;
+  background:linear-gradient(135deg,#0A192F,#0D2137,#0A192F);
+  border:2px solid rgba(100,200,255,.2);
+  border-radius:12px;
+  box-shadow:0 0 30px rgba(100,200,255,.06),0 10px 40px rgba(0,0,0,.5);
+}
+.b9 .corner{background:rgba(100,200,255,.04);font-size:7px;color:#64C8FF;border-radius:4px;}
+.b9 .tile{border:.5px solid rgba(100,200,255,.06);font-size:5px;color:#8BB8D0;}
+.b9 .tile-lbl{font-size:5px;color:#B0D4E8;}
+.b9 .tile-pr{font-size:4px;color:#64C8FF;padding-bottom:1px;}
+.b9 .tile-clr{height:9px;opacity:.8;}
+.b9 .center{background:radial-gradient(ellipse,rgba(100,200,255,.04),transparent);}
+.b9 .center-title{font-family:'Baloo 2';font-size:18px;color:#64C8FF;font-weight:800;}
+.b9 .center-sub{font-size:8px;color:#4A90B0;letter-spacing:4px;}
+
+/* ══════════════════════════════════════════ */
+/* 10. SUNSET / WARM GRADIENT                 */
+/* ══════════════════════════════════════════ */
+.b10{
+  width:400px;height:400px;
+  background:linear-gradient(135deg,#1A0A00,#2D1400,#1A0A00);
+  border:2px solid #FF6E40;
+  border-radius:8px;
+  box-shadow:0 0 25px rgba(255,110,64,.1),0 10px 40px rgba(0,0,0,.5);
+}
+.b10 .corner{background:rgba(255,110,64,.06);font-size:7px;color:#FF8A65;border-radius:2px;}
+.b10 .tile{border:.5px solid rgba(255,110,64,.06);font-size:5px;color:#C8A080;}
+.b10 .tile-lbl{font-size:5px;color:#E0C0A0;}
+.b10 .tile-pr{font-size:4px;color:#FF8A65;padding-bottom:1px;}
+.b10 .tile-clr{height:9px;}
+.b10 .center{background:radial-gradient(ellipse,rgba(255,110,64,.06),transparent);}
+.b10 .center-title{font-family:'Baloo 2';font-size:18px;color:#FF8A65;font-weight:800;}
+.b10 .center-sub{font-size:8px;color:#FF6E40;letter-spacing:4px;}
+
+/* Property group colors across all boards */
+.cg0{background:#8D6E63;}.cg1{background:#4FC3F7;}.cg2{background:#EC407A;}.cg3{background:#FFA726;}
+.cg4{background:#EF5350;}.cg5{background:#FFEE58;}.cg6{background:#66BB6A;}.cg7{background:#42A5F5;}
+.cg-rr{background:#78909C;}.cg-ut{background:#AB47BC;}
+</style>
+</head>
+<body>
+<h1>10 Board Designs</h1>
+<p class="sub">Business India — pick the vibe</p>
+<div class="grid">
+
+<!-- ═══════ Helper: I'll use a JS template to stamp the same tile layout into each board ═══════ -->
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#1</span><span class="card-title">Classic Green Felt</span></div>
+  <div class="card-desc">Traditional casino table look. Warm cream tiles, dark green border frame.</div>
+  <div class="board-wrap" style="background:#2E5A2E;"><div class="board b1" id="board1"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#2</span><span class="card-title">Dark Premium Gold</span></div>
+  <div class="card-desc">Luxury dark theme. Navy background, gold accents, glowing borders.</div>
+  <div class="board-wrap" style="background:#0D0D1A;"><div class="board b2" id="board2"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#3</span><span class="card-title">Neon Cyberpunk</span></div>
+  <div class="card-desc">Futuristic. Cyan neon glow, dark void background, glowing property strips.</div>
+  <div class="board-wrap" style="background:#060610;"><div class="board b3x" id="board3"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#4</span><span class="card-title">Wooden Carved</span></div>
+  <div class="card-desc">Physical carved wood board. Warm tan/brown, feels like a real object.</div>
+  <div class="board-wrap" style="background:#3D2B1A;"><div class="board b4" id="board4"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#5</span><span class="card-title">Candy Pop</span></div>
+  <div class="card-desc">Bright, playful, cartoon. Pink borders, rounded corners, friendly.</div>
+  <div class="board-wrap" style="background:#FFE4EC;"><div class="board b5" id="board5"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#6</span><span class="card-title">Minimalist White</span></div>
+  <div class="card-desc">Ultra-clean. Thin borders, lots of white space, Swiss design vibes.</div>
+  <div class="board-wrap" style="background:#F5F5F5;"><div class="board b6" id="board6"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#7</span><span class="card-title">Indian Tricolor</span></div>
+  <div class="card-desc">Saffron-white-green border. Subtle Ashoka chakra in center. National pride.</div>
+  <div class="board-wrap" style="background:#E8E0D0;"><div class="board b7" id="board7"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#8</span><span class="card-title">Royal Maroon Velvet</span></div>
+  <div class="card-desc">Mughal luxury. Deep maroon velvet texture, gold trim. Premium feel.</div>
+  <div class="board-wrap" style="background:#1A0508;"><div class="board b8" id="board8"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#9</span><span class="card-title">Ocean Blue Glass</span></div>
+  <div class="card-desc">Deep navy, icy blue accents, frosted glass effect. Cool and calm.</div>
+  <div class="board-wrap" style="background:#060D18;"><div class="board b9" id="board9"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><span class="card-num">#10</span><span class="card-title">Sunset Ember</span></div>
+  <div class="card-desc">Warm dark. Orange-amber glow, like playing at dusk. Cozy and rich.</div>
+  <div class="board-wrap" style="background:#0D0600;"><div class="board b10" id="board10"></div></div>
+</div>
+
+</div>
+
+<script>
+// Tile data for Indian board
+const tiles = {
+  bottom: [ // positions 1-9 (displayed right to left: col 10 down to col 2)
+    {n:'Nashik',p:'60K',g:0},{n:'CC',p:'',g:-1},{n:'Ranchi',p:'60K',g:0},
+    {n:'Tax',p:'₹2L',g:-2},{n:'Mum.Ctrl',p:'2L',g:'rr'},
+    {n:'Jaipur',p:'1L',g:1},{n:'Chance',p:'',g:-3},{n:'Lucknow',p:'1L',g:1},{n:'Bhopal',p:'1.2L',g:1}
+  ],
+  left: [ // positions 11-19 (displayed bottom to top: row 10 down to row 2)
+    {n:'Chandi.',p:'1.4L',g:2},{n:'Tata P',p:'1.5L',g:'ut'},{n:'Indore',p:'1.4L',g:2},
+    {n:'Nagpur',p:'1.6L',g:2},{n:'Howrah',p:'2L',g:'rr'},
+    {n:'Kochi',p:'1.8L',g:3},{n:'CC',p:'',g:-1},{n:'Coimb.',p:'1.8L',g:3},{n:'Vishak.',p:'2L',g:3}
+  ],
+  top: [ // positions 21-29 (displayed left to right: col 2 to col 10)
+    {n:'Ahmed.',p:'2.2L',g:4},{n:'Chance',p:'',g:-3},{n:'Pune',p:'2.2L',g:4},
+    {n:'Surat',p:'2.4L',g:4},{n:'Ch.Ctrl',p:'2L',g:'rr'},
+    {n:'Hyder.',p:'2.6L',g:5},{n:'B\'lore',p:'2.6L',g:5},{n:'Ind.Oil',p:'1.5L',g:'ut'},{n:'Chennai',p:'2.8L',g:5}
+  ],
+  right: [ // positions 31-39 (displayed top to bottom: row 2 to row 10)
+    {n:'Kolkata',p:'3L',g:6},{n:'Delhi',p:'3L',g:6},{n:'CC',p:'',g:-1},
+    {n:'Mum.S',p:'3.2L',g:6},{n:'N.Delhi',p:'2L',g:'rr'},
+    {n:'Chance',p:'',g:-3},{n:'Mum.So',p:'3.5L',g:7},{n:'Tax',p:'₹1L',g:-2},{n:'Bandra',p:'4L',g:7}
+  ]
+};
+
+const gclass = g => {
+  if(g===-1) return ''; // CC
+  if(g===-2) return ''; // Tax
+  if(g===-3) return ''; // Chance
+  if(g==='rr') return 'cg-rr';
+  if(g==='ut') return 'cg-ut';
+  return 'cg'+g;
+};
+
+const specialStyle = (t, boardClass) => {
+  if(t.g===-1) return 'color:inherit;opacity:.5;';
+  if(t.g===-2) return 'color:inherit;';
+  if(t.g===-3) return 'color:inherit;opacity:.6;';
+  return '';
+};
+
+function buildBoard(id) {
+  const el = document.getElementById(id);
+  let html = '';
+
+  // Corners
+  html += `<div class="corner c-go">GO →</div>`;
+  html += `<div class="corner c-jail">JAIL</div>`;
+  html += `<div class="corner c-fp">FREE<br>PARK</div>`;
+  html += `<div class="corner c-gtj">GO TO<br>JAIL</div>`;
+
+  // Bottom row (col 10 to col 2)
+  tiles.bottom.forEach((t,i) => {
+    const col = 10 - i;
+    const gc = gclass(t.g);
+    html += `<div class="tile tb" style="grid-column:${col};${specialStyle(t)}">`;
+    if(gc) html += `<div class="tile-clr ${gc}"></div>`;
+    html += `<div class="tile-lbl">${t.n}</div>`;
+    if(t.p) html += `<div class="tile-pr">${t.p}</div>`;
+    html += `</div>`;
+  });
+
+  // Left column (row 10 to row 2)
+  tiles.left.forEach((t,i) => {
+    const row = 10 - i;
+    const gc = gclass(t.g);
+    html += `<div class="tile tl" style="grid-row:${row};${specialStyle(t)}">`;
+    if(gc) html += `<div class="tile-clr ${gc}"></div>`;
+    html += `<div class="tile-lbl">${t.n}</div>`;
+    html += `</div>`;
+  });
+
+  // Top row (col 2 to col 10)
+  tiles.top.forEach((t,i) => {
+    const col = 2 + i;
+    const gc = gclass(t.g);
+    html += `<div class="tile tt" style="grid-column:${col};${specialStyle(t)}">`;
+    html += `<div class="tile-lbl">${t.n}</div>`;
+    if(t.p) html += `<div class="tile-pr">${t.p}</div>`;
+    if(gc) html += `<div class="tile-clr ${gc}"></div>`;
+    html += `</div>`;
+  });
+
+  // Right column (row 2 to row 10)
+  tiles.right.forEach((t,i) => {
+    const row = 2 + i;
+    const gc = gclass(t.g);
+    html += `<div class="tile tr" style="grid-row:${row};${specialStyle(t)}">`;
+    if(gc) html += `<div class="tile-clr ${gc}"></div>`;
+    html += `<div class="tile-lbl">${t.n}</div>`;
+    html += `</div>`;
+  });
+
+  // Center
+  html += `<div class="center">
+    <div class="center-title">BUSINESS</div>
+    <div class="center-sub">INDIA</div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// Build all 10
+for(let i=1;i<=10;i++) buildBoard('board'+i);
+</script>
+</body>
+</html>
